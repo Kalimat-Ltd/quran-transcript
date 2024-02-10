@@ -1,0 +1,15 @@
+@font-face {
+  font-family: Hafs;
+  src: url('/assets/fonts/HafsSmart_08.ttf'); 
+}
+
+
+@font-face {
+  font-family: test;
+  src: url('/assets/fonts/test_font.ttf'); 
+}
+
+* {
+   font-family: Hafs;
+}
+

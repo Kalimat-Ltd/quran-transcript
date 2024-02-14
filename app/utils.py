@@ -41,91 +41,83 @@ def convert_ids_to_options(ids: list[int],
 
 
 def multiselect_callback(m_select_idx: int,
-                         multiselect_save: list[dict],
+                         max_len: int,
                          multiselect='multiselect',
-                         ):
-    max_len = len(multiselect_save)
+                         multiselect_save='multiselect_save'):
     # we assuem to deselct or select only one box at a time
     if not st.session_state[f'{multiselect}_{m_select_idx}']:
         # move the box to the multiselct box above
-        box_idx = multiselect_save[m_select_idx]['value']
+        box_idx = st.session_state[f'{multiselect_save}_{m_select_idx}']['value']
         for key in ['value', 'options']:
-            multiselect_save[m_select_idx - 1][key] += box_idx
-            multiselect_save[m_select_idx - 1][key].sort()
+            st.session_state[
+                f'{multiselect_save}_{m_select_idx - 1}'][key] += box_idx
+            st.session_state[
+                f'{multiselect_save}_{m_select_idx - 1}'][key].sort()
 
         # ----------------------------------------------------------------
         # move all boxes down up one box starting of the selected box
         # ----------------------------------------------------------------
         for m_idx in range(m_select_idx, max_len - 2, 1):
             for key in ['value', 'options']:
-                multiselect_save[m_idx][key] = multiselect_save[m_idx + 1][key]
+                st.session_state[f'{multiselect_save}_{m_idx}'][key] = \
+                    st.session_state[f'{multiselect_save}_{m_idx + 1}'][key]
 
         # box(max_len) - 2
         for key in ['value', 'options']:
-            multiselect_save[max_len - 2][key] =\
-                multiselect_save[max_len - 1]['value']
+            st.session_state[f'{multiselect_save}_{max_len - 2}'][key] = \
+                st.session_state[f'{multiselect_save}_{max_len - 1}']['value']
 
         # last box(max_len) - 1
-        multiselect_save[max_len - 1]['options'] = \
+        st.session_state[f'{multiselect_save}_{max_len - 1}']['options'] = \
             sorted(
-                set(multiselect_save[max_len - 1]['options']) - \
-                set(multiselect_save[max_len - 1]['value'])
+                set(st.session_state[
+                    f'{multiselect_save}_{max_len - 1}']['options']) - \
+                set(st.session_state[
+                    f'{multiselect_save}_{max_len - 1}']['value'])
                 )
 
-        multiselect_save[max_len - 1]['value'] = \
-            multiselect_save[max_len - 1]['options'][:1]
-
-    # st.session_state['multiselect_save'] = multiselect_save
-    for idx, d in enumerate(st.session_state['multiselect_save']):
-        print(idx)
-        for k, v in d.items():
-            print(f'{k}={v}')
-        print('-' * 10)
+        st.session_state[f'{multiselect_save}_{max_len - 1}']['value'] = \
+            st.session_state[f'{multiselect_save}_{max_len - 1}']['options'][:1]
 
 
 def multiselect_list(options: list,
                      max_len: int):
 
-    multiselect_save_name = 'multiselect_save'
+    multiselect_save = 'multiselect_save'
     multiselect = 'multiselect'
 
     # initialize sessoin state
-    if multiselect_save_name not in st.session_state:
-        st.session_state[multiselect_save_name] = []
-        for m_idx in range(max_len - 1):
-            st.session_state[multiselect_save_name].append({
+    for m_idx in range(max_len - 1):
+        if f'{multiselect_save}_{m_idx}' not in st.session_state:
+            st.session_state[f'{multiselect_save}_{m_idx}'] = {
                 'value': [m_idx],
                 'options': [m_idx]
-            })
+            }
             # value os the mulitselect box itself
             st.session_state[f'{multiselect}_{m_idx}'] = convert_ids_to_options(
                 [m_idx], options)
 
     # last multiselct cell (filled with the rest of the cells)
-    st.session_state[multiselect_save_name].append({
+    if f'{multiselect_save}_{max_len - 1}' not in st.session_state:
+        st.session_state[f'{multiselect_save}_{max_len - 1}'] = {
             'value': [max_len - 1],
             'options': list(range(max_len - 1, len(options), 1))
-        })
-    # value os the mulitselect box itself
-    st.session_state[f'{multiselect}_{max_len - 1}'] = convert_ids_to_options(
-        [max_len - 1], options)
+        }
+        # value os the mulitselect box itself
+        st.session_state[f'{multiselect}_{max_len - 1}'] = convert_ids_to_options(
+            [max_len - 1], options)
 
     # main code
-    print('#' * 30)
-    print('MultiSelect')
     for m_idx in range(max_len):
-        print(m_idx)
-        print(convert_ids_to_options(st.session_state[multiselect_save_name][m_idx]['value'], options))
-        print(convert_ids_to_options(st.session_state[multiselect_save_name][m_idx]['options'], options))
         st.multiselect(
             options=convert_ids_to_options(
-                st.session_state[multiselect_save_name][m_idx]['options'], options),
+                st.session_state[f'{multiselect_save}_{m_idx}']['options'], options),
             default=convert_ids_to_options(
-                st.session_state[multiselect_save_name][m_idx]['value'], options),
+                st.session_state[f'{multiselect_save}_{m_idx}']['value'], options),
             label='Select',
             label_visibility='hidden',
             on_change=multiselect_callback,
-            args=(m_idx, st.session_state[multiselect_save_name]),
+            args=(m_idx, max_len),
             key=f'{multiselect}_{m_idx}')
 
     # clean session_state

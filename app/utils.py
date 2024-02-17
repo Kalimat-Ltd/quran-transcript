@@ -88,7 +88,7 @@ def multiselect_callback(m_select_idx: int,
                          multiselect='multiselect',
                          ):
     # we assuem to deselct or select only one box at a time
-    if not st.session_state[f'{multiselect}_{m_select_idx}']:
+    if st.session_state[f'{multiselect}_{m_select_idx}'] == []:
         # move the box to the multiselct box above
         box_idx = m_save_obj[m_select_idx]['value']
         for key in ['value', 'options']:
@@ -142,8 +142,9 @@ def multiselect_list(options: list,
             [max_len - 1], options)
 
     # main code
+    selected_optoins = []
     for m_idx in range(max_len):
-        st.multiselect(
+        selected = st.multiselect(
             options=convert_ids_to_options(
                 m_save_obj[m_idx]['options'], options),
             default=convert_ids_to_options(
@@ -153,3 +154,6 @@ def multiselect_list(options: list,
             on_change=multiselect_callback,
             args=(m_idx, m_save_obj),
             key=f'{multiselect}_{m_idx}')
+        selected_optoins.append(selected)
+
+    return selected_optoins

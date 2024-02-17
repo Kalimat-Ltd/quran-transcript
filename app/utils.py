@@ -75,8 +75,11 @@ def flatten(L: list):
     return flattened_list
 
 
-def convert_ids_to_options(ids: list[int],
-                           options: list[Any]) -> list[Any]:
+def select_ids(ids: list[int],
+               options: list[Any]) -> list[Any]:
+    """
+    Emulate numpy like: arr[ids] i.e(arr[1, 2, 3])
+    """
     return_options = []
     for idx in ids:
         return_options.append(options[idx])
@@ -114,11 +117,16 @@ def multiselect_callback(m_select_idx: int,
 
 
 def multiselect_list(options: list,
-                     max_len: int):
+                     max_len: int) -> list[list[int]]:
+    """
+    Return:
+        seleteced_ids of the options (2D list)
+    """
 
     multiselect_save = 'multiselect_save'
     multiselect = 'multiselect'
     m_save_obj = MultiSelectSave(st.session_state, multiselect_save, max_len)
+    options_ids = list(range(len(options)))
 
     # initialize sessoin state
     for m_idx in range(max_len - 1):
@@ -128,32 +136,34 @@ def multiselect_list(options: list,
                 'options': [m_idx]
             }
             # value os the mulitselect box itself
-            st.session_state[f'{multiselect}_{m_idx}'] = convert_ids_to_options(
-                [m_idx], options)
+            st.session_state[f'{multiselect}_{m_idx}'] = select_ids(
+                [m_idx], options_ids)
 
     # last multiselct cell (filled with the rest of the cells)
     if f'{multiselect_save}_{max_len - 1}' not in st.session_state:
         st.session_state[f'{multiselect_save}_{max_len - 1}'] = {
             'value': [max_len - 1],
-            'options': list(range(max_len - 1, len(options), 1))
+            'options': list(range(max_len - 1, len(options_ids), 1))
         }
         # value os the mulitselect box itself
-        st.session_state[f'{multiselect}_{max_len - 1}'] = convert_ids_to_options(
-            [max_len - 1], options)
+        st.session_state[f'{multiselect}_{max_len - 1}'] = select_ids(
+            [max_len - 1], options_ids)
 
     # main code
-    selected_optoins = []
+    selected_options_ids = []
     for m_idx in range(max_len):
-        selected = st.multiselect(
-            options=convert_ids_to_options(
-                m_save_obj[m_idx]['options'], options),
-            default=convert_ids_to_options(
-                m_save_obj[m_idx]['value'], options),
+        # foram-fun: https://discuss.streamlit.io/t/format-func-function-examples-please/11295/2
+        selected_ids = st.multiselect(
+            options=select_ids(
+                m_save_obj[m_idx]['options'], options_ids),
+            default=select_ids(
+                m_save_obj[m_idx]['value'], options_ids),
             label='Select',
             label_visibility='hidden',
+            format_func=lambda x: options[x],
             on_change=multiselect_callback,
             args=(m_idx, m_save_obj),
             key=f'{multiselect}_{m_idx}')
-        selected_optoins.append(selected)
+        selected_options_ids.append(selected_ids)
 
-    return selected_optoins
+    return selected_options_ids

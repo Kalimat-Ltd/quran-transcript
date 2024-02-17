@@ -98,14 +98,14 @@ def multiselect_callback(m_select_idx: int,
         # ----------------------------------------------------------------
         # move all boxes down up one box starting of the selected box
         # ----------------------------------------------------------------
-        for idx in range(m_select_idx, len(m_save_obj) - 2, 1):
+        for idx in range(m_select_idx, len(m_save_obj) - 1, 1):
             for key in ['value', 'options']:
                 m_save_obj[idx][key] = m_save_obj[idx + 1][key]
 
         # box(N) - 2
         N = len(m_save_obj)
-        for key in ['value', 'options']:
-            m_save_obj[N - 2][key] = m_save_obj[N - 1]['value']
+        # for key in ['value', 'options']:
+        #     m_save_obj[N - 2][key] = m_save_obj[N - 1]['value']
 
         # last box(N) - 1
         m_save_obj[N - 1]['options'] = sorted(

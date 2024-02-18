@@ -38,6 +38,17 @@ class MultiSelectSave(object):
             print_str += f'obj[{idx}] = {self.__getitem__(idx)}\n'
         return print_str
 
+    def validate_duplicate_ids(self):
+        ids = []
+        for idx in range(self.max_len):
+            if isinstance(self.__getitem__(idx), dict):
+                for key in self.__getitem__(idx):
+                    obj_id = id(self.__getitem__(idx)[key])
+                    assert obj_id not in ids, \
+                        'Duplicate Object ids'
+                    if obj_id not in ids:
+                        ids.append(obj_id)
+
     # # for looping
     # def __iter__(self):
     #     return self
@@ -96,7 +107,6 @@ def multiselect_callback(m_select_idx: int,
                          m_save_obj: MultiSelectSave,
                          multiselect='multiselect',
                          ):
-    print(f'm_idx: {m_select_idx}')
 
     # we assuem to deselct or select only one box at a time
     if st.session_state[f'{multiselect}_{m_select_idx}'] == []:
@@ -126,7 +136,10 @@ def multiselect_callback(m_select_idx: int,
         m_save_obj[N - 1]['options'] = sorted(
             set(m_save_obj[N - 1]['options']) - set(m_save_obj[N - 1]['value']))
         m_save_obj[N - 1]['value'] = m_save_obj[N - 1]['options'][:1]
-        print(m_save_obj)
+
+    print(f'm_idx: {m_select_idx}')
+    print(m_save_obj)
+    m_save_obj.validate_duplicate_ids()
 
 
 def multiselect_list(options: list,

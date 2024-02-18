@@ -6,10 +6,14 @@ class MultiSelectSave(object):
     def __init__(self,
                  dict_obj: dict,
                  key_name: str,
-                 max_len: int):
+                 max_len: int,
+                 max_options: int,
+                 options_key='options'):
         self.key_name = key_name
         self.dict_obj = dict_obj
         self.max_len = max_len
+        self.max_options = max_options
+        self.options_key = options_key
 
     def __len__(self):
         return self.max_len
@@ -38,6 +42,9 @@ class MultiSelectSave(object):
             print_str += f'obj[{idx}] = {self.__getitem__(idx)}\n'
         return print_str
 
+    def get_max_options(self):
+        return self.max_options
+
     def validate_duplicate_ids(self):
         ids = []
         for idx in range(self.max_len):
@@ -48,6 +55,23 @@ class MultiSelectSave(object):
                         'Duplicate Object ids'
                     if obj_id not in ids:
                         ids.append(obj_id)
+
+    def check_options(self):
+        # check than optins are valid
+        options = []
+        for idx in range(self.max_len):
+            options += self.__getitem__(idx)[self.options_key]
+
+        assert options == list(range(self.max_options)), \
+            f'Options not consistent, current oject: \n:{self}'
+
+    def get_effective_len(self):
+        max_len = self.max_len
+        for idx in range(self.max_len - 1, -1, -1):
+            if self.__getitem__(idx)[self.options_key]:
+                return max_len
+            else:
+                max_len -= 1
 
     # # for looping
     # def __iter__(self):
@@ -100,46 +124,132 @@ def select_ids(ids: list[int],
     return_options = []
     for idx in ids:
         return_options.append(options[idx])
-    return return_options
-
+    return sorted(return_options)
 
 def multiselect_callback(m_select_idx: int,
                          m_save_obj: MultiSelectSave,
                          multiselect='multiselect',
                          ):
-
+    # N = len(m_save_obj)
+    N = m_save_obj.get_effective_len()
     # we assuem to deselct or select only one box at a time
     if st.session_state[f'{multiselect}_{m_select_idx}'] == []:
         # move the box to the multiselct box above
-        box_idx = m_save_obj[m_select_idx]['value']
+        # force selcting the least options
+        box = sorted(m_save_obj[m_select_idx]['options'])[:1]
+        m_save_obj[m_select_idx]['value'] = box.copy()
         for key in ['value', 'options']:
-            m_save_obj[m_select_idx - 1][key] += box_idx
+            m_save_obj[m_select_idx - 1][key] += box
             m_save_obj[m_select_idx - 1][key].sort()
 
             m_save_obj[m_select_idx][key] = sorted(
-                set(m_save_obj[m_select_idx][key]) - set(box_idx))
+                set(m_save_obj[m_select_idx][key]) - set(box))
 
         # ----------------------------------------------------------------
         # move all boxes down up one box starting of the selected box
         # ----------------------------------------------------------------
-        for idx in range(m_select_idx, len(m_save_obj) - 2, 1):
+        for idx in range(m_select_idx, N - 2, 1):
             for key in ['value', 'options']:
                 m_save_obj[idx][key] = m_save_obj[idx + 1][key]
 
         # box(N) - 2
-        N = len(m_save_obj)
         if m_select_idx != N - 1:
             for key in ['value', 'options']:
-                m_save_obj[N - 2][key] = m_save_obj[N - 1]['value'].copy()
+                m_save_obj[N - 2][key] = sorted(m_save_obj[N - 1]['options'])[:1]
 
         # last box(N) - 1
         m_save_obj[N - 1]['options'] = sorted(
-            set(m_save_obj[N - 1]['options']) - set(m_save_obj[N - 1]['value']))
+            set(m_save_obj[N - 1]['options']) - set(m_save_obj[N - 2]['value']))
         m_save_obj[N - 1]['value'] = m_save_obj[N - 1]['options'][:1]
+
+    elif m_select_idx != len(m_save_obj) - 1:
+        N = len(m_save_obj)
+        del_box = list(set(m_save_obj[m_select_idx]['value']) -
+            set(st.session_state[f'{multiselect}_{m_select_idx}']))
+        del_box_idx = m_save_obj[m_select_idx]['value'].index(del_box[0])
+        # we assuem every element of ['value'] or ['options'] is a sorted list
+        # if the box is at the left (move rest of boxed down)
+        if del_box_idx == 0:
+            # remove the deleted box form the current selectbox
+            for key in ['value', 'options']:
+                del m_save_obj[m_select_idx][key][del_box_idx]
+
+            # last box
+            m_save_obj[N - 1]['options'] += m_save_obj[N - 2]['options'].copy()
+            m_save_obj[N - 1]['options'].sort()
+            m_save_obj[N - 1]['value'] = m_save_obj[N - 2]['value'].copy()
+
+            for idx in range(N - 2, m_select_idx, -1):
+                for key in ['value', 'options']:
+                    m_save_obj[idx][key] = m_save_obj[idx - 1][key]
+
+            # Set current box
+            for key in ['value', 'options']:
+                m_save_obj[m_select_idx][key] = del_box.copy()
+    else:
+        m_save_obj[m_select_idx]['value'] = sorted(
+            st.session_state[f'{multiselect}_{m_select_idx}'])
 
     print(f'm_idx: {m_select_idx}')
     print(m_save_obj)
     m_save_obj.validate_duplicate_ids()
+
+    # assetion if the selected options are not following each other
+    if st.session_state[f'{multiselect}_{m_select_idx}']:
+        sorted_values = sorted(st.session_state[f'{multiselect}_{m_select_idx}'])
+        low = sorted_values[0]
+        high = sorted_values[-1]
+        if sorted_values != list(range(low, high + 1, 1)):
+            reset_multiselcts(
+                max_len=len(m_save_obj),
+                max_options=m_save_obj.get_max_options(),
+                multiselect=multiselect,
+                hard=True)
+
+    m_save_obj.check_options()
+
+
+def reset_multiselcts(max_len: int,
+                      max_options: int,
+                      multiselect='multiselect',
+                      multiselect_save='multiselect_save',
+                      hard=False):
+    """
+    Rest the multiselcts
+    max_len: (int): max number of multiselct boxes
+    max_optins: (int): max number of optins
+    multiselect: (str) the name of multiselct base key in the st.session_state
+        to be used as (f'{multiselect}_{m_idx}')
+    multiselect_save: (str) the name of multiselct_save base key in
+        the st.session_state to be used as
+        st.seesion_state[f'{multiselect_save}_{m_idx}'] = \
+            {'options': list[int], value: list[int]}
+        where 'options': the the list of optins for the multisect with id=m_idx
+        and 'value': is the default value associated with the box
+    hard: (bool) force to reset the multiselect to the initial state
+    """
+    options_ids = list(range(max_options))
+
+    # initialize sessoin state
+    for m_idx in range(max_len - 1):
+        if (f'{multiselect_save}_{m_idx}' not in st.session_state) or hard:
+            st.session_state[f'{multiselect_save}_{m_idx}'] = {
+                'value': [m_idx],
+                'options': [m_idx]
+            }
+            # value os the mulitselect box itself
+            st.session_state[f'{multiselect}_{m_idx}'] = select_ids(
+                [m_idx], options_ids)
+
+    # last multiselct cell (filled with the rest of the cells)
+    if (f'{multiselect_save}_{max_len - 1}' not in st.session_state) or hard:
+        st.session_state[f'{multiselect_save}_{max_len - 1}'] = {
+            'value': [max_len - 1],
+            'options': list(range(max_len - 1, len(options_ids), 1))
+        }
+        # value os the mulitselect box itself
+        st.session_state[f'{multiselect}_{max_len - 1}'] = select_ids(
+            [max_len - 1], options_ids)
 
 
 def multiselect_list(options: list,
@@ -151,29 +261,21 @@ def multiselect_list(options: list,
 
     multiselect_save = 'multiselect_save'
     multiselect = 'multiselect'
-    m_save_obj = MultiSelectSave(st.session_state, multiselect_save, max_len)
+    m_save_obj = MultiSelectSave(
+        dict_obj=st.session_state,
+        key_name=multiselect_save,
+        max_len=max_len,
+        max_options=len(options),
+    )
+
+    # reset session_state
+    reset_multiselcts(
+        max_len=max_len,
+        max_options=len(options),
+        multiselect=multiselect,
+        multiselect_save=multiselect_save)
+
     options_ids = list(range(len(options)))
-
-    # initialize sessoin state
-    for m_idx in range(max_len - 1):
-        if f'{multiselect_save}_{m_idx}' not in st.session_state:
-            st.session_state[f'{multiselect_save}_{m_idx}'] = {
-                'value': [m_idx],
-                'options': [m_idx]
-            }
-            # value os the mulitselect box itself
-            st.session_state[f'{multiselect}_{m_idx}'] = select_ids(
-                [m_idx], options_ids)
-
-    # last multiselct cell (filled with the rest of the cells)
-    if f'{multiselect_save}_{max_len - 1}' not in st.session_state:
-        st.session_state[f'{multiselect_save}_{max_len - 1}'] = {
-            'value': [max_len - 1],
-            'options': list(range(max_len - 1, len(options_ids), 1))
-        }
-        # value os the mulitselect box itself
-        st.session_state[f'{multiselect}_{max_len - 1}'] = select_ids(
-            [max_len - 1], options_ids)
 
     # main code
     selected_options_ids = []

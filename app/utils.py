@@ -32,6 +32,12 @@ class MultiSelectSave(object):
             f'the key({key}) not in the dict_obj'
         self.dict_obj[key] = val
 
+    def __str__(self):
+        print_str = ""
+        for idx in range(self.max_len):
+            print_str += f'obj[{idx}] = {self.__getitem__(idx)}\n'
+        return print_str
+
     # # for looping
     # def __iter__(self):
     #     return self
@@ -90,6 +96,8 @@ def multiselect_callback(m_select_idx: int,
                          m_save_obj: MultiSelectSave,
                          multiselect='multiselect',
                          ):
+    print(f'm_idx: {m_select_idx}')
+
     # we assuem to deselct or select only one box at a time
     if st.session_state[f'{multiselect}_{m_select_idx}'] == []:
         # move the box to the multiselct box above
@@ -98,22 +106,27 @@ def multiselect_callback(m_select_idx: int,
             m_save_obj[m_select_idx - 1][key] += box_idx
             m_save_obj[m_select_idx - 1][key].sort()
 
+            m_save_obj[m_select_idx][key] = sorted(
+                set(m_save_obj[m_select_idx][key]) - set(box_idx))
+
         # ----------------------------------------------------------------
         # move all boxes down up one box starting of the selected box
         # ----------------------------------------------------------------
-        for idx in range(m_select_idx, len(m_save_obj) - 1, 1):
+        for idx in range(m_select_idx, len(m_save_obj) - 2, 1):
             for key in ['value', 'options']:
                 m_save_obj[idx][key] = m_save_obj[idx + 1][key]
 
         # box(N) - 2
         N = len(m_save_obj)
-        # for key in ['value', 'options']:
-        #     m_save_obj[N - 2][key] = m_save_obj[N - 1]['value']
+        if m_select_idx != N - 1:
+            for key in ['value', 'options']:
+                m_save_obj[N - 2][key] = m_save_obj[N - 1]['value'].copy()
 
         # last box(N) - 1
         m_save_obj[N - 1]['options'] = sorted(
             set(m_save_obj[N - 1]['options']) - set(m_save_obj[N - 1]['value']))
         m_save_obj[N - 1]['value'] = m_save_obj[N - 1]['options'][:1]
+        print(m_save_obj)
 
 
 def multiselect_list(options: list,

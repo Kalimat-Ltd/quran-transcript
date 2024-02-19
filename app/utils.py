@@ -85,7 +85,6 @@ class MultiSelectSave(object):
             yield self.__getitem__(idx).copy()
 
 
-
 def edit_ayah_page(uthmani_words: list[str],
                    emlaey_words: list[str],
                    emlaey_to_uthmani: dict[str, str] = None) -> dict[str, str]:
@@ -108,14 +107,6 @@ def edit_ayah_page(uthmani_words: list[str],
             buttons[button] = st.button(button)
 
 
-def flatten(L: list):
-    flattened_list = []
-    for outer in L:
-        for inner in outer:
-            flattened_list.append(inner)
-    return flattened_list
-
-
 def select_ids(ids: list[int],
                options: list[Any]) -> list[Any]:
     """
@@ -126,6 +117,7 @@ def select_ids(ids: list[int],
         return_options.append(options[idx])
     return sorted(return_options)
 
+
 def multiselect_callback(m_select_idx: int,
                          m_save_obj: MultiSelectSave,
                          multiselect='multiselect',
@@ -133,7 +125,8 @@ def multiselect_callback(m_select_idx: int,
     # N = len(m_save_obj)
     N = m_save_obj.get_effective_len()
     # we assuem to deselct or select only one box at a time
-    if st.session_state[f'{multiselect}_{m_select_idx}'] == []:
+    if (st.session_state[f'{multiselect}_{m_select_idx}'] == [] and
+            m_select_idx != 0):
         # move the box to the multiselct box above
         # force selcting the least options
         box = sorted(m_save_obj[m_select_idx]['options'])[:1]
@@ -155,40 +148,52 @@ def multiselect_callback(m_select_idx: int,
         # box(N) - 2
         if m_select_idx != N - 1:
             for key in ['value', 'options']:
-                m_save_obj[N - 2][key] = sorted(m_save_obj[N - 1]['options'])[:1]
+                m_save_obj[N - 2][key] = sorted(m_save_obj[N - 1]['value'])
 
         # last box(N) - 1
         m_save_obj[N - 1]['options'] = sorted(
             set(m_save_obj[N - 1]['options']) - set(m_save_obj[N - 2]['value']))
         m_save_obj[N - 1]['value'] = m_save_obj[N - 1]['options'][:1]
 
-    elif m_select_idx != len(m_save_obj) - 1:
+    elif (st.session_state[f'{multiselect}_{m_select_idx}'] == []
+            and m_select_idx == 0):
+        st.session_state[f'{multiselect}_{m_select_idx}'] = \
+            m_save_obj[0]['value']
+    # elif m_select_idx != len(m_save_obj) - 1:
+    else:
         N = len(m_save_obj)
         del_box = list(set(m_save_obj[m_select_idx]['value']) -
-            set(st.session_state[f'{multiselect}_{m_select_idx}']))
-        del_box_idx = m_save_obj[m_select_idx]['value'].index(del_box[0])
+                set(st.session_state[f'{multiselect}_{m_select_idx}']))
+        del_box_idx = None
+        if del_box:
+            del_box_idx = m_save_obj[m_select_idx]['value'].index(del_box[0])
+
         # we assuem every element of ['value'] or ['options'] is a sorted list
         # if the box is at the left (move rest of boxed down)
         if del_box_idx == 0:
-            # remove the deleted box form the current selectbox
-            for key in ['value', 'options']:
-                del m_save_obj[m_select_idx][key][del_box_idx]
-
-            # last box
-            m_save_obj[N - 1]['options'] += m_save_obj[N - 2]['options'].copy()
-            m_save_obj[N - 1]['options'].sort()
-            m_save_obj[N - 1]['value'] = m_save_obj[N - 2]['value'].copy()
-
-            for idx in range(N - 2, m_select_idx, -1):
+            if m_select_idx == N - 1:
+                # move select it & the reset of boxes to options
+                m_save_obj[N - 1]['value'] = del_box
+            else:
+                # remove the deleted box form the current selectbox
                 for key in ['value', 'options']:
-                    m_save_obj[idx][key] = m_save_obj[idx - 1][key]
+                    del m_save_obj[m_select_idx][key][del_box_idx]
 
-            # Set current box
-            for key in ['value', 'options']:
-                m_save_obj[m_select_idx][key] = del_box.copy()
-    else:
-        m_save_obj[m_select_idx]['value'] = sorted(
-            st.session_state[f'{multiselect}_{m_select_idx}'])
+                # last box
+                m_save_obj[N - 1]['options'] += m_save_obj[N - 2]['options'].copy()
+                m_save_obj[N - 1]['options'].sort()
+                m_save_obj[N - 1]['value'] = m_save_obj[N - 2]['value'].copy()
+
+                for idx in range(N - 2, m_select_idx, -1):
+                    for key in ['value', 'options']:
+                        m_save_obj[idx][key] = m_save_obj[idx - 1][key]
+
+                # Set current box
+                for key in ['value', 'options']:
+                    m_save_obj[m_select_idx][key] = del_box.copy()
+        else:
+            m_save_obj[m_select_idx]['value'] = sorted(
+                st.session_state[f'{multiselect}_{m_select_idx}'])
 
     print(f'm_idx: {m_select_idx}')
     print(m_save_obj)

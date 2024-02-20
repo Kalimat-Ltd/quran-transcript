@@ -108,14 +108,15 @@ def edit_ayah_page(uthmani_words: list[str],
 
 
 def select_ids(ids: list[int],
-               options: list[Any]) -> list[Any]:
+               options: list[Any],
+               rtl=True) -> list[Any]:
     """
     Emulate numpy like: arr[ids] i.e(arr[1, 2, 3])
     """
     return_options = []
     for idx in ids:
         return_options.append(options[idx])
-    return sorted(return_options)
+    return sorted(return_options, reverse=rtl)
 
 
 def multiselect_callback(m_select_idx: int,
@@ -304,7 +305,8 @@ def reset_multiselcts(max_len: int,
                       max_options: int,
                       multiselect='multiselect',
                       multiselect_save='multiselect_save',
-                      hard=False):
+                      hard=False,
+                      rtl=True):
     """
     Rest the multiselcts
     max_len: (int): max number of multiselct boxes
@@ -330,7 +332,7 @@ def reset_multiselcts(max_len: int,
             }
             # value os the mulitselect box itself
             st.session_state[f'{multiselect}_{m_idx}'] = select_ids(
-                [m_idx], options_ids)
+                [m_idx], options_ids, rtl=rtl)
 
     # last multiselct cell (filled with the rest of the cells)
     if (f'{multiselect_save}_{max_len - 1}' not in st.session_state) or hard:
@@ -340,11 +342,12 @@ def reset_multiselcts(max_len: int,
         }
         # value os the mulitselect box itself
         st.session_state[f'{multiselect}_{max_len - 1}'] = select_ids(
-            [max_len - 1], options_ids)
+            [max_len - 1], options_ids, rtl=rtl)
 
 
 def multiselect_list(options: list,
-                     max_len: int) -> list[list[int]]:
+                     max_len: int,
+                     rtl=True) -> list[list[int]]:
     """
     Return:
         seleteced_ids of the options (2D list)
@@ -364,7 +367,8 @@ def multiselect_list(options: list,
         max_len=max_len,
         max_options=len(options),
         multiselect=multiselect,
-        multiselect_save=multiselect_save)
+        multiselect_save=multiselect_save,
+        rtl=rtl)
 
     options_ids = list(range(len(options)))
 
@@ -374,9 +378,9 @@ def multiselect_list(options: list,
         # foram-fun: https://discuss.streamlit.io/t/format-func-function-examples-please/11295/2
         selected_ids = st.multiselect(
             options=select_ids(
-                m_save_obj[m_idx]['options'], options_ids),
+                m_save_obj[m_idx]['options'], options_ids, rtl=rtl),
             default=select_ids(
-                m_save_obj[m_idx]['value'], options_ids),
+                m_save_obj[m_idx]['value'], options_ids, rtl=rtl),
             label='Select',
             label_visibility='hidden',
             format_func=lambda x: options[x],

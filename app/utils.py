@@ -112,6 +112,8 @@ def select_ids(ids: list[int],
                rtl=True) -> list[Any]:
     """
     Emulate numpy like: arr[ids] i.e(arr[1, 2, 3])
+    Args:
+        rtl: (bool) return ids in descending order (right to left)
     """
     return_options = []
     for idx in ids:
@@ -320,6 +322,7 @@ def reset_multiselcts(max_len: int,
         where 'options': the the list of optins for the multisect with id=m_idx
         and 'value': is the default value associated with the box
     hard: (bool) force to reset the multiselect to the initial state
+    rtl: (bool) display boxes in descending order (right to left)
     """
     options_ids = list(range(max_options))
 

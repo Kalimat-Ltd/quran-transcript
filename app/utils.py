@@ -352,6 +352,8 @@ def multiselect_list(options: list,
                      max_len: int,
                      rtl=True) -> list[list[int]]:
     """
+    Args:
+        rtl: (bool) display boxes in descending order (right to left)
     Return:
         seleteced_ids of the options (2D list)
     """

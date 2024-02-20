@@ -122,7 +122,23 @@ def multiselect_callback(m_select_idx: int,
                          m_save_obj: MultiSelectSave,
                          multiselect='multiselect',
                          ):
-    # N = len(m_save_obj)
+    # *************************************************************
+    # Deslect the only left box ("B")
+    # Before:
+    # --------
+    # |A     |
+    # |B     |  <-- (deselct "B")
+    # |C, D  |
+    # --------
+    #  E    ("E" not selected yet)
+    #
+    # After: (Merge "B" with the box above & move the boxes below one block up)
+    # --------
+    # |A, B  |
+    # |C, D  |
+    # |E     |
+    # --------
+    # *************************************************************
     N = m_save_obj.get_effective_len()
     # we assuem to deselct or select only one box at a time
     if (st.session_state[f'{multiselect}_{m_select_idx}'] == [] and
@@ -138,9 +154,7 @@ def multiselect_callback(m_select_idx: int,
             m_save_obj[m_select_idx][key] = sorted(
                 set(m_save_obj[m_select_idx][key]) - set(box))
 
-        # ----------------------------------------------------------------
         # move all boxes down up one box starting of the selected box
-        # ----------------------------------------------------------------
         for idx in range(m_select_idx, N - 2, 1):
             for key in ['value', 'options']:
                 m_save_obj[idx][key] = m_save_obj[idx + 1][key]
@@ -159,15 +173,38 @@ def multiselect_callback(m_select_idx: int,
             and m_select_idx == 0):
         st.session_state[f'{multiselect}_{m_select_idx}'] = \
             m_save_obj[0]['value']
-    # elif m_select_idx != len(m_save_obj) - 1:
+
     else:
         N = len(m_save_obj)
-        del_box = list(set(m_save_obj[m_select_idx]['value']) -
-                set(st.session_state[f'{multiselect}_{m_select_idx}']))
+        del_box = list(
+            set(m_save_obj[m_select_idx]['value']) -
+            set(st.session_state[f'{multiselect}_{m_select_idx}']))
         del_box_idx = None
         if del_box:
             del_box_idx = m_save_obj[m_select_idx]['value'].index(del_box[0])
 
+        # *************************************************************
+        # Deslect the left most box with raw filled with at least 2 boxes
+        # Before:
+        # ---------
+        # |A      |
+        # |B, C, D|  <-- (deselct "B")
+        # |E, F   |
+        # |G      |
+        # ---------
+        #  H    ("H" not selected yet)
+        #
+        # After: ("B" will be the only box in the row & the rest of raws will
+        #         move downwards)
+        # ---------
+        # |A      |
+        # |B      |
+        # |C, D   |
+        # |E, F   |
+        # ---------
+        #  G    ("G", "H" moved to options of last raw)
+        #  H
+        # *************************************************************
         # we assuem every element of ['value'] or ['options'] is a sorted list
         # if the box is at the left (move rest of boxed down)
         if del_box_idx == 0:
@@ -191,6 +228,14 @@ def multiselect_callback(m_select_idx: int,
                 # Set current box
                 for key in ['value', 'options']:
                     m_save_obj[m_select_idx][key] = del_box.copy()
+
+        # *************************************************************
+        # Deslect the righ most box
+        # TODO: Action:
+        # *************************************************************
+        # elif del_box_idx == len(m_save_obj[m_select_idx]['value']) - 1:
+        #     pass
+
         else:
             m_save_obj[m_select_idx]['value'] = sorted(
                 st.session_state[f'{multiselect}_{m_select_idx}'])

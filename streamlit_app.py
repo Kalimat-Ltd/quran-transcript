@@ -77,5 +77,5 @@ if __name__ == "__main__":
     #
     # st.write('level_1 = ', st.session_state.level_1)
 
-    st.write(multiselect_list(['A', 'B', 'C', 'D', 'E', 'F', 'G'], 4))
+    st.write(multiselect_list(['A', 'B', 'C', 'D', 'E', 'F', 'G'], 1))
     # st.write(multiselect_list(['A', 'B', 'C', 'D'], 4))

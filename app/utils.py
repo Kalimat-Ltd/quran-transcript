@@ -121,6 +121,178 @@ def select_ids(ids: list[int],
     return sorted(return_options, reverse=rtl)
 
 
+def deselct_single_box(m_select_idx: int,
+                       m_save_obj: MultiSelectSave):
+    # *************************************************************
+    # Deslect the only left box ("B")
+    # Before:
+    # --------
+    # |A     |
+    # |B     |  <-- (deselct "B")
+    # |C, D  |
+    # --------
+    #  E    ("E" not selected yet)
+    #
+    # After: (Merge "B" with the box above & move the boxes below one block up)
+    # --------
+    # |A, B  |
+    # |C, D  |
+    # |E     |
+    # --------
+    # *************************************************************
+    """
+    Args:
+        m_select_idx: (int) the id of the multiseclt raw
+        m_save_obj: (MultiSelectSave) an object which we store st.seesion_state
+    """
+
+    # we assuem to deselct or select only one box at a time
+    N = m_save_obj.get_effective_len()
+
+    # move the box to the multiselct box above
+    # force selcting the least options
+    box = sorted(m_save_obj[m_select_idx]['options'])[:1]
+    m_save_obj[m_select_idx]['value'] = box.copy()
+    for key in ['value', 'options']:
+        m_save_obj[m_select_idx - 1][key] += box
+        m_save_obj[m_select_idx - 1][key].sort()
+
+        m_save_obj[m_select_idx][key] = sorted(
+            set(m_save_obj[m_select_idx][key]) - set(box))
+
+    # move all boxes down up one box starting of the selected box
+    for idx in range(m_select_idx, N - 2, 1):
+        for key in ['value', 'options']:
+            m_save_obj[idx][key] = m_save_obj[idx + 1][key]
+
+    # box(N) - 2
+    if m_select_idx != N - 1:
+        for key in ['value', 'options']:
+            m_save_obj[N - 2][key] = sorted(m_save_obj[N - 1]['value'])
+
+    # last box(N) - 1
+    m_save_obj[N - 1]['options'] = sorted(
+        set(m_save_obj[N - 1]['options']) - set(m_save_obj[N - 2]['value']))
+    m_save_obj[N - 1]['value'] = m_save_obj[N - 1]['options'][:1]
+
+
+def deselect_left_most_box_idx(m_select_idx: int,
+                               m_save_obj: MultiSelectSave,
+                               del_box: list[int],
+                               del_box_idx: int):
+    # *************************************************************
+    # Deslect the left most box with raw filled with at least 2 boxes
+    # Before:
+    # ---------
+    # |A      |
+    # |B, C, D|  <-- (deselct "B")
+    # |E, F   |
+    # |G      |
+    # ---------
+    #  H    ("H" not selected yet)
+    #
+    # After: ("B" will be the only box in the row & the rest of raws will
+    #         move downwards)
+    # ---------
+    # |A      |
+    # |B      |
+    # |C, D   |
+    # |E, F   |
+    # ---------
+    #  G    ("G", "H" moved to options of last raw)
+    #  H
+    # *************************************************************
+    """
+    Args:
+        m_select_idx: (int) the id of the multiseclt raw
+        m_save_obj: (MultiSelectSave) an object which we store st.seesion_state
+        del_box: (list[int]) the box which is deleselected
+        de_box_idx: (int) the id of the del box in m_save_obj[m_selecd_idx]['value']
+    """
+
+
+    N = len(m_save_obj)
+    if m_select_idx == N - 1:
+        # move select it & the reset of boxes to options
+        m_save_obj[N - 1]['value'] = del_box
+    else:
+        # remove the deleted box form the current selectbox
+        for key in ['value', 'options']:
+            del m_save_obj[m_select_idx][key][del_box_idx]
+
+        # last box
+        m_save_obj[N - 1]['options'] += m_save_obj[N - 2]['options'].copy()
+        m_save_obj[N - 1]['options'].sort()
+        m_save_obj[N - 1]['value'] = m_save_obj[N - 2]['value'].copy()
+
+        for idx in range(N - 2, m_select_idx, -1):
+            for key in ['value', 'options']:
+                m_save_obj[idx][key] = m_save_obj[idx - 1][key]
+
+        # Set current box
+        for key in ['value', 'options']:
+            m_save_obj[m_select_idx][key] = del_box.copy()
+
+
+def deselect_right_most_box_idx(m_select_idx: int,
+                                m_save_obj: MultiSelectSave,
+                                del_box: list[int],
+                                del_box_idx: int):
+    # *************************************************************
+    # Deslect the righ most box raw filled with at least 2 boxes
+    # Before:
+    # ---------
+    # |A      |
+    # |B, C, D|  <-- (deselct "D")
+    # |E, F   |
+    # |G      |
+    # ---------
+    #  H    ("H" not selected yet)
+    #
+    # After: ("D" will be the only box in the row & the rest of raws will
+    #         move downwards)
+    # ---------
+    # |A      |
+    # |B, C   |
+    # |D      |
+    # |E, F   |
+    # ---------
+    #  G    ("G", "H" moved to options of last raw)
+    #  H
+    # *************************************************************
+    """
+    Args:
+        m_select_idx: (int) the id of the multiseclt raw
+        m_save_obj: (MultiSelectSave) an object which we store st.seesion_state
+        del_box: (list[int]) the box which is deleselected
+        de_box_idx: (int) the id of the del box in m_save_obj[m_selecd_idx]['value']
+    """
+    N = len(m_save_obj)
+    # remove the deleted box form the current selectbox
+    for key in ['value', 'options']:
+        del m_save_obj[m_select_idx][key][del_box_idx]
+
+    if m_select_idx == N - 2:
+        m_save_obj[N - 1]['options'] += del_box.copy()
+        m_save_obj[N - 1]['options'].sort()
+        m_save_obj[N - 1]['value'] = del_box.copy()
+    else:
+        # last box
+        m_save_obj[N - 1]['options'] += m_save_obj[N - 2]['options'].copy()
+        m_save_obj[N - 1]['options'].sort()
+        m_save_obj[N - 1]['value'] = m_save_obj[N - 2]['value'].copy()
+
+        # move boxes one raw below
+        for idx in range(N - 2, m_select_idx + 1, -1):
+            for key in ['value', 'options']:
+                m_save_obj[idx][key] = m_save_obj[idx - 1][key]
+
+        # Set current box
+        for key in ['value', 'options']:
+            m_save_obj[m_select_idx + 1][key] = del_box.copy()
+
+
+
 def multiselect_callback(m_select_idx: int,
                          m_save_obj: MultiSelectSave,
                          multiselect='multiselect',
@@ -142,35 +314,10 @@ def multiselect_callback(m_select_idx: int,
     # |E     |
     # --------
     # *************************************************************
-    N = m_save_obj.get_effective_len()
     # we assuem to deselct or select only one box at a time
     if (st.session_state[f'{multiselect}_{m_select_idx}'] == [] and
             m_select_idx != 0):
-        # move the box to the multiselct box above
-        # force selcting the least options
-        box = sorted(m_save_obj[m_select_idx]['options'])[:1]
-        m_save_obj[m_select_idx]['value'] = box.copy()
-        for key in ['value', 'options']:
-            m_save_obj[m_select_idx - 1][key] += box
-            m_save_obj[m_select_idx - 1][key].sort()
-
-            m_save_obj[m_select_idx][key] = sorted(
-                set(m_save_obj[m_select_idx][key]) - set(box))
-
-        # move all boxes down up one box starting of the selected box
-        for idx in range(m_select_idx, N - 2, 1):
-            for key in ['value', 'options']:
-                m_save_obj[idx][key] = m_save_obj[idx + 1][key]
-
-        # box(N) - 2
-        if m_select_idx != N - 1:
-            for key in ['value', 'options']:
-                m_save_obj[N - 2][key] = sorted(m_save_obj[N - 1]['value'])
-
-        # last box(N) - 1
-        m_save_obj[N - 1]['options'] = sorted(
-            set(m_save_obj[N - 1]['options']) - set(m_save_obj[N - 2]['value']))
-        m_save_obj[N - 1]['value'] = m_save_obj[N - 1]['options'][:1]
+        deselct_single_box(m_select_idx, m_save_obj)
 
     elif (st.session_state[f'{multiselect}_{m_select_idx}'] == []
             and m_select_idx == 0):
@@ -211,26 +358,11 @@ def multiselect_callback(m_select_idx: int,
         # we assuem every element of ['value'] or ['options'] is a sorted list
         # if the box is at the left (move rest of boxed down)
         if del_box_idx == 0:
-            if m_select_idx == N - 1:
-                # move select it & the reset of boxes to options
-                m_save_obj[N - 1]['value'] = del_box
-            else:
-                # remove the deleted box form the current selectbox
-                for key in ['value', 'options']:
-                    del m_save_obj[m_select_idx][key][del_box_idx]
-
-                # last box
-                m_save_obj[N - 1]['options'] += m_save_obj[N - 2]['options'].copy()
-                m_save_obj[N - 1]['options'].sort()
-                m_save_obj[N - 1]['value'] = m_save_obj[N - 2]['value'].copy()
-
-                for idx in range(N - 2, m_select_idx, -1):
-                    for key in ['value', 'options']:
-                        m_save_obj[idx][key] = m_save_obj[idx - 1][key]
-
-                # Set current box
-                for key in ['value', 'options']:
-                    m_save_obj[m_select_idx][key] = del_box.copy()
+            deselect_left_most_box_idx(
+                m_select_idx=m_select_idx,
+                m_save_obj=m_save_obj,
+                del_box=del_box,
+                del_box_idx=del_box_idx)
 
         # *************************************************************
         # Deslect the righ most box raw filled with at least 2 boxes
@@ -256,28 +388,11 @@ def multiselect_callback(m_select_idx: int,
         # *************************************************************
         elif ((del_box_idx == len(m_save_obj[m_select_idx]['value']) - 1) and
                 (m_select_idx != N - 1)):
-            # remove the deleted box form the current selectbox
-            for key in ['value', 'options']:
-                del m_save_obj[m_select_idx][key][del_box_idx]
-
-            if m_select_idx == N - 2:
-                m_save_obj[N - 1]['options'] += del_box.copy()
-                m_save_obj[N - 1]['options'].sort()
-                m_save_obj[N - 1]['value'] = del_box.copy()
-            else:
-                # last box
-                m_save_obj[N - 1]['options'] += m_save_obj[N - 2]['options'].copy()
-                m_save_obj[N - 1]['options'].sort()
-                m_save_obj[N - 1]['value'] = m_save_obj[N - 2]['value'].copy()
-
-                # move boxes one raw below
-                for idx in range(N - 2, m_select_idx + 1, -1):
-                    for key in ['value', 'options']:
-                        m_save_obj[idx][key] = m_save_obj[idx - 1][key]
-
-                # Set current box
-                for key in ['value', 'options']:
-                    m_save_obj[m_select_idx + 1][key] = del_box.copy()
+            deselect_right_most_box_idx(
+                    m_select_idx=m_select_idx,
+                    m_save_obj=m_save_obj,
+                    del_box=del_box,
+                    del_box_idx=del_box_idx)
 
         else:
             m_save_obj[m_select_idx]['value'] = sorted(
@@ -383,7 +498,7 @@ def multiselect_list(options: list,
         # foram-fun: https://discuss.streamlit.io/t/format-func-function-examples-please/11295/2
         selected_ids = st.multiselect(
             options=select_ids(
-                m_save_obj[m_idx]['options'], options_ids, rtl=rtl),
+                m_save_obj[m_idx]['options'], options_ids, rtl=False),
             default=select_ids(
                 m_save_obj[m_idx]['value'], options_ids, rtl=rtl),
             label='Select',

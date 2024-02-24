@@ -56,6 +56,7 @@ if __name__ == "__main__":
     # # s = "أحمد جاء من هنا"
     # # st.write(s)
 
+    # src: https://github.com/streamlit/streamlit/issues/3925#issuecomment-946148239
     # if 'level_1' not in st.session_state:
     #     # Initialize to the saved value in session state if it's available
     #     if 'level_1_slider' in st.session_state:

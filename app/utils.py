@@ -467,6 +467,9 @@ def multiselect_list(options: list,
                      max_len: int,
                      rtl=True) -> list[list[int]]:
     """
+    src for dynamicly change wedgit default values:
+    https://github.com/streamlit/streamlit/issues/3925#issuecomment-946148239
+
     Args:
         rtl: (bool) display boxes in descending order (right to left)
     Return:

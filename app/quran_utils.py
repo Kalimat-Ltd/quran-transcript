@@ -4,6 +4,7 @@ from pathlib import Path
 import json
 import xmltodict
 from dataclasses import dataclass
+import copy
 
 
 def get_from_dict(data_dict: dict, keys: list[str]):
@@ -29,8 +30,10 @@ class AyaForamt:
     bismillah_imlaey: str = None
 
 
-class QuranScript(object):
+class Aya(object):
     def __init__(self, quran_path: str | Path,
+                 sura_idx=1,
+                 aya_idx=1,
                  prefix='@',
                  map_key='rasm_map',
                  bismillah_key='bismillah',
@@ -46,6 +49,10 @@ class QuranScript(object):
         self.quran_path = Path(quran_path)
         with open(self.quran_path, 'r', encoding='utf8') as f:
             self.quran_dict = json.load(f)
+
+        self._check_indices(sura_idx - 1, aya_idx - 1)
+        self.sura_idx = sura_idx - 1
+        self.aya_idx = aya_idx - 1
 
         self.map_key = prefix + map_key
         self.uthmani_key = prefix + uthmani_key
@@ -70,22 +77,19 @@ class QuranScript(object):
             f'and len of sura={len(self._get_sura(sura_idx))}')
         return self._get_sura(sura_idx)[aya_idx]
 
-    def __getitem__(self, pos: tuple[int, int]) -> AyaForamt:
+    def _get(self, sura_idx, aya_idx) -> AyaForamt:
         """
         get an aya from quran script
         Args:
-            pos (typle[int, int]): (absolute_sura_index, absolute_aya_index)
+            sura_idx (int): from 0 to 113
+            aya_idx (int): form 0 to len(sura) - 1
         Example to get the first aya of sura Alfateha quran_scirt[1, 1]
         Return:
             AyaFormt:
                 sura_idx (int): the absoulte index of the sura
-
                 aya_idx (int): the absoulte index of the aya
-
                 sura_name (str): the name of the sura
-
                 uthmani (str): the uthmani script of the aya
-
                 imlaey (str): the imlaey script of the aya
 
                 bismillah_uthmani (str): bismillah in uthmani script if the
@@ -96,50 +100,89 @@ class QuranScript(object):
                     aya index == 1 and the sura has bismillah or bismillah is
                     not aya like sura Alfateha and else (None)
         """
-        sura_idx, aya_idx = pos
-
         bismillah = {self.bismillah_uthmani_key: None,
                      self.bismillah_imlaey_key: None}
         for key in bismillah.keys():
-            if key in self._get_aya(sura_idx - 1, aya_idx - 1):
-                bismillah[key] = self._get_aya(sura_idx - 1, aya_idx - 1)[key]
+            if key in self._get_aya(sura_idx, aya_idx):
+                bismillah[key] = self._get_aya(sura_idx, aya_idx)[key]
         return AyaForamt(
-            sura_idx=sura_idx,
-            aya_idx=aya_idx,
-            sura_name=self._get_sura_object(sura_idx - 1)[self.sura_name_key],
-            uthmani=self._get_aya(sura_idx - 1, aya_idx - 1)[self.uthmani_key],
-            imlaey=self._get_aya(sura_idx - 1, aya_idx - 1)[self.uthmani_key],
+            sura_idx=sura_idx + 1,
+            aya_idx=aya_idx + 1,
+            sura_name=self._get_sura_object(sura_idx)[self.sura_name_key],
+            uthmani=self._get_aya(sura_idx, aya_idx)[self.uthmani_key],
+            imlaey=self._get_aya(sura_idx, aya_idx)[self.uthmani_key],
             bismillah_uthmani=bismillah[self.bismillah_uthmani_key],
             bismillah_imlaey=bismillah[self.bismillah_imlaey_key],
             )
 
-    def get_iterator(self, sura_idx: int = 1, aya_idx: int = 1):
-        assert sura_idx >= 1 and sura_idx <= 114, (
-            f'Wrong Sura index {sura_idx}')
+    def get(self) -> AyaForamt:
+        """
+        get an aya from quran script
+        Return:
+            AyaFormt:
+                sura_idx (int): the absoulte index of the sura
+                aya_idx (int): the absoulte index of the aya
+                sura_name (str): the name of the sura
+                uthmani (str): the uthmani script of the aya
+                imlaey (str): the imlaey script of the aya
 
-        assert aya_idx >= 1 and aya_idx <= len(self._get_sura(sura_idx - 1)), (
-            f'Aya index={aya_idx} ' +
-            f'Sura index out of range sura_index={sura_idx} ' +
-            f'and len of sura={len(self._get_sura(sura_idx - 1))}')
+                bismillah_uthmani (str): bismillah in uthmani script if the
+                    aya index == 1 and the sura has bismillah or bismillah is
+                    not aya like sura Alfateha and else (None)
 
-        # looping sura form 1 to 114 & looping aya form 1 to len(sura)
-        aya_start_idx = aya_idx
-        for sura_loop_idx in range(sura_idx, 115, 1):
+                bismillah_imlaey (str): bismillah in uthmani script if the
+                    aya index == 1 and the sura has bismillah or bismillah is
+                    not aya like sura Alfateha and else (None)
+        """
+
+        return self._get(self.sura_idx, self.aya_idx)
+
+    def _check_indices(self, sura_idx: int, aya_idx: int):
+        """
+        check sura ds compatibility
+        """
+        assert sura_idx >= 0 and sura_idx <= 113, (
+            f'Wrong Sura index {sura_idx + 1}')
+
+        assert aya_idx >= 0 and aya_idx < len(self._get_sura(sura_idx)), (
+            f'Aya index out of range (sura_index={sura_idx + 1} ' +
+            f'aya_index={aya_idx + 1}) ' +
+            f'and length of sura={len(self._get_sura(sura_idx))}')
+
+    def _set_ids(self, sura_idx, aya_idx):
+        self.sura_idx = sura_idx
+        self.aya_idx = aya_idx
+
+    def set(self, sura_idx, aya_idx) -> None:
+        """
+        Set the aya
+        Args:
+        sura_idx: the index of the Sura in the Quran starting with 1 to 114
+        aya_idx: the index of the aya starting form 1
+        """
+        self._check_indices(sura_idx - 1, aya_idx - 1)
+        self._set_ids(sura_idx=sura_idx - 1, aya_idx=aya_idx - 1)
+
+    def get_ayat_after(self):
+        """
+        iterator looping over Quran ayayt (verses) starting from the
+        current aya to the end of the Holy Quran
+        """
+        aya_start_idx = self.aya_idx
+        for sura_loop_idx in range(self.sura_idx, 114):
             for aya_loop_idx in range(
-                    aya_start_idx, len(self._get_sura(sura_loop_idx - 1)) + 1, 1):
-                yield self.__getitem__((sura_loop_idx, aya_loop_idx))
-            aya_start_idx = 1
+                    aya_start_idx, len(self._get_sura(sura_loop_idx))):
+                self._set_ids(sura_loop_idx, aya_loop_idx)
+                yield self
+            aya_start_idx = 0
 
 # --------------------------------------------
 # Testing
 # --------------------------------------------
 # if __name__ == "__main__":
-#     quran_script = QuranScript('quran-script/quran-uthmani-imlaey.json')
-#     count = 0
-#     for aya in quran_script.get_iterator(110, 1):
-#         count += 1
-#         print(aya)
-#         print('#' * 30)
-#
-#     print('count' , count)
-#     # print(quran_script[114, 1])
+#     start_aya = Aya('quran-script/quran-uthmani-imlaey.json', 1, 1)
+#     start_aya.set(114, 9)
+#     print(start_aya.get())
+#     for idx, aya in enumerate(start_aya.get_ayat_after()):
+#         print(aya.get())
+#     print('idx', idx)

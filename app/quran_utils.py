@@ -26,8 +26,10 @@ class AyaForamt:
     sura_name: str
     uthmani: str
     imlaey: str
+    rasm_map: dict[str, list[str]] = None
     bismillah_uthmani: str = None
     bismillah_imlaey: str = None
+    bismillah_map: dict[str, list[str]] = None
 
 
 class Aya(object):
@@ -36,10 +38,13 @@ class Aya(object):
                  aya_idx=1,
                  prefix='@',
                  map_key='rasm_map',
+                 bismillah_map_key='bismillah_map',
                  bismillah_key='bismillah',
                  uthmani_key='uthmani',
                  imlaey_key='imlaey',
-                 sura_name_key='name'):
+                 sura_name_key='name',
+                 join_prefix=' ',
+                 ):
         """
         quran_path (str | Path) path to the quran json script with
             emlaey uthmani scripts
@@ -54,12 +59,14 @@ class Aya(object):
         self.sura_idx = sura_idx - 1
         self.aya_idx = aya_idx - 1
 
-        self.map_key = prefix + map_key
+        self.map_key = map_key
+        self.bismillah_map_key = bismillah_map_key
         self.uthmani_key = prefix + uthmani_key
         self.imlaey_key = prefix + imlaey_key
         self.sura_name_key = prefix + sura_name_key
         self.bismillah_uthmani_key = f'{prefix}{bismillah_key}_{uthmani_key}'
         self.bismillah_imlaey_key = f'{prefix}{bismillah_key}_{imlaey_key}'
+        self.join_prefix = join_prefix
 
     def _get_sura(self, sura_idx):
         assert sura_idx >= 0 and sura_idx <= 113, (
@@ -103,16 +110,28 @@ class Aya(object):
         bismillah = {self.bismillah_uthmani_key: None,
                      self.bismillah_imlaey_key: None}
         for key in bismillah.keys():
-            if key in self._get_aya(sura_idx, aya_idx):
+            if key in self._get_aya(sura_idx, aya_idx).keys():
                 bismillah[key] = self._get_aya(sura_idx, aya_idx)[key]
+
+        bismillah_map = None
+        if self.bismillah_map_key in self._get_aya(sura_idx, aya_idx).keys():
+            bismillah_map = self._get_aya(sura_idx, aya_idx)[
+                self.bismillah_map_key]
+
+        rasm_map = None
+        if self.map_key in self._get_aya(sura_idx, aya_idx).keys():
+            rasm_map = self._get_aya(sura_idx, aya_idx)[self.map_key]
+
         return AyaForamt(
             sura_idx=sura_idx + 1,
             aya_idx=aya_idx + 1,
             sura_name=self._get_sura_object(sura_idx)[self.sura_name_key],
             uthmani=self._get_aya(sura_idx, aya_idx)[self.uthmani_key],
-            imlaey=self._get_aya(sura_idx, aya_idx)[self.uthmani_key],
+            imlaey=self._get_aya(sura_idx, aya_idx)[self.imlaey_key],
+            rasm_map=rasm_map,
             bismillah_uthmani=bismillah[self.bismillah_uthmani_key],
             bismillah_imlaey=bismillah[self.bismillah_imlaey_key],
+            bismillah_map=bismillah_map,
             )
 
     def get(self) -> AyaForamt:
@@ -175,6 +194,94 @@ class Aya(object):
                 self._set_ids(sura_loop_idx, aya_loop_idx)
                 yield self
             aya_start_idx = 0
+
+    def _get_map_dict(self,
+                      uthmani_list: list[str],
+                      imlaey_list: list[str]
+                      ) -> dict[str, list[dict[str, str]]]:
+        """
+        Return:
+            [
+                    {'@uthmani: str, '@imlaey: st},
+                    {'@uthmani: str, '@imlaey: st},
+            ]
+        """
+        map_list: list[str] = []
+        for uthmani_words, imlaey_words in zip(uthmani_list, imlaey_list):
+            map_list.append(
+                {
+                    self.uthmani_key: self.join_prefix.join(uthmani_words),
+                    self.imlaey_key: self.join_prefix.join(imlaey_words),
+                })
+        return map_list
+
+    def _get_str_from_lists(self, L: list[list[str]]) -> str:
+        """
+        join a list of lists of str with (self.join_prefix)
+        Example: :
+            L = [
+                    ['a', 'b'],
+                    ['c', 'd', 'e']
+                ]
+            self.join_prefic = ' '
+            Ouput: 'a b c d e'
+        """
+        return self.join_prefix.join([self.join_prefix.join(x) for x in L])
+
+    def set_rasm_map(
+        self,
+        uthmani_list: list[list[str]],
+        imlaey_list: list[list[str]],
+            ):
+        # Assert len
+        assert len(uthmani_list) == len(imlaey_list), (
+            f'Lenght mismatch: len(uthmani)={len(uthmani_list)} ' +
+            f'and len(imlaey)={len(imlaey_list)}'
+        )
+
+        # assert missing script
+        # (Uthmani)
+        assert self._get_str_from_lists(uthmani_list) == self.get().uthmani, (
+            f'Missing Uthmani script words! input_uthmani_list={uthmani_list}' +
+            f'\nAnd the original uthmani Aya={self.get().uthmani}')
+        # (Imlaey)
+        assert self._get_str_from_lists(imlaey_list) == self.get().imlaey, (
+            f'Missing Imlaey script words! input_imlaey_list={imlaey_list}' +
+            f'\nAnd the original imlaey Aya={self.get().imlaey}')
+
+        # check first aya (set bismillah map)
+        bismillah_map = None
+        if (self.get().bismillah_uthmani is not None and
+                self.get().bismillah_map is None):
+            bismillah_uthmani = self.get().bismillah_uthmani.split(self.join_prefix)
+            bismillah_uthmani = [[word] for word in bismillah_uthmani]
+            bismillah_imlaey = self.get().bismillah_imlaey.split(self.join_prefix)
+            bismillah_imlaey = [[word] for word in bismillah_imlaey]
+
+            bismillah_map = self._get_map_dict(
+                uthmani_list=bismillah_uthmani,
+                imlaey_list=bismillah_imlaey)
+
+        # get rasm map
+        rasm_map = self._get_map_dict(
+            uthmani_list=uthmani_list,
+            imlaey_list=imlaey_list)
+
+        # save quran script file
+        self.quran_dict['quran']['sura'][self.sura_idx]['aya'][self.aya_idx][
+            self.map_key] = rasm_map
+        if bismillah_map is not None:
+            self.quran_dict['quran']['sura'][self.sura_idx]['aya'][self.aya_idx][
+                self.bismillah_map_key] = bismillah_map
+
+        # save the file
+        with open(self.quran_path, 'w+', encoding='utf8') as f:
+            json.dump(self.quran_dict, f, ensure_ascii=False, indent=2)
+
+        # for debuging
+        with open(self.quran_path.parent / 'text.xml', 'w+', encoding='utf8') as f:
+            new_file = xmltodict.unparse(self.quran_dict, pretty=True)
+            f.write(new_file)
 
 # --------------------------------------------
 # Testing

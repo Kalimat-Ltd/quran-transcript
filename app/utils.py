@@ -2,6 +2,24 @@ import streamlit as st
 from typing import Any
 
 
+def edit_ayah_page(uthmani_words: list[str],
+                   emlaey_words: list[str],
+                   emlaey_to_uthmani: dict[str, str] = None) -> dict[str, str]:
+    """
+    the display function that maps emlaey script words to uthmani script words
+    Args:
+        uthmani_words: list[str] list of the uthmani words of the ayah
+        emaley_words: list[str] list of the emlaey words of the ayah
+        emaley_to_uthmani: dict[str, str] dict with
+            keys (emaley words or words) and value of (uthmani word or words)
+    Return:
+        emaley_to_uthmani: dict[str, str] dict with
+            keys (emaley words or words) and value of (uthmani word or words)
+            after uditing using the User Interface
+    """
+    pass
+
+
 class MultiSelectSave(object):
     def __init__(self,
                  dict_obj: dict,
@@ -83,28 +101,6 @@ class MultiSelectSave(object):
     def __iter__(self):
         for idx in range(self.max_len):
             yield self.__getitem__(idx).copy()
-
-
-def edit_ayah_page(uthmani_words: list[str],
-                   emlaey_words: list[str],
-                   emlaey_to_uthmani: dict[str, str] = None) -> dict[str, str]:
-    """
-    the display function that maps emlaey script words to uthmani script words
-    Args:
-        uthmani_words: list[str] list of the uthmani words of the ayah
-        emaley_words: list[str] list of the emlaey words of the ayah
-        emaley_to_uthmani: dict[str, str] dict with
-            keys (emaley words or words) and value of (uthmani word or words)
-    Return:
-        emaley_to_uthmani: dict[str, str] dict with
-            keys (emaley words or words) and value of (uthmani word or words)
-            after uditing using the User Interface
-    """
-    buttons_names = ['Edit', 'Fill', 'Clear']
-    buttons = {}
-    for col, button in zip(st.columns(len(buttons_names)), buttons_names):
-        with col:
-            buttons[button] = st.button(button)
 
 
 def select_ids(ids: list[int],

@@ -307,14 +307,3 @@ class Aya(object):
         with open(self.quran_path.parent / 'text.xml', 'w+', encoding='utf8') as f:
             new_file = xmltodict.unparse(self.quran_dict, pretty=True)
             f.write(new_file)
-
-# --------------------------------------------
-# Testing
-# --------------------------------------------
-# if __name__ == "__main__":
-#     start_aya = Aya('quran-script/quran-uthmani-imlaey.json', 1, 1)
-#     start_aya.set(114, 9)
-#     print(start_aya.get())
-#     for idx, aya in enumerate(start_aya.get_ayat_after()):
-#         print(aya.get())
-#     print('idx', idx)

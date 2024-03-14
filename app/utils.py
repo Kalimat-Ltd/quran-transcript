@@ -5,7 +5,7 @@ import json
 from app.quran_utils import Aya, AyaForamt
 
 
-DEFAULT_AYA_SAVE = 'aya_ids.json'
+DEFAULT_AYA_SAVE = 'APP_AYA_IDS.json'
 QURAN_MAP_PATH = 'quran-script/quran-uthmani-imlaey-map.json'
 
 
@@ -117,10 +117,6 @@ def set_last_aya(
     """
     with open(last_aya_save_file, 'w+') as f:
         json.dump({'sura_idx': sura_idx, 'aya_idx': aya_idx}, f)
-
-
-
-
 
 
 def edit_ayah_page(uthmani_words: list[str],

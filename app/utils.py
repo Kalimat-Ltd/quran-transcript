@@ -1,5 +1,126 @@
 import streamlit as st
 from typing import Any
+from pathlib import Path
+import json
+from app.quran_utils import Aya, AyaForamt
+
+
+DEFAULT_AYA_SAVE = 'aya_ids.json'
+QURAN_MAP_PATH = 'quran-script/quran-uthmani-imlaey-map.json'
+
+
+def test_button():
+    st.session_state.sura_selector = 114
+    st.session_state.aya_selector = 5
+
+
+def app_main():
+    aya = get_aya()
+
+    # TODO DEBUG
+    # if st.button('Test'):
+    st.button('Test', on_click=test_button)
+
+    st.write(aya)
+    # if rasm is none (edit)
+
+
+@st.cache_data
+def get_suar_list() -> list[int]:
+    """
+    get list of Holy Quan suar names
+    """
+    start_aya = Aya(QURAN_MAP_PATH)
+    suar_names = []
+    for sura_idx in range(1, 115, 1):
+        start_aya.set(sura_idx=sura_idx, aya_idx=1)
+        sura_name = start_aya.get().sura_name
+        suar_names.append(sura_name)
+    return suar_names
+
+
+def get_aya() -> Aya:
+    # # get last aya we were working on
+    if 'on_start' not in st.session_state.keys():
+        last_sura_idx, last_aya_idx = get_last_aya(DEFAULT_AYA_SAVE)
+        st.session_state['last_sura_idx'] = last_sura_idx
+        st.session_state['last_aya_idx'] = last_aya_idx
+        st.session_state['on_start'] = True
+
+    left_col, write_col = st.columns(2)
+    with write_col:
+        sura_idx = st.selectbox(
+            label='Sura',
+            options=list(range(1, 115, 1)),
+            format_func=lambda sura_idx: get_suar_list()[sura_idx - 1],
+            index=st.session_state['last_sura_idx'] - 1,
+            key='sura_selector',
+        )
+
+    aya = Aya(quran_path=QURAN_MAP_PATH,
+              sura_idx=sura_idx)
+    default_aya = st.session_state['last_aya_idx']
+    if sura_idx != st.session_state['last_sura_idx']:
+        default_aya = 1
+
+    with left_col:
+        aya_idx = st.number_input(
+            label='Aya',
+            min_value=1,
+            max_value=aya.get().num_ayat_in_sura,
+            value=default_aya,
+            key='aya_selector',
+        )
+    aya.set(sura_idx=sura_idx, aya_idx=aya_idx)
+
+    # save last Aya we were working on
+    set_last_aya(
+        sura_idx=aya.get().sura_idx,
+        aya_idx=aya.get().aya_idx,
+        last_aya_save_file=DEFAULT_AYA_SAVE,
+        )
+    return aya
+
+
+def get_last_aya(
+    last_aya_save_file: str | Path = Path('aya_ids.json')
+        ) -> tuple[int, int]:
+    """
+    get last aya of indeices from last work
+    Return:
+        tuple[sura_index, aya_index]
+        sura_index (int): starting from 1
+        aya_index (int): starting from 1
+    """
+    try:
+        with open(last_aya_save_file, 'r') as f:
+            ids_dict = json.load(f)
+            return ids_dict['sura_idx'], ids_dict['aya_idx']
+
+    except FileNotFoundError:
+        with open(last_aya_save_file, 'w+') as f:
+            ids_dict = json.dump({'sura_idx': 1, 'aya_idx': 1}, f)
+            return 1, 1
+
+
+def set_last_aya(
+    sura_idx: int,
+    aya_idx: int,
+    last_aya_save_file: str | Path = Path('aya_ids.json'),
+        ):
+    """
+    set last aya of indices to be loaded one the beginning of the app
+    Return:
+        tuple[sura_index, aya_index]
+        sura_index (int): starting from 1
+        aya_index (int): starting from 1
+    """
+    with open(last_aya_save_file, 'w+') as f:
+        json.dump({'sura_idx': sura_idx, 'aya_idx': aya_idx}, f)
+
+
+
+
 
 
 def edit_ayah_page(uthmani_words: list[str],

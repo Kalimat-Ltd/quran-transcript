@@ -181,6 +181,9 @@ class Aya(object):
 
         return self._get(self.sura_idx, self.aya_idx)
 
+    def __str__(self):
+        return str(self.get())
+
     def _check_indices(self, sura_idx: int, aya_idx: int):
         """
         check sura ds compatibility

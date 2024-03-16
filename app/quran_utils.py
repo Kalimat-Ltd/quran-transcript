@@ -37,6 +37,7 @@ class Aya(object):
     def __init__(self, quran_path: str | Path,
                  sura_idx=1,
                  aya_idx=1,
+                 quran_dict: dict = None,
                  prefix='@',
                  map_key='rasm_map',
                  bismillah_map_key='bismillah_map',
@@ -53,8 +54,11 @@ class Aya(object):
         aya_idx: the index of the aya starting form 1
         """
         self.quran_path = Path(quran_path)
-        with open(self.quran_path, 'r', encoding='utf8') as f:
-            self.quran_dict = json.load(f)
+        if quran_dict is None:
+            with open(self.quran_path, 'r', encoding='utf8') as f:
+                self.quran_dict = json.load(f)
+        else:
+            self.quran_dict = quran_dict
 
         self._check_indices(sura_idx - 1, aya_idx - 1)
         self.sura_idx = sura_idx - 1
@@ -219,8 +223,12 @@ class Aya(object):
         for sura_loop_idx in range(self.sura_idx, 114):
             for aya_loop_idx in range(
                     aya_start_idx, len(self._get_sura(sura_loop_idx))):
-                self._set_ids(sura_loop_idx, aya_loop_idx)
-                yield self
+                yield Aya(
+                    quran_path=self.quran_path,
+                    sura_idx=sura_loop_idx + 1,
+                    aya_idx=aya_loop_idx + 1,
+                    quran_dict=self.quran_dict,
+                )
             aya_start_idx = 0
 
     def _get_map_dict(self,

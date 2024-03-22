@@ -9,17 +9,8 @@ DEFAULT_AYA_SAVE = 'APP_AYA_IDS.json'
 QURAN_MAP_PATH = 'quran-script/quran-uthmani-imlaey-map.json'
 
 
-def test_button():
-    st.session_state.sura_selector = 114
-    st.session_state.aya_selector = 5
-
-
 def app_main():
     aya = get_aya()
-
-    # TODO DEBUG
-    # if st.button('Test'):
-    st.button('Test', on_click=test_button)
 
     st.write(aya)
     # if rasm is none (edit)
@@ -47,8 +38,14 @@ def get_aya() -> Aya:
         st.session_state['last_aya_idx'] = last_aya_idx
         st.session_state['on_start'] = True
 
-    left_col, write_col = st.columns(2)
-    with write_col:
+    raws = [None] * 2
+    raws[0] = st.columns(2)
+    raws[1] = st.columns(2)
+
+    # -----------------------
+    # Absolute Selection
+    # -----------------------
+    with raws[0][1]:
         sura_idx = st.selectbox(
             label='Sura',
             options=list(range(1, 115, 1)),
@@ -63,7 +60,7 @@ def get_aya() -> Aya:
     if sura_idx != st.session_state['last_sura_idx']:
         default_aya = 1
 
-    with left_col:
+    with raws[0][0]:
         aya_idx = st.number_input(
             label='Aya',
             min_value=1,
@@ -73,13 +70,30 @@ def get_aya() -> Aya:
         )
     aya.set(sura_idx=sura_idx, aya_idx=aya_idx)
 
+    # -----------------------
+    # Next, previos
+    # -----------------------
+    with raws[1][1]:
+        st.button(
+            'Next', on_click=next_prev_aya, args=(aya,), kwargs={'step': 1})
+
+    with raws[1][0]:
+        st.button(
+            'Previous', on_click=next_prev_aya, args=(aya,), kwargs={'step': -1})
+
     # save last Aya we were working on
-    set_last_aya(
+    save_last_aya(
         sura_idx=aya.get().sura_idx,
         aya_idx=aya.get().aya_idx,
         last_aya_save_file=DEFAULT_AYA_SAVE,
         )
     return aya
+
+
+def next_prev_aya(aya: Aya, step=1):
+    new_aya = aya.step(step)
+    st.session_state.aya_selector = new_aya.get().aya_idx
+    st.session_state.sura_selector = new_aya.get().sura_idx
 
 
 def get_last_aya(
@@ -103,7 +117,7 @@ def get_last_aya(
             return 1, 1
 
 
-def set_last_aya(
+def save_last_aya(
     sura_idx: int,
     aya_idx: int,
     last_aya_save_file: str | Path = Path('aya_ids.json'),

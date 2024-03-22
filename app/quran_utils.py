@@ -4,7 +4,6 @@ from pathlib import Path
 import json
 import xmltodict
 from dataclasses import dataclass
-import copy
 
 
 def get_from_dict(data_dict: dict, keys: list[str]):
@@ -213,6 +212,40 @@ class Aya(object):
         """
         self._check_indices(sura_idx - 1, aya_idx - 1)
         self._set_ids(sura_idx=sura_idx - 1, aya_idx=aya_idx - 1)
+
+    def step(self, step_len: int):
+        """
+        Return new Aya object with "step_len" aya after of before
+        """
+        aya_relative_idx = step_len + self.aya_idx
+
+        # +VE or zero aya idx
+        if aya_relative_idx >= 0:
+            sura_idx = self.sura_idx
+            while True:
+                num_ayat = self._get(
+                    sura_idx=sura_idx, aya_idx=0).num_ayat_in_sura
+                if (aya_relative_idx < num_ayat):
+                    break
+                aya_relative_idx -= num_ayat
+                sura_idx = (sura_idx + 1) % 114
+
+        # -VE aya idx
+        else:
+            sura_idx = (self.sura_idx - 1) % 114
+            while True:
+                num_ayat = self._get(
+                    sura_idx=sura_idx, aya_idx=0).num_ayat_in_sura
+                aya_relative_idx += num_ayat
+                if (aya_relative_idx >= 0):
+                    break
+
+        return Aya(
+            quran_path=self.quran_path,
+            sura_idx=sura_idx + 1,
+            aya_idx=aya_relative_idx + 1,
+            quran_dict=self.quran_dict,
+        )
 
     def get_ayat_after(self):
         """

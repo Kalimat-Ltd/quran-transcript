@@ -32,6 +32,12 @@ class AyaForamt:
     bismillah_map: dict[str, list[str]] = None
 
 
+@dataclass
+class RasmFormat:
+    uthmani: list[list[str]]
+    imlaey: list[list[str]]
+
+
 class Aya(object):
     def __init__(self, quran_path: str | Path,
                  sura_idx=1,
@@ -271,8 +277,8 @@ class Aya(object):
         """
         Return:
             [
-                    {'@uthmani: str, '@imlaey: st},
-                    {'@uthmani: str, '@imlaey: st},
+                {'@uthmani: str, '@imlaey: str},
+                {'@uthmani: str, '@imlaey: str},
             ]
         """
         map_list: list[str] = []
@@ -347,7 +353,30 @@ class Aya(object):
         with open(self.quran_path, 'w+', encoding='utf8') as f:
             json.dump(self.quran_dict, f, ensure_ascii=False, indent=2)
 
-        # for debuging
+        # TODO for debuging
         with open(self.quran_path.parent / 'text.xml', 'w+', encoding='utf8') as f:
             new_file = xmltodict.unparse(self.quran_dict, pretty=True)
             f.write(new_file)
+
+    def get_formatted_rasm_map(self) -> RasmFormat:
+        """
+        return rasm map in fromt like:
+            [
+                {'@uthmani: str, '@imlaey: str},
+                {'@uthmani: str, '@imlaey: str},
+            ]
+            to
+            RasmFormat.uthmani: list[list[str]]
+            RasmFormat.imlaey: list[list[str]]
+        """
+        if self.get().rasm_map is None:
+            raise ValueError('Rasmp map is None')
+
+        uthmani_words: list[list[str]] = []
+        imlaey_words: list[list[str]] = []
+        for item in self.get().rasm_map:
+            uthmani_words.append(item[self.uthmani_key].split(self.join_prefix))
+            imlaey_words.append(item[self.imlaey_key].split(self.join_prefix))
+        return RasmFormat(
+            uthmani=uthmani_words,
+            imlaey=imlaey_words)

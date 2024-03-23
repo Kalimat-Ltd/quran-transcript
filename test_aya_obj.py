@@ -33,10 +33,16 @@ if __name__ == "__main__":
     # -------------------------------------------------------------------
     # Test General Step
     # -------------------------------------------------------------------
-    start_aya = Aya('quran-script/quran-uthmani-imlaey-map.json', 1, 1)
-    steps = [0, 1, 293, 493, 292, -1, -2, -6, -11]
-    # steps = [-1]
-    for step in steps:
-        print(f'Step={step}')
-        print(start_aya.step(step))
-        print('#' * 30)
+    # start_aya = Aya('quran-script/quran-uthmani-imlaey-map.json', 114, 1)
+    # steps = [0, 1, 293, 493, 292, -1, -2, -11]
+    # # steps = [-1]
+    # for step in steps:
+    #     print(f'Step={step}')
+    #     print(start_aya.step(step))
+    #     print('#' * 30)
+
+    # -------------------------------------------------------------------
+    # Test get_fromatted_rasmp_map
+    # -------------------------------------------------------------------
+    aya = Aya('quran-script/quran-uthmani-imlaey-map.json', 111, 1)
+    print(aya.get_formatted_rasm_map())

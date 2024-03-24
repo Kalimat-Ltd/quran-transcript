@@ -13,7 +13,92 @@ def app_main():
     aya = get_aya()
 
     st.write(aya)
-    # if rasm is none (edit)
+    edit_rasm_map_wedgit(aya)
+
+
+def edit_rasm_map_wedgit(aya: Aya):
+    uthmani_words: list[list[str]] = [[word] for word in aya.get().uthmani.split(' ')]
+    imlaey_words: list[list[str]] = [[word] for word in aya.get().imlaey.split(' ')]
+    if aya.get().rasm_map is not None:
+        uthmani_words = aya.get_formatted_rasm_map().uthmani
+        imlaey_words = aya.get_formatted_rasm_map().imlaey
+
+    raws = [None] * 2
+    raws[0] = st.columns(2)
+    raws[1] = st.columns(2)
+    raws[0][1].subheader('IMLAEY SCRIPT')
+    raws[0][0].subheader('UTHMANI SCRIPT')
+    with raws[0][1]:
+        uthmani_placeholder = st.empty()
+    with raws[0][0]:
+        imlaey_placeholder = st.empty()
+
+    new_rasm_map_flag = True
+
+    if len(uthmani_words) > len(imlaey_words):
+        with imlaey_placeholder.container():
+            display_rasm(imlaey_words)
+        with uthmani_placeholder.container():
+            uthmani_words = get_new_rasm_map(uthmani_words, len(imlaey_words))
+    elif len(uthmani_words) < len(imlaey_words):
+        with imlaey_placeholder.container():
+            imlaey_words = get_new_rasm_map(imlaey_words, len(uthmani_words))
+        with uthmani_placeholder.container():
+            display_rasm(uthmani_words)
+    else:
+        new_rasm_map_flag = False
+        with imlaey_placeholder.container():
+            display_rasm(imlaey_words)
+        with uthmani_placeholder.container():
+            display_rasm(uthmani_words)
+
+    with raws[1][1]:
+        if st.button('Edit'):
+            new_rasm_map_flag = True
+            imlaey_placeholder.empty()
+            uthmani_placeholder.empty()
+            with imlaey_placeholder.container():
+                imlaey_words = get_new_rasm_map(imlaey_words)
+            with uthmani_placeholder.container():
+                imlaey_words = get_new_rasm_map(imlaey_words)
+
+    if new_rasm_map_flag:
+        with raws[1][0]:
+            st.button(
+                'Save RASM MAP',
+                on_click=save_rasm_map_click,
+                kwargs={'aya': aya,
+                        'uthmani_words': uthmani_words,
+                        'imlaey_words': imlaey_words})
+
+
+def display_rasm(rasm: list[list[str]], suffix=' '):
+    for words in rasm:
+        st.write(suffix.join(words))
+        st.write('---------')
+
+
+def get_new_rasm_map(
+        rasm_words: list[list[str]],
+        max_len: int = None) -> list[str]:
+    # TODO
+    display_rasm(rasm_words)
+    return rasm_words
+
+
+def save_rasm_map_click(
+    aya: Aya,
+    uthmani_words: list[list[str]],
+    imlaey_words: list[list[str]]
+        ):
+    aya.set_rasm_map(
+        uthmani_list=uthmani_words,
+        imlaey_list=imlaey_words)
+
+
+# --------------------------------------------------------------------------
+# Function to handel get_aya()
+# --------------------------------------------------------------------------
 
 
 @st.cache_data
@@ -75,11 +160,11 @@ def get_aya() -> Aya:
     # -----------------------
     with raws[1][1]:
         st.button(
-            'Next', on_click=next_prev_aya, args=(aya,), kwargs={'step': 1})
+            'Next AYA', on_click=next_prev_aya, args=(aya,), kwargs={'step': 1})
 
     with raws[1][0]:
         st.button(
-            'Previous', on_click=next_prev_aya, args=(aya,), kwargs={'step': -1})
+            'Previous AYA', on_click=next_prev_aya, args=(aya,), kwargs={'step': -1})
 
     # save last Aya we were working on
     save_last_aya(
@@ -132,23 +217,9 @@ def save_last_aya(
     with open(last_aya_save_file, 'w+') as f:
         json.dump({'sura_idx': sura_idx, 'aya_idx': aya_idx}, f)
 
-
-def edit_ayah_page(uthmani_words: list[str],
-                   emlaey_words: list[str],
-                   emlaey_to_uthmani: dict[str, str] = None) -> dict[str, str]:
-    """
-    the display function that maps emlaey script words to uthmani script words
-    Args:
-        uthmani_words: list[str] list of the uthmani words of the ayah
-        emaley_words: list[str] list of the emlaey words of the ayah
-        emaley_to_uthmani: dict[str, str] dict with
-            keys (emaley words or words) and value of (uthmani word or words)
-    Return:
-        emaley_to_uthmani: dict[str, str] dict with
-            keys (emaley words or words) and value of (uthmani word or words)
-            after uditing using the User Interface
-    """
-    pass
+# --------------------------------------------------------------------------
+# Function to handel edit reasm map
+# --------------------------------------------------------------------------
 
 
 class MultiSelectSave(object):
@@ -602,6 +673,7 @@ def multiselect_list(options: list,
     Return:
         seleteced_ids of the options (2D list)
     """
+    # TODO options: list[list[Any]] not list[Any]
 
     multiselect_save = 'multiselect_save'
     multiselect = 'multiselect'

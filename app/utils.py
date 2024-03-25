@@ -490,7 +490,6 @@ def deselect_right_most_box_idx(m_select_idx: int,
             m_save_obj[m_select_idx + 1][key] = del_box.copy()
 
 
-
 def multiselect_callback(m_select_idx: int,
                          m_save_obj: MultiSelectSave,
                          multiselect='multiselect',
@@ -620,6 +619,7 @@ def reset_multiselcts(max_len: int,
                       max_options: int,
                       multiselect='multiselect',
                       multiselect_save='multiselect_save',
+                      default_options: list[list[Any]] = None,
                       hard=False,
                       rtl=True):
     """
@@ -638,30 +638,55 @@ def reset_multiselcts(max_len: int,
     rtl: (bool) display boxes in descending order (right to left)
     """
     options_ids = list(range(max_options))
+    default_options_ids = [[idx] for idx in options_ids]
+    if default_options is not None:
+        if len(default_options) >= max_len:
+            default_options_ids = get_boxes_ids(default_options)
 
-    # initialize sessoin state
+    # Initialize sessoin state
     for m_idx in range(max_len - 1):
         if (f'{multiselect_save}_{m_idx}' not in st.session_state) or hard:
             st.session_state[f'{multiselect_save}_{m_idx}'] = {
-                'value': [m_idx],
-                'options': [m_idx]
+                'value': default_options_ids[m_idx],
+                'options': default_options_ids[m_idx],
             }
             # value os the mulitselect box itself
             st.session_state[f'{multiselect}_{m_idx}'] = select_ids(
-                [m_idx], options_ids, rtl=rtl)
+                default_options_ids[m_idx], options_ids, rtl=rtl)
 
-    # last multiselct cell (filled with the rest of the cells)
+    # Last multiselct cell (filled with the rest of the cells)
     if (f'{multiselect_save}_{max_len - 1}' not in st.session_state) or hard:
         st.session_state[f'{multiselect_save}_{max_len - 1}'] = {
-            'value': [max_len - 1],
-            'options': list(range(max_len - 1, len(options_ids), 1))
+            'value': default_options_ids[max_len - 1],
+            'options': join_lists(default_options_ids[max_len - 1:])
         }
         # value os the mulitselect box itself
         st.session_state[f'{multiselect}_{max_len - 1}'] = select_ids(
-            [max_len - 1], options_ids, rtl=rtl)
+            default_options_ids[max_len - 1], options_ids, rtl=rtl)
 
 
-def multiselect_list(options: list,
+def join_lists(L: list[list[Any]]) -> list[Any]:
+    out_L = []
+    for item in L:
+        out_L += item
+    return out_L
+
+
+def get_boxes_ids(default_optins: list[list[Any]]) -> list[list[int]]:
+    """
+    Return: Ids of of options staring from 0
+    ex: [['A', 'B'], ['C', 'D'] ['E']] -> [[0, 1], [2, 3], [4]]
+    """
+    idx = 0
+    default_optins_ids: list[list[int]] = []
+    for inner_opt in default_optins:
+        inner_ids = list(range(idx, idx + len(inner_opt), 1))
+        default_optins_ids.append(inner_ids)
+        idx += len(inner_opt)
+    return default_optins_ids
+
+
+def multiselect_list(default_options: list[list[Any]],
                      max_len: int,
                      rtl=True) -> list[list[int]]:
     """
@@ -674,6 +699,7 @@ def multiselect_list(options: list,
         seleteced_ids of the options (2D list)
     """
     # TODO options: list[list[Any]] not list[Any]
+    options = join_lists(default_options)
 
     multiselect_save = 'multiselect_save'
     multiselect = 'multiselect'
@@ -681,18 +707,20 @@ def multiselect_list(options: list,
         dict_obj=st.session_state,
         key_name=multiselect_save,
         max_len=max_len,
-        max_options=len(options),
+        max_options=len(options),  # <<<<<<<<<<<<<<<<<<<<<<
     )
 
     # reset session_state
     reset_multiselcts(
         max_len=max_len,
-        max_options=len(options),
+        max_options=len(options),  # <<<<<<<<<<<<<<<<<<<<<
         multiselect=multiselect,
         multiselect_save=multiselect_save,
+        default_options=default_options,
         rtl=rtl)
+    print(m_save_obj)
 
-    options_ids = list(range(len(options)))
+    options_ids = list(range(len(options)))  # <<<<<<<<<<<<<<<<<<<<<
 
     # main code
     selected_options_ids = []

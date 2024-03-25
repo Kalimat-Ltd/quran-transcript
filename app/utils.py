@@ -493,6 +493,7 @@ def deselect_right_most_box_idx(m_select_idx: int,
 def multiselect_callback(m_select_idx: int,
                          m_save_obj: MultiSelectSave,
                          multiselect='multiselect',
+                         debug=False,
                          ):
     # *************************************************************
     # Deslect the only left box ("B")
@@ -595,8 +596,9 @@ def multiselect_callback(m_select_idx: int,
             m_save_obj[m_select_idx]['value'] = sorted(
                 st.session_state[f'{multiselect}_{m_select_idx}'])
 
-    print(f'm_idx: {m_select_idx}')
-    print(m_save_obj)
+    if debug:
+        print(f'm_idx: {m_select_idx}')
+        print(m_save_obj)
     m_save_obj.validate_duplicate_ids()
 
     # assetion if the selected options are not following each other
@@ -648,7 +650,7 @@ def reset_multiselcts(max_len: int,
         if (f'{multiselect_save}_{m_idx}' not in st.session_state) or hard:
             st.session_state[f'{multiselect_save}_{m_idx}'] = {
                 'value': default_options_ids[m_idx],
-                'options': default_options_ids[m_idx],
+                'options': default_options_ids[m_idx].copy(),
             }
             # value os the mulitselect box itself
             st.session_state[f'{multiselect}_{m_idx}'] = select_ids(
@@ -658,7 +660,7 @@ def reset_multiselcts(max_len: int,
     if (f'{multiselect_save}_{max_len - 1}' not in st.session_state) or hard:
         st.session_state[f'{multiselect_save}_{max_len - 1}'] = {
             'value': default_options_ids[max_len - 1],
-            'options': join_lists(default_options_ids[max_len - 1:])
+            'options': join_lists(default_options_ids[max_len - 1:].copy())
         }
         # value os the mulitselect box itself
         st.session_state[f'{multiselect}_{max_len - 1}'] = select_ids(
@@ -688,17 +690,18 @@ def get_boxes_ids(default_optins: list[list[Any]]) -> list[list[int]]:
 
 def multiselect_list(default_options: list[list[Any]],
                      max_len: int,
-                     rtl=True) -> list[list[int]]:
+                     rtl=True,
+                     debug=False) -> list[list[int]]:
     """
     src for dynamicly change wedgit default values:
     https://github.com/streamlit/streamlit/issues/3925#issuecomment-946148239
 
     Args:
+        default_optoins (2D list): of options
         rtl: (bool) display boxes in descending order (right to left)
     Return:
         seleteced_ids of the options (2D list)
     """
-    # TODO options: list[list[Any]] not list[Any]
     options = join_lists(default_options)
 
     multiselect_save = 'multiselect_save'
@@ -707,20 +710,19 @@ def multiselect_list(default_options: list[list[Any]],
         dict_obj=st.session_state,
         key_name=multiselect_save,
         max_len=max_len,
-        max_options=len(options),  # <<<<<<<<<<<<<<<<<<<<<<
+        max_options=len(options),
     )
 
     # reset session_state
     reset_multiselcts(
         max_len=max_len,
-        max_options=len(options),  # <<<<<<<<<<<<<<<<<<<<<
+        max_options=len(options),
         multiselect=multiselect,
         multiselect_save=multiselect_save,
         default_options=default_options,
         rtl=rtl)
-    print(m_save_obj)
 
-    options_ids = list(range(len(options)))  # <<<<<<<<<<<<<<<<<<<<<
+    options_ids = list(range(len(options)))
 
     # main code
     selected_options_ids = []
@@ -736,6 +738,7 @@ def multiselect_list(default_options: list[list[Any]],
             format_func=lambda x: options[x],
             on_change=multiselect_callback,
             args=(m_idx, m_save_obj),
+            kwargs={'debug': debug},
             key=f'{multiselect}_{m_idx}')
         selected_options_ids.append(selected_ids)
 

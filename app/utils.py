@@ -29,9 +29,9 @@ def edit_rasm_map_wedgit(aya: Aya):
     raws[0][1].subheader('IMLAEY SCRIPT')
     raws[0][0].subheader('UTHMANI SCRIPT')
     with raws[0][1]:
-        uthmani_placeholder = st.empty()
-    with raws[0][0]:
         imlaey_placeholder = st.empty()
+    with raws[0][0]:
+        uthmani_placeholder = st.empty()
 
     new_rasm_map_flag = True
 
@@ -81,9 +81,19 @@ def display_rasm(rasm: list[list[str]], suffix=' '):
 def get_new_rasm_map(
         rasm_words: list[list[str]],
         max_len: int = None) -> list[str]:
-    # TODO
-    display_rasm(rasm_words)
-    return rasm_words
+    if max_len is None:
+        max_len = len(rasm_words)
+    new_words_ids: list[list[int]] = multiselect_list(rasm_words, max_len)
+    new_words_map: list[list[str]] = []
+    raw_rasm_words = join_lists(rasm_words)
+
+    for ids_list in new_words_ids:
+        words_list = []
+        for idx in ids_list:
+            words_list.append(raw_rasm_words[idx])
+        new_words_map.append(words_list)
+
+    return new_words_map
 
 
 def save_rasm_map_click(
@@ -688,6 +698,10 @@ def get_boxes_ids(default_optins: list[list[Any]]) -> list[list[int]]:
     return default_optins_ids
 
 
+def hash_options(options: list[list[Any]], max_len):
+    return f'{options}_{max_len}'
+
+
 def multiselect_list(default_options: list[list[Any]],
                      max_len: int,
                      rtl=True,
@@ -713,14 +727,26 @@ def multiselect_list(default_options: list[list[Any]],
         max_options=len(options),
     )
 
-    # reset session_state
+    # Reset session_state
+    # if stored default_options != new_default_options -> reset hard
+    reset_hard = False
+    if 'last_default_options' not in st.session_state:
+        st.session_state.last_default_options = (
+            hash_options(default_options, max_len))
+    if (hash_options(default_options, max_len) !=
+            st.session_state.last_default_options):
+        reset_hard = True
+        st.session_state.last_default_options = (
+            hash_options(default_options, max_len))
     reset_multiselcts(
         max_len=max_len,
         max_options=len(options),
         multiselect=multiselect,
         multiselect_save=multiselect_save,
         default_options=default_options,
-        rtl=rtl)
+        rtl=rtl,
+        hard=reset_hard,
+    )
 
     options_ids = list(range(len(options)))
 
@@ -740,6 +766,7 @@ def multiselect_list(default_options: list[list[Any]],
             args=(m_idx, m_save_obj),
             kwargs={'debug': debug},
             key=f'{multiselect}_{m_idx}')
-        selected_options_ids.append(selected_ids)
+        st.write('----------------')
+        selected_options_ids.append(sorted(selected_ids))
 
     return selected_options_ids

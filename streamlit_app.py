@@ -2,7 +2,7 @@ import streamlit as st
 from pathlib import Path
 import json
 import shutil
-from app.utils import multiselect_list, app_main
+from app.utils import multiselect_list, app_main, reset_multiselcts
 
 
 def move_font_files(fonts_dir: str | Path):
@@ -27,6 +27,14 @@ def handle_change():
 
 def set_slider_max():
     st.session_state.slider_max = int(st.session_state.number_input)
+
+
+def change_click():
+    st.session_state.count = 3
+    # reset_multiselcts(
+    #     max_len=st.session_state.count,
+    #     max_options=5,
+    #     hard=True)
 
 
 if __name__ == "__main__":
@@ -79,6 +87,16 @@ if __name__ == "__main__":
     # st.write('level_1 = ', st.session_state.level_1)
 
     # st.write(multiselect_list(['A', 'B', 'C', 'D', 'E', 'F', 'G'], 5))
-    st.write(multiselect_list([['A'], ['B'], ['C', 'D'], ['E']], 4, debug=True))
+    # st.write(multiselect_list([['A'], ['B'], ['C', 'D'], ['E']], 4, debug=True))
 
-    # app_main()
+    # BUG repreduce
+    # if 'count' not in st.session_state.keys():
+    #     st.session_state.count = 4
+    # wedgit = st.empty()
+    # default_options = [['A'], ['B'], ['C', 'D'], ['E']]
+    # multiselect_list(default_options, st.session_state.count, debug=True)
+    # st.button('change', on_click=change_click)
+
+
+    app_main()
+

@@ -19,7 +19,7 @@ def get_from_dict(data_dict: dict, keys: list[str]):
 
 
 @dataclass
-class AyaForamt:
+class AyaFormat:
     sura_idx: int
     aya_idx: int
     sura_name: str
@@ -94,7 +94,7 @@ class Aya(object):
             f'and len of sura={len(self._get_sura(sura_idx))}')
         return self._get_sura(sura_idx)[aya_idx]
 
-    def _get(self, sura_idx, aya_idx) -> AyaForamt:
+    def _get(self, sura_idx, aya_idx) -> AyaFormat:
         """
         get an aya from quran script
         Args:
@@ -155,7 +155,7 @@ class Aya(object):
         if self.map_key in self._get_aya(sura_idx, aya_idx).keys():
             rasm_map = self._get_aya(sura_idx, aya_idx)[self.map_key]
 
-        return AyaForamt(
+        return AyaFormat(
             sura_idx=sura_idx + 1,
             aya_idx=aya_idx + 1,
             sura_name=self._get_sura_object(sura_idx)[self.sura_name_key],
@@ -168,7 +168,7 @@ class Aya(object):
             bismillah_map=bismillah_map,
             )
 
-    def get(self) -> AyaForamt:
+    def get(self) -> AyaFormat:
         """
         get an aya from quran script
         Return:
@@ -218,6 +218,21 @@ class Aya(object):
         """
         self._check_indices(sura_idx - 1, aya_idx - 1)
         self._set_ids(sura_idx=sura_idx - 1, aya_idx=aya_idx - 1)
+
+    def set_new(self, sura_idx, aya_idx):
+        """
+        Return new aya with sura, and aya indices
+        Args:
+        sura_idx: the index of the Sura in the Quran starting with 1 to 114
+        aya_idx: the index of the aya starting form 1
+        """
+        return Aya(
+            quran_path=self.quran_path,
+            sura_idx=sura_idx,
+            aya_idx=aya_idx,
+            quran_dict=self.quran_dict,
+        )
+
 
     def step(self, step_len: int):
         """
@@ -353,10 +368,10 @@ class Aya(object):
         with open(self.quran_path, 'w+', encoding='utf8') as f:
             json.dump(self.quran_dict, f, ensure_ascii=False, indent=2)
 
-        # TODO for debuging
-        with open(self.quran_path.parent / 'text.xml', 'w+', encoding='utf8') as f:
-            new_file = xmltodict.unparse(self.quran_dict, pretty=True)
-            f.write(new_file)
+        # # TODO for debuging
+        # with open(self.quran_path.parent / 'text.xml', 'w+', encoding='utf8') as f:
+        #     new_file = xmltodict.unparse(self.quran_dict, pretty=True)
+        #     f.write(new_file)
 
     def get_formatted_rasm_map(self) -> RasmFormat:
         """

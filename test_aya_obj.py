@@ -44,5 +44,17 @@ if __name__ == "__main__":
     # -------------------------------------------------------------------
     # Test get_fromatted_rasmp_map
     # -------------------------------------------------------------------
+    # aya = Aya('quran-script/quran-uthmani-imlaey-map.json', 111, 1)
+    # print(aya.get_formatted_rasm_map())
+
+   # -------------------------------------------------------------------
+    # Test set_new
+    # -------------------------------------------------------------------
     aya = Aya('quran-script/quran-uthmani-imlaey-map.json', 111, 1)
-    print(aya.get_formatted_rasm_map())
+    new_aya = aya.set_new(4, 4)
+    print('OLD AYA')
+    print(aya)
+    print()
+    print('NEW AYA')
+    print(new_aya)
+

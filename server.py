@@ -21,6 +21,7 @@ async def lifespan(app: FastAPI):
     SUAR_NAMES = suar_names
 
     global AYA
+    start_aya.set(1, 1)
     # the aya which we rely on is the first aya that has no rasm_map
     for aya in start_aya.get_ayat_after():
         if aya.get().rasm_map is None:
@@ -56,4 +57,23 @@ async def get_suar_list() -> list[str]:
 def step_ayat(sura_idx: int, aya_idx: int, step: int) -> dict:
     new_aya = AYA.set_new(sura_idx=sura_idx, aya_idx=aya_idx)
     new_aya = new_aya.step(step)
+    return new_aya.get().__dict__
+
+
+@app.get("/get_first_aya_to_annotate/")
+async def walk():
+    global AYA
+    for new_aya in AYA.get_ayat_after():
+        uthmani_words: list[list[str]] = (
+            [[word] for word in new_aya.get().uthmani.split(' ')])
+        imlaey_words: list[list[str]] = (
+            [[word] for word in new_aya.get().imlaey.split(' ')])
+        if new_aya.get().rasm_map is None:
+            if len(uthmani_words) == len(imlaey_words):
+                new_aya.set_rasm_map(
+                    uthmani_list=uthmani_words,
+                    imlaey_list=imlaey_words)
+            else:
+                AYA = new_aya
+                break
     return new_aya.get().__dict__

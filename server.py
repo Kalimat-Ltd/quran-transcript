@@ -47,3 +47,10 @@ async def get_suar_list() -> list[str]:
         sura_name = start_aya.get().sura_name
         suar_names.append(sura_name)
     return suar_names
+
+
+@app.get("/step_ayat/")
+def step_ayat(sura_idx: int, aya_idx: int, step: int) -> dict:
+    new_aya = AYA.set_new(sura_idx=sura_idx, aya_idx=aya_idx)
+    new_aya = new_aya.step(step)
+    return new_aya.get().__dict__

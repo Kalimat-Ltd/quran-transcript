@@ -1,4 +1,4 @@
-from app.api_utils import get_aya, get_suar_names
+from app.api_utils import get_aya, get_suar_names, step_ayat
 import time
 
 if __name__ == "__main__":
@@ -10,3 +10,8 @@ if __name__ == "__main__":
 
     print('Suar Names')
     print(get_suar_names())
+    print()
+
+    print('Step ayat')
+    print(step_ayat(ayaformat, -10))
+    print()

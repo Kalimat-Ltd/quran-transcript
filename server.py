@@ -10,7 +10,16 @@ QURAN_MAP_PATH = 'quran-script/quran-uthmani-imlaey-map.json'
 async def lifespan(app: FastAPI):
     # StartUP event (called before start)
 
-    start_aya = Aya(QURAN_MAP_PATH)
+    # Get Sura names
+    start_aya = Aya(QURAN_MAP_PATH, sura_idx=1, aya_idx=1)
+    suar_names = []
+    for sura_idx in range(1, 115, 1):
+        start_aya.set(sura_idx=sura_idx, aya_idx=1)
+        sura_name = start_aya.get().sura_name
+        suar_names.append(sura_name)
+    global SUAR_NAMES
+    SUAR_NAMES = suar_names
+
     global AYA
     # the aya which we rely on is the first aya that has no rasm_map
     for aya in start_aya.get_ayat_after():
@@ -40,13 +49,7 @@ async def get_suar_list() -> list[str]:
     """
     get list of Holy Quan suar names
     """
-    start_aya = AYA.set_new(1, 1)
-    suar_names = []
-    for sura_idx in range(1, 115, 1):
-        start_aya.set(sura_idx=sura_idx, aya_idx=1)
-        sura_name = start_aya.get().sura_name
-        suar_names.append(sura_name)
-    return suar_names
+    return SUAR_NAMES
 
 
 @app.get("/step_ayat/")

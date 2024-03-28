@@ -30,6 +30,20 @@ async def root():
 
 
 @app.get("/get/")
-async def get(sura_idx: int, aya_idx: int) -> dict:
+def get(sura_idx: int, aya_idx: int) -> dict:
     new_aya = AYA.set_new(sura_idx=sura_idx, aya_idx=aya_idx)
     return new_aya.get().__dict__
+
+
+@app.get("/get_suar_names/")
+async def get_suar_list() -> list[str]:
+    """
+    get list of Holy Quan suar names
+    """
+    start_aya = AYA.set_new(1, 1)
+    suar_names = []
+    for sura_idx in range(1, 115, 1):
+        start_aya.set(sura_idx=sura_idx, aya_idx=1)
+        sura_name = start_aya.get().sura_name
+        suar_names.append(sura_name)
+    return suar_names

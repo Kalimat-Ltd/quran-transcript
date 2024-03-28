@@ -233,7 +233,6 @@ class Aya(object):
             quran_dict=self.quran_dict,
         )
 
-
     def step(self, step_len: int):
         """
         Return new Aya object with "step_len" aya after of before

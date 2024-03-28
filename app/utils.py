@@ -11,9 +11,27 @@ QURAN_MAP_PATH = 'quran-script/quran-uthmani-imlaey-map.json'
 
 def app_main():
     aya = get_aya()
+    st.button('امش', on_click=walk, args=(aya, ))
 
     st.write(aya)
     edit_rasm_map_wedgit(aya)
+
+
+def walk(start_aya: Aya):
+    for aya in start_aya.get_ayat_after():
+        uthmani_words: list[list[str]] = (
+            [[word] for word in aya.get().uthmani.split(' ')])
+        imlaey_words: list[list[str]] = (
+            [[word] for word in aya.get().imlaey.split(' ')])
+        if aya.get().rasm_map is None:
+            if len(uthmani_words) == len(imlaey_words):
+                aya.set_rasm_map(
+                    uthmani_list=uthmani_words,
+                    imlaey_list=imlaey_words)
+            else:
+                st.session_state.aya_selector = aya.get().aya_idx
+                st.session_state.sura_selector = aya.get().sura_idx
+                break
 
 
 def edit_rasm_map_wedgit(aya: Aya):

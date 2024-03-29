@@ -2,7 +2,9 @@ from app.api_utils import (
     get_aya,
     get_suar_names,
     step_ayat,
-    get_first_aya_to_annotate)
+    get_first_aya_to_annotate,
+    save_rasm_map,
+)
 import time
 
 if __name__ == "__main__":
@@ -22,4 +24,14 @@ if __name__ == "__main__":
 
     print('Fistt Aya to Annotate')
     print(get_first_aya_to_annotate())
+    print()
+
+    print('Save Rasm Map')
+    ayaformat = get_aya(4, 4)
+    save_rasm_map(
+        sura_idx=4,
+        aya_idx=3,
+        uthmani_words=[[word] for word in ayaformat.uthmani.split(' ')],
+        imlaey_words=[[word] for word in ayaformat.imlaey.split(' ')],
+    )
     print()

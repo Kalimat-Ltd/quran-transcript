@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Response, status
+from pydantic import BaseModel
 from app.quran_utils import Aya, AyaFormat
 
 
@@ -41,6 +42,7 @@ async def root():
 
 @app.get("/get/")
 def get(sura_idx: int, aya_idx: int) -> dict:
+    global AYA
     new_aya = AYA.set_new(sura_idx=sura_idx, aya_idx=aya_idx)
     return new_aya.get().__dict__
 
@@ -77,3 +79,36 @@ async def walk():
                 AYA = new_aya
                 break
     return new_aya.get().__dict__
+
+
+class RasmMap(BaseModel):
+    sura_idx: int
+    aya_idx: int
+    uthmani_words: list[list[str]]
+    imlaey_words: list[list[str]]
+
+
+# src: https://fastapi.tiangolo.com/advanced/response-change-status-code/
+@app.post('/save_rasm_map/', status_code=200)
+async def save_rasm_map(rasm_map: RasmMap, response: Response):
+    sura_idx = rasm_map.sura_idx
+    aya_idx = rasm_map.aya_idx
+    uthmani_words = rasm_map.uthmani_words
+    imlaey_words = rasm_map.imlaey_words
+    global AYA
+    new_aya = AYA.set_new(sura_idx=sura_idx, aya_idx=aya_idx)
+    try:
+        new_aya.set_rasm_map(
+            uthmani_list=uthmani_words, imlaey_list=imlaey_words)
+    except AssertionError:
+        response.status_code = status.HTTP_406_NOT_ACCEPTABLE
+
+
+
+
+
+
+
+
+
+

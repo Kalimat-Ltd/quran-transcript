@@ -29,3 +29,29 @@ def step_ayat(ayaformat: AyaFormat, step: int) -> AyaFormat:
                 'aya_idx': ayaformat.aya_idx,
                 'step': step})
     return AyaFormat(**response.json())
+
+
+def get_first_aya_to_annotate() -> AyaFormat:
+    """
+    get first aya to annotate "len(uthmani_words) != len(imlaey_words)"
+    """
+    response = get(f'{URL}/get_first_aya_to_annotate/')
+    return AyaFormat(**response.json())
+
+
+def save_rasm_map(
+    sura_idx: int,
+    aya_idx: int,
+    uthmani_words: list[list[str]],
+    imlaey_words: list[list[str]]
+        ):
+    to_send = {
+        'sura_idx': sura_idx,
+        'aya_idx': aya_idx,
+        'uthmani_words': uthmani_words,
+        'imlaey_words': imlaey_words
+    }
+    response = post(f'{URL}/save_rasm_map', json=to_send)
+    if response.status_code == 406:
+        raise ValueError(
+            f'Rasm Map not acceptable of (sura_idx={sura_idx}, aya_idx={aya_idx})')

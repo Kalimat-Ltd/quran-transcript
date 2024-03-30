@@ -3,13 +3,33 @@
   src: url('/assets/fonts/HafsSmart_08.ttf'); 
 }
 
-
 @font-face {
-  font-family: test;
-  src: url('/assets/fonts/test_font.ttf'); 
+  font-family: MeQuran;
+  src: url('/assets/fonts/me_quran_Regular.ttf'); 
 }
+
 
 * {
-   font-family: Hafs;
+   font-family: MeQuran;
 }
 
+.st-emotion-cache-nahz7x p {
+  padding: 39.677px 0;
+  padding-left: 120px;
+  font-size: 25px;
+}
+
+.st-dq {
+  /* min-height: 70px; */
+  font-size: 25px;
+  padding: 6px;
+  /* font-size: 0.3em; */
+}
+
+.st-d7 {
+  min-height: 90px;
+}
+
+[role="button"] {
+  min-height: 70px;
+}

@@ -2,7 +2,8 @@ import streamlit as st
 from typing import Any
 from pathlib import Path
 import json
-from app.quran_utils import Aya, AyaForamt
+import app.api_utils as api
+from app.quran_utils import AyaFormat
 
 
 DEFAULT_AYA_SAVE = 'APP_AYA_IDS.json'
@@ -10,36 +11,30 @@ QURAN_MAP_PATH = 'quran-script/quran-uthmani-imlaey-map.json'
 
 
 def app_main():
-    aya = get_aya()
-    st.button('امش', on_click=walk, args=(aya, ))
+    aya_format = get_selected_aya()
 
-    st.write(aya)
-    edit_rasm_map_wedgit(aya)
+    st.button('امش', on_click=walk)
 
+    # st.write(aya_format)
 
-def walk(start_aya: Aya):
-    for aya in start_aya.get_ayat_after():
-        uthmani_words: list[list[str]] = (
-            [[word] for word in aya.get().uthmani.split(' ')])
-        imlaey_words: list[list[str]] = (
-            [[word] for word in aya.get().imlaey.split(' ')])
-        if aya.get().rasm_map is None:
-            if len(uthmani_words) == len(imlaey_words):
-                aya.set_rasm_map(
-                    uthmani_list=uthmani_words,
-                    imlaey_list=imlaey_words)
-            else:
-                st.session_state.aya_selector = aya.get().aya_idx
-                st.session_state.sura_selector = aya.get().sura_idx
-                break
+    edit_rasm_map_wedgit(aya_format)
 
 
-def edit_rasm_map_wedgit(aya: Aya):
-    uthmani_words: list[list[str]] = [[word] for word in aya.get().uthmani.split(' ')]
-    imlaey_words: list[list[str]] = [[word] for word in aya.get().imlaey.split(' ')]
-    if aya.get().rasm_map is not None:
-        uthmani_words = aya.get_formatted_rasm_map().uthmani
-        imlaey_words = aya.get_formatted_rasm_map().imlaey
+def walk():
+    aya_format = api.get_first_aya_to_annotate()
+    st.session_state.aya_selector = aya_format.aya_idx
+    st.session_state.sura_selector = aya_format.sura_idx
+
+
+def edit_rasm_map_wedgit(aya_format: AyaFormat):
+    uthmani_words: list[list[str]] = (
+        [[word] for word in aya_format.uthmani.split(' ')])
+    imlaey_words: list[list[str]] = (
+        [[word] for word in aya_format.imlaey.split(' ')])
+    if aya_format.rasm_map is not None:
+        # TODO
+        uthmani_words = aya_format.get_formatted_rasm_map().uthmani
+        imlaey_words = aya_format.get_formatted_rasm_map().imlaey
 
     raws = [None] * 2
     raws[0] = st.columns(2)
@@ -85,7 +80,7 @@ def edit_rasm_map_wedgit(aya: Aya):
             st.button(
                 'Save RASM MAP',
                 on_click=save_rasm_map_click,
-                kwargs={'aya': aya,
+                kwargs={'aya_format': aya_format,
                         'uthmani_words': uthmani_words,
                         'imlaey_words': imlaey_words})
 
@@ -115,14 +110,15 @@ def get_new_rasm_map(
 
 
 def save_rasm_map_click(
-    aya: Aya,
+    aya_format: AyaFormat,
     uthmani_words: list[list[str]],
     imlaey_words: list[list[str]]
         ):
-    aya.set_rasm_map(
-        uthmani_list=uthmani_words,
-        imlaey_list=imlaey_words)
-
+    api.save_rasm_map(
+        sura_idx=aya_format.sura_idx,
+        aya_idx=aya_format.aya_idx,
+        uthmani_words=uthmani_words,
+        imlaey_words=imlaey_words)
 
 # --------------------------------------------------------------------------
 # Function to handel get_aya()
@@ -131,19 +127,10 @@ def save_rasm_map_click(
 
 @st.cache_data
 def get_suar_list() -> list[int]:
-    """
-    get list of Holy Quan suar names
-    """
-    start_aya = Aya(QURAN_MAP_PATH)
-    suar_names = []
-    for sura_idx in range(1, 115, 1):
-        start_aya.set(sura_idx=sura_idx, aya_idx=1)
-        sura_name = start_aya.get().sura_name
-        suar_names.append(sura_name)
-    return suar_names
+    return api.get_suar_names()
 
 
-def get_aya() -> Aya:
+def get_selected_aya() -> AyaFormat:
     # # get last aya we were working on
     if 'on_start' not in st.session_state.keys():
         last_sura_idx, last_aya_idx = get_last_aya(DEFAULT_AYA_SAVE)
@@ -167,8 +154,7 @@ def get_aya() -> Aya:
             key='sura_selector',
         )
 
-    aya = Aya(quran_path=QURAN_MAP_PATH,
-              sura_idx=sura_idx)
+    aya_format: AyaFormat = api.get_aya(sura_idx=sura_idx, aya_idx=1)
     default_aya = st.session_state['last_aya_idx']
     if sura_idx != st.session_state['last_sura_idx']:
         default_aya = 1
@@ -177,36 +163,38 @@ def get_aya() -> Aya:
         aya_idx = st.number_input(
             label='Aya',
             min_value=1,
-            max_value=aya.get().num_ayat_in_sura,
+            max_value=aya_format.num_ayat_in_sura,
             value=default_aya,
             key='aya_selector',
         )
-    aya.set(sura_idx=sura_idx, aya_idx=aya_idx)
+    aya_format = api.get_aya(sura_idx=sura_idx, aya_idx=aya_idx)
 
     # -----------------------
     # Next, previos
     # -----------------------
     with raws[1][1]:
         st.button(
-            'Next AYA', on_click=next_prev_aya, args=(aya,), kwargs={'step': 1})
+            'Next AYA',
+            on_click=next_prev_aya, args=(aya_format,), kwargs={'step': 1})
 
     with raws[1][0]:
         st.button(
-            'Previous AYA', on_click=next_prev_aya, args=(aya,), kwargs={'step': -1})
+            'Previous AYA',
+            on_click=next_prev_aya, args=(aya_format,), kwargs={'step': -1})
 
     # save last Aya we were working on
     save_last_aya(
-        sura_idx=aya.get().sura_idx,
-        aya_idx=aya.get().aya_idx,
+        sura_idx=aya_format.sura_idx,
+        aya_idx=aya_format.aya_idx,
         last_aya_save_file=DEFAULT_AYA_SAVE,
         )
-    return aya
+    return aya_format
 
 
-def next_prev_aya(aya: Aya, step=1):
-    new_aya = aya.step(step)
-    st.session_state.aya_selector = new_aya.get().aya_idx
-    st.session_state.sura_selector = new_aya.get().sura_idx
+def next_prev_aya(ayaformat: AyaFormat, step=1):
+    new_ayaformat = api.step_ayat(ayaformat, step)
+    st.session_state.aya_selector = new_ayaformat.aya_idx
+    st.session_state.sura_selector = new_ayaformat.sura_idx
 
 
 def get_last_aya(

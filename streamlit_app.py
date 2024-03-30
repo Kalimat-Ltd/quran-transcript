@@ -38,10 +38,10 @@ def change_click():
 
 
 if __name__ == "__main__":
-    # move_font_files('app/fonts')
+    move_font_files('app/fonts')
     #
-    # with open("style.css") as css:
-    #     st.markdown( f'<style>{css.read()}</style>' , unsafe_allow_html= True)
+    with open("style.css") as css:
+        st.markdown( f'<style>{css.read()}</style>' , unsafe_allow_html= True)
     #
     # edit_ayah_page([], [])
     # L = ['A', 'B', 'C', 'D']
@@ -97,6 +97,4 @@ if __name__ == "__main__":
     # multiselect_list(default_options, st.session_state.count, debug=True)
     # st.button('change', on_click=change_click)
 
-
     app_main()
-

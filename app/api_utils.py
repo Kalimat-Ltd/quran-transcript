@@ -55,3 +55,12 @@ def save_rasm_map(
     if response.status_code == 406:
         raise ValueError(
             f'Rasm Map not acceptable of (sura_idx={sura_idx}, aya_idx={aya_idx})')
+    return response.status_code
+
+
+def save_quran_dict() -> None:
+    """
+    Saving changes in quran-map file
+    """
+    response = get(f'{URL}/save_quran_dict/')
+    return response.status_code

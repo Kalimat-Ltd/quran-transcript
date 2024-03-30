@@ -390,6 +390,7 @@ class Aya(object):
             self.quran_dict['quran']['sura'][self.sura_idx]['aya'][self.aya_idx][
                 self.bismillah_map_key] = bismillah_map
 
+    def save_quran_dict(self):
         # save the file
         with open(self.quran_path, 'w+', encoding='utf8') as f:
             json.dump(self.quran_dict, f, ensure_ascii=False, indent=2)

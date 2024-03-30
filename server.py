@@ -31,6 +31,8 @@ async def lifespan(app: FastAPI):
 
     yield
     # Shutdow event (called before shutdown)
+    AYA.save_quran_dict()
+
 
 app = FastAPI(lifespan=lifespan)
 
@@ -103,6 +105,11 @@ async def save_rasm_map(rasm_map: RasmMap, response: Response):
     except AssertionError:
         response.status_code = status.HTTP_406_NOT_ACCEPTABLE
 
+
+@app.get('/save_quran_dict/')
+async def save_quran_dict():
+    global AYA
+    AYA.save_quran_dict()
 
 
 

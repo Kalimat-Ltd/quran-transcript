@@ -4,6 +4,7 @@ from app.api_utils import (
     step_ayat,
     get_first_aya_to_annotate,
     save_rasm_map,
+    save_quran_dict,
 )
 import time
 
@@ -28,10 +29,14 @@ if __name__ == "__main__":
 
     print('Save Rasm Map')
     ayaformat = get_aya(4, 4)
-    save_rasm_map(
+    print(save_rasm_map(
         sura_idx=4,
-        aya_idx=3,
+        aya_idx=4,
         uthmani_words=[[word] for word in ayaformat.uthmani.split(' ')],
         imlaey_words=[[word] for word in ayaformat.imlaey.split(' ')],
-    )
+    ))
+    print()
+
+    print('Save Quran Dict')
+    print(save_quran_dict())
     print()

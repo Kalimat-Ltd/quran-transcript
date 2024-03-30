@@ -13,11 +13,22 @@ QURAN_MAP_PATH = 'quran-script/quran-uthmani-imlaey-map.json'
 def app_main():
     aya_format = get_selected_aya()
 
-    st.button('امش', on_click=walk)
+    left_col, right_col = st.columns(2)
+    with left_col:
+        st.button('امش', on_click=walk)
+    with right_col:
+        st.button('حفظ', on_click=save_quran_dict)
 
     # st.write(aya_format)
 
     edit_rasm_map_wedgit(aya_format)
+
+
+def save_quran_dict():
+    """
+    Saving Rasm map in Quran-Map file
+    """
+    api.save_quran_dict()
 
 
 def walk():
@@ -39,8 +50,8 @@ def edit_rasm_map_wedgit(aya_format: AyaFormat):
     raws = [None] * 2
     raws[0] = st.columns(2)
     raws[1] = st.columns(2)
-    raws[0][1].subheader('IMLAEY SCRIPT')
-    raws[0][0].subheader('UTHMANI SCRIPT')
+    raws[0][1].subheader('الرسم الإملائي')
+    raws[0][0].subheader('الرسم العثماني')
     with raws[0][1]:
         imlaey_placeholder = st.empty()
     with raws[0][0]:
@@ -66,7 +77,7 @@ def edit_rasm_map_wedgit(aya_format: AyaFormat):
             display_rasm(uthmani_words)
 
     with raws[1][1]:
-        if st.button('Edit'):
+        if st.button('تعديل'):
             new_rasm_map_flag = True
             imlaey_placeholder.empty()
             uthmani_placeholder.empty()
@@ -78,7 +89,7 @@ def edit_rasm_map_wedgit(aya_format: AyaFormat):
     if new_rasm_map_flag:
         with raws[1][0]:
             st.button(
-                'Save RASM MAP',
+                'حفظ رسم الآية',
                 on_click=save_rasm_map_click,
                 kwargs={'aya_format': aya_format,
                         'uthmani_words': uthmani_words,
@@ -174,12 +185,12 @@ def get_selected_aya() -> AyaFormat:
     # -----------------------
     with raws[1][1]:
         st.button(
-            'Next AYA',
+            'الآية التالية',
             on_click=next_prev_aya, args=(aya_format,), kwargs={'step': 1})
 
     with raws[1][0]:
         st.button(
-            'Previous AYA',
+            'الآية السابقة',
             on_click=next_prev_aya, args=(aya_format,), kwargs={'step': -1})
 
     # save last Aya we were working on

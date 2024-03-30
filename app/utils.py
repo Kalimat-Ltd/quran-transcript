@@ -38,12 +38,22 @@ def walk():
 
 
 def edit_rasm_map_wedgit(aya_format: AyaFormat):
+    if 'edit_uthmani' not in st.session_state.keys():
+        st.session_state.edit_uthmani = False
+    if 'edit_imlaey' not in st.session_state.keys():
+        st.session_state.edit_imlaey = False
+    if 'last_ayaformat' not in st.session_state.keys():
+        st.session_state.last_ayaformat = hash_ayaformat(aya_format)
+
+    if st.session_state.last_ayaformat != hash_ayaformat(aya_format):
+        st.session_state.edit_imlaey = False
+        st.session_state.edit_uthmani = False
+
     uthmani_words: list[list[str]] = (
         [[word] for word in aya_format.uthmani.split(' ')])
     imlaey_words: list[list[str]] = (
         [[word] for word in aya_format.imlaey.split(' ')])
     if aya_format.rasm_map is not None:
-        # TODO
         uthmani_words = aya_format.get_formatted_rasm_map().uthmani
         imlaey_words = aya_format.get_formatted_rasm_map().imlaey
 
@@ -59,12 +69,12 @@ def edit_rasm_map_wedgit(aya_format: AyaFormat):
 
     new_rasm_map_flag = True
 
-    if len(uthmani_words) > len(imlaey_words):
+    if len(uthmani_words) > len(imlaey_words) or st.session_state.edit_uthmani:
         with imlaey_placeholder.container():
             display_rasm(imlaey_words)
         with uthmani_placeholder.container():
             uthmani_words = get_new_rasm_map(uthmani_words, len(imlaey_words))
-    elif len(uthmani_words) < len(imlaey_words):
+    elif len(uthmani_words) < len(imlaey_words) or st.session_state.edit_imlaey:
         with imlaey_placeholder.container():
             imlaey_words = get_new_rasm_map(imlaey_words, len(uthmani_words))
         with uthmani_placeholder.container():
@@ -76,24 +86,33 @@ def edit_rasm_map_wedgit(aya_format: AyaFormat):
         with uthmani_placeholder.container():
             display_rasm(uthmani_words)
 
+    # Imlaey Edit
     with raws[1][1]:
-        if st.button('تعديل'):
-            new_rasm_map_flag = True
-            imlaey_placeholder.empty()
-            uthmani_placeholder.empty()
-            with imlaey_placeholder.container():
-                imlaey_words = get_new_rasm_map(imlaey_words)
-            with uthmani_placeholder.container():
-                imlaey_words = get_new_rasm_map(imlaey_words)
+        st.button('تعديل الإملائي', on_click=edit_rasm_on_click,
+                  kwargs={'imlaey': True})
+
+    with raws[1][0]:
+        st.button('تعديل العثماني', on_click=edit_rasm_on_click,
+                  kwargs={'uthmani': True})
 
     if new_rasm_map_flag:
-        with raws[1][0]:
-            st.button(
-                'حفظ رسم الآية',
-                on_click=save_rasm_map_click,
-                kwargs={'aya_format': aya_format,
-                        'uthmani_words': uthmani_words,
-                        'imlaey_words': imlaey_words})
+        st.button(
+            'حفظ رسم الآية',
+            on_click=save_rasm_map_click,
+            kwargs={'aya_format': aya_format,
+                    'uthmani_words': uthmani_words,
+                    'imlaey_words': imlaey_words})
+
+    st.session_state.last_ayaformat = hash_ayaformat(aya_format)
+
+
+def hash_ayaformat(ayaformat: AyaFormat):
+    return f'{ayaformat.sura_idx}_{ayaformat.aya_idx}'
+
+
+def edit_rasm_on_click(uthmani=False, imlaey=False):
+    st.session_state.edit_imlaey = imlaey
+    st.session_state.edit_uthmani = uthmani
 
 
 def display_rasm(rasm: list[list[str]], suffix=' '):
@@ -106,7 +125,7 @@ def get_new_rasm_map(
         rasm_words: list[list[str]],
         max_len: int = None) -> list[str]:
     if max_len is None:
-        max_len = len(rasm_words)
+        max_len = len(join_lists(rasm_words))
     new_words_ids: list[list[int]] = multiselect_list(rasm_words, max_len)
     new_words_map: list[list[str]] = []
     raw_rasm_words = join_lists(rasm_words)
@@ -125,6 +144,9 @@ def save_rasm_map_click(
     uthmani_words: list[list[str]],
     imlaey_words: list[list[str]]
         ):
+
+    st.session_state.edit_imlaey = False
+    st.session_state.edit_uthmani = False
     api.save_rasm_map(
         sura_idx=aya_format.sura_idx,
         aya_idx=aya_format.aya_idx,

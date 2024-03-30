@@ -19,6 +19,12 @@ def get_from_dict(data_dict: dict, keys: list[str]):
 
 
 @dataclass
+class RasmFormat:
+    uthmani: list[list[str]]
+    imlaey: list[list[str]]
+
+
+@dataclass
 class AyaFormat:
     sura_idx: int
     aya_idx: int
@@ -31,11 +37,32 @@ class AyaFormat:
     bismillah_imlaey: str = None
     bismillah_map: dict[str, list[str]] = None
 
+    def get_formatted_rasm_map(self,
+                               join_prefix=' ',
+                               uthmani_key='@uthmani',
+                               imlaey_key='@imlaey',
+                               ) -> RasmFormat:
+        """
+        return rasm map in fromt like:
+            [
+                {'@uthmani: str, '@imlaey: str},
+                {'@uthmani: str, '@imlaey: str},
+            ]
+            to
+            RasmFormat.uthmani: list[list[str]]
+            RasmFormat.imlaey: list[list[str]]
+        """
+        if self.rasm_map is None:
+            raise ValueError('Rasmp map is None')
 
-@dataclass
-class RasmFormat:
-    uthmani: list[list[str]]
-    imlaey: list[list[str]]
+        uthmani_words: list[list[str]] = []
+        imlaey_words: list[list[str]] = []
+        for item in self.rasm_map:
+            uthmani_words.append(item[uthmani_key].split(join_prefix))
+            imlaey_words.append(item[imlaey_key].split(join_prefix))
+        return RasmFormat(
+            uthmani=uthmani_words,
+            imlaey=imlaey_words)
 
 
 class Aya(object):

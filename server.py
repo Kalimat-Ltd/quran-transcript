@@ -23,6 +23,7 @@ async def lifespan(app: FastAPI):
 
     global AYA
     start_aya.set(1, 1)
+    AYA = start_aya
     # the aya which we rely on is the first aya that has no rasm_map
     for aya in start_aya.get_ayat_after():
         if aya.get().rasm_map is None:

@@ -1,0 +1,15 @@
+{
+  "imlaey": {
+    "alphabet": "ءآأؤإئابةتثجحخدذرزسشصضطظعغفقكلمنهوىيًٌٍَُِّْٰ",
+    "hamazat": "ءآأؤإئ",
+    "hamza": "ء",
+    "alef": "ا",
+    "alef_maksoora": "ى",
+    "taa_marboota": "ة",
+    "taa_mabsoota": "ت",
+    "haa": "ه",
+    "small_alef": "ٰ",
+    "tashkeel": "ًٌٍَُِّْ",
+    "skoon": "ْ"
+  }
+}

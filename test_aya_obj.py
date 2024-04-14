@@ -1,4 +1,4 @@
-from app.quran_utils import Aya
+from app.quran_utils import Aya, normalize_aya
 import time
 
 if __name__ == "__main__":
@@ -47,14 +47,30 @@ if __name__ == "__main__":
     # aya = Aya('quran-script/quran-uthmani-imlaey-map.json', 111, 1)
     # print(aya.get_formatted_rasm_map())
 
-   # -------------------------------------------------------------------
+    # -------------------------------------------------------------------
     # Test set_new
     # -------------------------------------------------------------------
-    aya = Aya('quran-script/quran-uthmani-imlaey-map.json', 111, 1)
-    new_aya = aya.set_new(4, 4)
-    print('OLD AYA')
-    print(aya)
-    print()
-    print('NEW AYA')
-    print(new_aya)
+    # aya = Aya('quran-script/quran-uthmani-imlaey-map.json', 111, 1)
+    # new_aya = aya.set_new(4, 4)
+    # print('OLD AYA')
+    # print(aya)
+    # print()
+    # print('NEW AYA')
+    # print(new_aya)
 
+    # -------------------------------------------------------------------
+    # Test normaliz text
+    # -------------------------------------------------------------------
+    aya = Aya('quran-script/quran-uthmani-imlaey-map.json', 2, 5)
+    norm_aya = normalize_aya(
+        aya.get().imlaey,
+        remove_spaces=True,
+        ignore_hamazat=True,
+        ignore_alef_maksoora=True,
+        ignore_haa_motatrefa=True,
+        ignore_taa_marboota=True,
+        ignore_small_alef=True,
+        ignore_tashkeel=True,
+    )
+    print(aya.get().imlaey)
+    print(norm_aya)

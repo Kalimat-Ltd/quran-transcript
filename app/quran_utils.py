@@ -4,6 +4,8 @@ from pathlib import Path
 import json
 import xmltodict
 from dataclasses import dataclass
+import re
+from app import alphabet as alpha
 
 
 def get_from_dict(data_dict: dict, keys: list[str]):
@@ -422,3 +424,115 @@ class Aya(object):
         return RasmFormat(
             uthmani=uthmani_words,
             imlaey=imlaey_words)
+
+
+@dataclass
+class WordSpan:
+    start: int
+    end: int
+
+
+def search(
+    start_aya: Aya,
+    text: str,
+    ignore_hamazat=False,
+    ignore_taa_marboota=True,
+    ignore_small_alef=True,
+    ignore_tashkeel=False,
+    suffix=' ',
+        ) -> list[tuple[WordSpan, Aya]]:
+    normalized_text: str = normalize_aya(
+        text,
+        ignore_space=True,
+        ignore_hamazat=ignore_hamazat,
+        ignore_taa_marboota=ignore_taa_marboota,
+        ignore_small_alef=ignore_small_alef,
+        ignore_tashkeel=ignore_tashkeel,)
+
+    found = []
+    start_aya = start_aya.set_new(1, 1)
+    for aya in start_aya.get_ayat_after():
+        aya_imlaey_words = normalize_aya(
+            aya.get().imlaey,
+            ignore_space=False,
+            ignore_hamazat=ignore_hamazat,
+            ignore_taa_marboota=ignore_taa_marboota,
+            ignore_small_alef=ignore_small_alef,
+            ignore_tashkeel=ignore_tashkeel,
+            suffix=suffix,
+        ).split(suffix)
+
+        aya_imlaey: str = normalize_aya(
+            aya.get().imlaey,
+            ignore_space=True,
+            ignore_hamazat=ignore_hamazat,
+            ignore_taa_marboota=ignore_taa_marboota,
+            ignore_small_alef=ignore_small_alef,
+            ignore_tashkeel=ignore_tashkeel,)
+
+        re_search = re.search(normalized_text, aya_imlaey)
+        if re_search is not None:
+            span = get_words_span(
+                start=re_search.span()[0],
+                end=re_search.span()[1],
+                words=aya_imlaey_words)
+            found.append((span, aya))
+    return found
+
+
+def normalize_aya(
+    text: str,
+    remove_spaces=True,
+    ignore_hamazat=False,
+    ignore_alef_maksoora=True,
+    ignore_haa_motatrefa=False,
+    ignore_taa_marboota=False,
+    ignore_small_alef=True,
+    ignore_tashkeel=False,
+        ) -> str:
+    norm_text = text
+
+    if remove_spaces:
+        norm_text = re.sub(r'\s+', '', norm_text)
+
+    if ignore_alef_maksoora:
+        norm_text = re.sub(
+            alpha.imlaey.alef_maksoora,
+            alpha.imlaey.alef, norm_text)
+
+    if ignore_hamazat:
+        norm_text = re.sub(
+            f'[{alpha.imlaey.hamazat}]',
+            alpha.imlaey.hamza,
+            norm_text)
+
+    if ignore_haa_motatrefa:
+        norm_text = re.sub(
+            f'[{alpha.imlaey.taa_marboota + alpha.imlaey.haa}]',
+            alpha.imlaey.haa,
+            norm_text)
+
+    if ignore_taa_marboota:
+        norm_text = re.sub(
+            f'[{alpha.imlaey.taa_mabsoota + alpha.imlaey.taa_marboota}]',
+            alpha.imlaey.taa_mabsoota,
+            norm_text)
+
+    if ignore_small_alef:
+        norm_text = re.sub(
+            alpha.imlaey.small_alef, '', norm_text)
+
+    if ignore_tashkeel:
+        norm_text = re.sub(
+            f'[{alpha.imlaey.tashkeel}]', '', norm_text)
+
+    return norm_text
+
+
+def get_words_span(start: int, end: int, words=list[str]) -> WordSpan:
+    """
+    return: WordSpan:
+        start: the start idx of the word in "words"
+        end: (end_idx + 1) of the word in "words"
+    """
+    pass

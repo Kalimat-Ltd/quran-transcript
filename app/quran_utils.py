@@ -435,40 +435,27 @@ class WordSpan:
 def search(
     start_aya: Aya,
     text: str,
-    ignore_hamazat=False,
-    ignore_taa_marboota=True,
-    ignore_small_alef=True,
-    ignore_tashkeel=False,
     suffix=' ',
+    **kwargs,
         ) -> list[tuple[WordSpan, Aya]]:
     normalized_text: str = normalize_aya(
         text,
-        ignore_space=True,
-        ignore_hamazat=ignore_hamazat,
-        ignore_taa_marboota=ignore_taa_marboota,
-        ignore_small_alef=ignore_small_alef,
-        ignore_tashkeel=ignore_tashkeel,)
+        remove_spaces=True,
+        **kwargs)
 
     found = []
     start_aya = start_aya.set_new(1, 1)
     for aya in start_aya.get_ayat_after():
         aya_imlaey_words = normalize_aya(
             aya.get().imlaey,
-            ignore_space=False,
-            ignore_hamazat=ignore_hamazat,
-            ignore_taa_marboota=ignore_taa_marboota,
-            ignore_small_alef=ignore_small_alef,
-            ignore_tashkeel=ignore_tashkeel,
-            suffix=suffix,
+            remove_spaces=False,
+            **kwargs,
         ).split(suffix)
 
         aya_imlaey: str = normalize_aya(
             aya.get().imlaey,
-            ignore_space=True,
-            ignore_hamazat=ignore_hamazat,
-            ignore_taa_marboota=ignore_taa_marboota,
-            ignore_small_alef=ignore_small_alef,
-            ignore_tashkeel=ignore_tashkeel,)
+            remove_spaces=True,
+            **kwargs)
 
         re_search = re.search(normalized_text, aya_imlaey)
         if re_search is not None:
@@ -531,8 +518,43 @@ def normalize_aya(
 
 def get_words_span(start: int, end: int, words=list[str]) -> WordSpan:
     """
+    return the word indices at every word boundary only not inside the word:
+    which means:
+    * start is at the beginning of the word
+    * end is at the end of the word + 1
+    EX: start = 0, end = 8, words=['aaa', 'bbb', 'cc', 'ddd']
+                                    ^              ^
+                                    0            8 - 1
+    return start_word_idx=0, end_word_idx=2 + 1
+
+    EX: start = 1, end = 8, words=['aaa', 'bbb', 'cc', 'ddd']
+                                     ^             ^
+                                     1            8 - 1
+    return None (start not at the beginning of the word)
+
     return: WordSpan:
         start: the start idx of the word in "words"
         end: (end_idx + 1) of the word in "words"
+        if valid boundary else None
     """
-    pass
+    def get_word_idx(char_boundary: int, chars_count=0, start_word_idx=0) -> int:
+        for idx in range(start_word_idx, len(words)):
+            if char_boundary == chars_count:
+                return idx
+            chars_count += len(words[idx])
+        # this case for end only (not logical for start)
+        if char_boundary == chars_count:
+            return idx + 1
+
+        return None
+
+    start_word_idx = get_word_idx(start)
+    if start_word_idx is None:
+        return None
+
+    end_word_idx = get_word_idx(
+        end, chars_count=start, start_word_idx=start_word_idx)
+    if end_word_idx is None:
+        return None
+
+    return WordSpan(start=start_word_idx, end=end_word_idx)

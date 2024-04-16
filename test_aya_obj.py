@@ -1,4 +1,4 @@
-from app.quran_utils import Aya, normalize_aya
+from app.quran_utils import Aya, normalize_aya, search
 import time
 
 if __name__ == "__main__":
@@ -61,16 +61,38 @@ if __name__ == "__main__":
     # -------------------------------------------------------------------
     # Test normaliz text
     # -------------------------------------------------------------------
-    aya = Aya('quran-script/quran-uthmani-imlaey-map.json', 2, 5)
-    norm_aya = normalize_aya(
-        aya.get().imlaey,
-        remove_spaces=True,
-        ignore_hamazat=True,
-        ignore_alef_maksoora=True,
-        ignore_haa_motatrefa=True,
-        ignore_taa_marboota=True,
-        ignore_small_alef=True,
+    # aya = Aya('quran-script/quran-uthmani-imlaey-map.json', 2, 5)
+    # norm_aya = normalize_aya(
+    #     aya.get().imlaey,
+    #     remove_spaces=True,
+    #     ignore_hamazat=True,
+    #     ignore_alef_maksoora=True,
+    #     ignore_haa_motatrefa=True,
+    #     ignore_taa_marboota=True,
+    #     ignore_small_alef=True,
+    #     ignore_tashkeel=True,
+    # )
+    # print(aya.get().imlaey)
+    # print(norm_aya)
+
+    # -------------------------------------------------------------------
+    # Test search
+    # -------------------------------------------------------------------
+    start_aya = Aya('quran-script/quran-uthmani-imlaey-map.json', 1, 1)
+    search_aya = start_aya.set_new(1, 1)
+    search_text = "الحمد لله"
+    results = search(
+        start_aya,
+        search_text,
+        # search_aya.get().imlaey,
+        ignore_hamazat=False,
+        ignore_alef_maksoora=False,
+        ignore_haa_motatrefa=False,
+        ignore_taa_marboota=False,
+        ignore_small_alef=False,
         ignore_tashkeel=True,
     )
-    print(aya.get().imlaey)
-    print(norm_aya)
+    for item in results:
+        span, aya = item
+        print(f'SPAN={span}, Imlaey={aya.get().imlaey}')
+        print('-' * 20)

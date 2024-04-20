@@ -12,6 +12,22 @@
     "tashkeel": "ًٌٍَُِّْ",
     "skoon": "ْ"
   },
-  "uthmani": {
+  "uthmani": {},
+  "unique_rasm_map": {
+    "rasm_map": [
+      {
+        "uthmani": "يَبْنَؤُمَّ",
+        "imlaey": "يَا ابْنَ أُمَّ"
+      },
+      {
+        "uthmani": "وَأَلَّوِ",
+        "imlaey": "وَأَن لَّوِ"
+      }
+    ],
+    "imlaey_starts": [
+      "هَا",
+      "وَيَا",
+      "يَا"
+    ]
   }
 }

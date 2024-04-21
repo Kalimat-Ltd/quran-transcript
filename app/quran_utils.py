@@ -20,10 +20,20 @@ def get_from_dict(data_dict: dict, keys: list[str]):
     return reduce(operator.getitem, keys, data_dict)
 
 
+class PartOfUthmaniWord(Exception):
+    pass
+
+
 @dataclass
 class RasmFormat:
     uthmani: list[list[str]]
     imlaey: list[list[str]]
+
+
+@dataclass
+class WordSpan:
+    start: int
+    end: int
 
 
 @dataclass
@@ -425,11 +435,91 @@ class Aya(object):
             uthmani=uthmani_words,
             imlaey=imlaey_words)
 
+    def imlaey_to_uthmani(self, imlaey_word_span: WordSpan) -> str:
+        """
+        return the uthmai script of the given imlaey script represented by
+        the imlaey wordspand
+        """
+        imlaey2uthmani: dict[int, int] = self._encode_imlaey_to_uthmani()
+        uthmani_script = self._decode_uthmani(
+            imlaey2uthmani=imlaey2uthmani, imlaey_wordspan=imlaey_word_span)
+        return uthmani_script
 
-@dataclass
-class WordSpan:
-    start: int
-    end: int
+    def _encode_imlaey_to_uthmani(self) -> dict[int, int]:
+        uthmani_words = self.get().uthmani.split(self.join_prefix)
+        imlaey_words = self.get().imlaey.split(self.join_prefix)
+
+        if len(uthmani_words) == len(imlaey_words):
+            return {idx: idx for idx in range(len(uthmani_words))}
+
+        # len mismatch
+        iml_idx = 0
+        imlaey2uthmani = {}
+        for uth_idx in range(len(uthmani_words)):
+
+            # special words of Uthmani Rasm
+            span = self._get_unique_rasm_map_span(iml_idx, imlaey_words)
+            if span is not None:
+                for idx in range(iml_idx, iml_idx + span):
+                    imlaey2uthmani[idx] = uth_idx
+                iml_idx += span
+
+            elif imlaey_words[iml_idx] in alpha.unique_rasm.imlaey_starts:
+                imlaey2uthmani[iml_idx] = uth_idx
+                imlaey2uthmani[iml_idx + 1] = uth_idx
+                iml_idx += 2
+
+            else:
+                imlaey2uthmani[iml_idx] = uth_idx
+                iml_idx += 1
+
+        assert sorted(imlaey2uthmani.keys())[-1] == len(self.get().imlaey.split(self.join_prefix)) - 1
+
+        assert sorted(imlaey2uthmani.values())[-1] == len(self.get().uthmani.split(self.join_prefix)) - 1
+
+        return imlaey2uthmani
+
+    def _get_unique_rasm_map_span(self, idx: int, words: list[int]) -> int:
+        """
+        check that words starting of idx is in alphabet.unique_rasm.rasm_map
+        if that applies, it will return the number of imlaey words in
+        alphabet.unique_rasm.rasm_map
+        Else: None
+        """
+        for unique_rasm in alpha.unique_rasm.rasm_map:
+            span = len(unique_rasm['imlaey'].split(self.join_prefix))
+            if (self.join_prefix.join(words[idx: idx + span]) ==
+                    unique_rasm['imlaey']):
+                return span
+        return None
+
+    def _decode_uthmani(
+        self,
+        imlaey2uthmani: dict[int, int],
+        imlaey_wordspan: WordSpan,
+            ) -> str:
+        """
+        return the uthmani script of the given imlaey_word_span in
+        Imlaey script Aya
+        """
+        if imlaey_wordspan.end in imlaey2uthmani.keys():
+            if (imlaey2uthmani[imlaey_wordspan.end - 1] ==
+                    imlaey2uthmani[imlaey_wordspan.end]):
+                raise PartOfUthmaniWord(
+                    'The Imlay Word is part of uthmani word')
+
+        out_script = ""
+        prev_uth_idx = -1
+        uthmani_words = self.get().uthmani.split(self.join_prefix)
+        for idx in range(imlaey_wordspan.start, imlaey_wordspan.end):
+            if prev_uth_idx != imlaey2uthmani[idx]:
+                out_script += uthmani_words[imlaey2uthmani[idx]]
+
+                # Adding space Except for end idx
+                if idx != imlaey_wordspan.end - 1:
+                    out_script += self.join_prefix
+            prev_uth_idx = imlaey2uthmani[idx]
+        return out_script
 
 
 def search(
@@ -438,6 +528,20 @@ def search(
     suffix=' ',
     **kwargs,
         ) -> list[tuple[WordSpan, Aya]]:
+    """
+    searches the Holy Quran of Imlaey script to match the given text
+    Args:
+        start_aya (Aya): the start aya with which we loop throw the Holly Quran ayat
+        text (str): the text to search with (expected with imlaey script)
+        suffix (str): the suffix that sperate the quran words either imlaey or uthmani
+        the rest of **kwargs are from normalize_aya function
+    Return:
+        list[[tuple(WordSpan, Aya]]
+        every item has:
+            WordSpan: the start_word_idx and end_word_idx + 1 word in
+                the imlaey script in the aya
+            Aya: the aya object the search was found for
+    """
     normalized_text: str = normalize_aya(
         text,
         remove_spaces=True,
@@ -531,6 +635,11 @@ def get_words_span(start: int, end: int, words=list[str]) -> WordSpan:
                                      ^             ^
                                      1            8 - 1
     return None (start not at the beginning of the word)
+
+    Args:
+        start (int): the start char idx
+        end (int): the end char idx + 1
+        words (list[str]): given words
 
     return: WordSpan:
         start: the start idx of the word in "words"

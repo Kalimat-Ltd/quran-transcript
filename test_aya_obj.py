@@ -1,4 +1,4 @@
-from app.quran_utils import Aya, normalize_aya, search
+from app.quran_utils import Aya, normalize_aya, search, WordSpan
 import time
 
 if __name__ == "__main__":
@@ -78,21 +78,47 @@ if __name__ == "__main__":
     # -------------------------------------------------------------------
     # Test search
     # -------------------------------------------------------------------
-    start_aya = Aya('quran-script/quran-uthmani-imlaey-map.json', 1, 1)
-    search_aya = start_aya.set_new(1, 1)
-    search_text = "الحمد لله"
-    results = search(
-        start_aya,
-        search_text,
-        # search_aya.get().imlaey,
-        ignore_hamazat=False,
-        ignore_alef_maksoora=False,
-        ignore_haa_motatrefa=False,
-        ignore_taa_marboota=False,
-        ignore_small_alef=False,
-        ignore_tashkeel=True,
-    )
-    for item in results:
-        span, aya = item
-        print(f'SPAN={span}, Imlaey={aya.get().imlaey}')
-        print('-' * 20)
+    # start_aya = Aya('quran-script/quran-uthmani-imlaey-map.json', 1, 1)
+    # search_aya = start_aya.set_new(1, 1)
+    # # search_text = "الحمد لله"
+    # search_text = "وأن لو"
+    # results = search(
+    #     start_aya,
+    #     search_text,
+    #     # search_aya.get().imlaey,
+    #     ignore_hamazat=True,
+    #     ignore_alef_maksoora=True,
+    #     ignore_haa_motatrefa=True,
+    #     ignore_taa_marboota=True,
+    #     ignore_small_alef=True,
+    #     ignore_tashkeel=True,
+    # )
+    # for item in results:
+    #     span, aya = item
+    #     print(f'SPAN={span}, Imlaey={aya.get().imlaey}')
+    #     print('-' * 20)
+
+    # -------------------------------------------------------------------
+    # Test _encode_imlaey_to_uthmani
+    # -------------------------------------------------------------------
+    # aya = Aya('quran-script/quran-uthmani-imlaey-map.json', 1, 5)
+    # print(aya)
+    # print(aya._encode_imlaey_to_uthmani())
+
+    # -------------------------------------------------------------------
+    # Test _encode_imlaey_to_uthmani
+    # -------------------------------------------------------------------
+    aya = Aya('quran-script/quran-uthmani-imlaey-map.json', 72, 16)
+    span = WordSpan(0, 7)
+    print(aya.imlaey_to_uthmani(span))
+
+
+
+
+
+
+
+
+
+
+

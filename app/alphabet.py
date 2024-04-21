@@ -44,4 +44,4 @@ with open(alphabet_path, 'r', encoding='utf8') as f:
     alphabet_dict = json.load(f)
     imlaey = ImlaeyAlphabet(**alphabet_dict['imlaey'])
     uthmani = UthmaniAlphabet(**alphabet_dict['uthmani'])
-    # unique_rasm = UniqueRasmMap(**alphabet_dict['unique_rasm_map'])
+    unique_rasm = UniqueRasmMap(**alphabet_dict['unique_rasm_map'])

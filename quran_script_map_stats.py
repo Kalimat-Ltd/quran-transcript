@@ -58,8 +58,6 @@ if __name__ == "__main__":
     imlaey_alphabet = get_alphabet(quran_map_path, 'imlaey')
     print('Imlaey Script Alphabet')
     print(f'Len of alphabet={len(imlaey_alphabet)}')
-    print(imlaey_alphabet[0] == 'ء')
-    print(imlaey_alphabet[5] == 'ئ')
 
     for idx, char in enumerate(imlaey_alphabet):
         print(f"{idx}-> '{char}'")

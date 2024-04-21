@@ -561,13 +561,14 @@ def search(
             remove_spaces=True,
             **kwargs)
 
-        re_search = re.search(normalized_text, aya_imlaey)
-        if re_search is not None:
-            span = get_words_span(
-                start=re_search.span()[0],
-                end=re_search.span()[1],
-                words=aya_imlaey_words)
-            found.append((span, aya))
+        for re_search in re.finditer(normalized_text, aya_imlaey):
+        # re_search = re.search(normalized_text, aya_imlaey)
+            if re_search is not None:
+                span = get_words_span(
+                    start=re_search.span()[0],
+                    end=re_search.span()[1],
+                    words=aya_imlaey_words)
+                found.append((span, aya))
     return found
 
 

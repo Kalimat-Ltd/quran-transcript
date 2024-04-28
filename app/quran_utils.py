@@ -31,6 +31,12 @@ class RasmFormat:
 
 
 @dataclass
+class Vertex:
+    aya_idx: int
+    word_idx: int
+
+
+@dataclass
 class WordSpan:
     start: int
     end: int
@@ -306,7 +312,12 @@ class Aya(object):
             quran_dict=self.quran_dict,
         )
 
-    def get_ayat_after(self):
+    # TODO Add vertix and num_ayat
+    def get_ayat_after(
+        self,
+        end_vertix=(114, 6),
+        num_ayat=None
+            ):
         """
         iterator looping over Quran ayayt (verses) starting from the
         current aya to the end of the Holy Quran
@@ -435,6 +446,7 @@ class Aya(object):
             uthmani=uthmani_words,
             imlaey=imlaey_words)
 
+    # TODO: add end word span == None (rest of Aya)
     def imlaey_to_uthmani(self, imlaey_word_span: WordSpan) -> str:
         """
         return the uthmai script of the given imlaey script represented by
@@ -522,12 +534,36 @@ class Aya(object):
         return out_script
 
 
+@dataclass
+class SearchItem:
+    start_aya: Aya
+    num_ayat: int
+    has_bismillah: bool = False
+    imlaey_word_span: WordSpan
+    uthmani_script: int
+    """
+    start_aya (Aya): the start aya
+    num_aya: (int): number of ayat that is included in the search item
+    has_bismillah: True if the search item has bismliilah
+        (not the Aya in El-Fatiha of in the Alnaml)
+    imlaey_word_span (WordSpan):
+        start: the start word idx of the imlaey scriptin thestart_aya
+        end: the end imlaey_idx of the imlaey (start_aya + num_ayat - 1)
+    uthmani_script (str) the equvilent uthmani script of the given imlaey script
+    """
+
+
+# TODO add:
+# *. window
+# *. include_bismillah
 def search(
     start_aya: Aya,
     text: str,
+    window: int = 1,
+    include_bismillah=True,
     suffix=' ',
     **kwargs,
-        ) -> list[tuple[WordSpan, Aya]]:
+        ) -> list[SearchItem]:
     """
     searches the Holy Quran of Imlaey script to match the given text
     Args:
@@ -548,27 +584,36 @@ def search(
         **kwargs)
 
     found = []
-    start_aya = start_aya.set_new(1, 1)
-    for aya in start_aya.get_ayat_after():
-        aya_imlaey_words = normalize_aya(
+    # Prepare ayat within winodw [-window/2: window/2]
+    loop_aya = start_aya.step(-window // 2)
+    aya_imlaey_words: list[list[str]] = []
+    aya_imlaey_str = ""
+    for aya in loop_aya.get_ayat_after(num_ayat=window + 1):
+        aya_words = normalize_aya(
             aya.get().imlaey,
             remove_spaces=False,
             **kwargs,
         ).split(suffix)
+        aya_imlaey_words.append(aya_words)
 
         aya_imlaey: str = normalize_aya(
             aya.get().imlaey,
             remove_spaces=True,
             **kwargs)
+        aya_imlaey_str += aya_imlaey
 
-        for re_search in re.finditer(normalized_text, aya_imlaey):
-        # re_search = re.search(normalized_text, aya_imlaey)
-            if re_search is not None:
-                span = get_words_span(
-                    start=re_search.span()[0],
-                    end=re_search.span()[1],
-                    words=aya_imlaey_words)
-                found.append((span, aya))
+    for re_search in re.finditer(normalized_text, aya_imlaey):
+        if re_search is not None:
+            aya_span, word_span = get_words_span(
+                start=re_search.span()[0],
+                end=re_search.span()[1],
+                words=aya_imlaey_words)
+            found.append(SearchItem(
+                start_aya=loop_aya.step(aya_span.start),
+                num_ayat=aya_span.end - aya_span.start,
+                imlaey_word_span=word_span,
+                has_bismillah=False,
+                uthmani_script=""))
     return found
 
 
@@ -583,6 +628,8 @@ def normalize_aya(
     ignore_tashkeel=False,
         ) -> str:
     norm_text = text
+
+    # TODO Ingonre alef as hamza
 
     if remove_spaces:
         norm_text = re.sub(r'\s+', '', norm_text)
@@ -621,50 +668,66 @@ def normalize_aya(
     return norm_text
 
 
-def get_words_span(start: int, end: int, words=list[str]) -> WordSpan:
+def get_words_span(start: int, end: int, words_list=list[list[str]]
+                   ) -> tuple[Vertex, Vertex]:
     """
     return the word indices at every word boundary only not inside the word:
     which means:
-    * start is at the beginning of the word
-    * end is at the end of the word + 1
-    EX: start = 0, end = 8, words=['aaa', 'bbb', 'cc', 'ddd']
-                                    ^              ^
-                                    0            8 - 1
-    return start_word_idx=0, end_word_idx=2 + 1
+    * start character is at the beginning of the word
+    * end character is at the end of the word + 1
+    EX: start = 0, end = 8, words_list=[['aaa', 'bbb',], ['cc', 'ddd']]
+                                          ^                 ^
+                                          0               8 - 1
+    return (start, end)
+    (start.aya_idx=0, start.word_idx=0, end. aya_idx=1, end.word_idx=0 + 1)
 
-    EX: start = 1, end = 8, words=['aaa', 'bbb', 'cc', 'ddd']
-                                     ^             ^
-                                     1            8 - 1
-    return None (start not at the beginning of the word)
+    return None (start not at the beginning of the word) or
+        (end is not at (end + 1) of the word)
 
     Args:
         start (int): the start char idx
         end (int): the end char idx + 1
-        words (list[str]): given words
+        words_list (list[list[str]]): given words
 
     return: WordSpan:
         start: the start idx of the word in "words"
         end: (end_idx + 1) of the word in "words"
         if valid boundary else None
     """
-    def get_word_idx(char_boundary: int, chars_count=0, start_word_idx=0) -> int:
-        for idx in range(start_word_idx, len(words)):
-            if char_boundary == chars_count:
-                return idx
-            chars_count += len(words[idx])
-        # this case for end only (not logical for start)
-        if char_boundary == chars_count:
-            return idx + 1
-
+    def _get_start_span(start_char: int) -> tuple[int, int]:
+        chars_count = 0
+        for aya_idx in range(len(words_list)):
+            for word_idx in range(len(words_list[aya_idx])):
+                if start_char == chars_count:
+                    return aya_idx, word_idx
+                chars_count += len(words_list[aya_idx][word_idx])
+            aya_idx += 1
         return None
 
-    start_word_idx = get_word_idx(start)
-    if start_word_idx is None:
+    def _get_end_span(
+            end_char: int, chars_count=0,
+            start_aya_idx=0, start_word_idx=0) -> tuple[int, int]:
+        for aya_idx in range(start_aya_idx, len(words_list)):
+            for word_idx in range(start_word_idx, len(words_list[aya_idx])):
+                chars_count += len(words_list[aya_idx][word_idx])
+                if end_char == chars_count:
+                    return aya_idx, word_idx + 1
+            start_word_idx = 0
         return None
 
-    end_word_idx = get_word_idx(
-        end, chars_count=start, start_word_idx=start_word_idx)
-    if end_word_idx is None:
+    span = _get_start_span(start)
+    # print(f'start=({span})')
+    if span is None:
         return None
+    start_aya_idx, start_word_idx = span
 
-    return WordSpan(start=start_word_idx, end=end_word_idx)
+    span = _get_end_span(end,
+                         chars_count=start,
+                         start_aya_idx=start_aya_idx,
+                         start_word_idx=start_word_idx)
+    # print(f'end=({span})')
+    if span is None:
+        return None
+    end_aya_idx, end_word_idx = span
+    return (Vertex(aya_idx=start_aya_idx, word_idx=start_word_idx),
+            Vertex(aya_idx=end_aya_idx, word_idx=end_word_idx))

@@ -312,7 +312,7 @@ class Aya(object):
             quran_dict=self.quran_dict,
         )
 
-    # TODO Add vertix and num_ayat
+    # TODO Add vertix
     def get_ayat_after(
         self,
         end_vertix=(114, 6),
@@ -321,7 +321,16 @@ class Aya(object):
         """
         iterator looping over Quran ayayt (verses) starting from the
         current aya to the end of the Holy Quran
+        Args:
+            num_aya: loop for ayat until reaching aya + num_ayat - 1
         """
+        if num_ayat is not None:
+            aya = self
+            for _ in range(num_ayat):
+                yield aya
+                aya = aya.step(1)
+            return
+
         aya_start_idx = self.aya_idx
         for sura_loop_idx in range(self.sura_idx, 114):
             for aya_loop_idx in range(
@@ -538,9 +547,9 @@ class Aya(object):
 class SearchItem:
     start_aya: Aya
     num_ayat: int
-    has_bismillah: bool = False
     imlaey_word_span: WordSpan
     uthmani_script: int
+    has_bismillah: bool = False
     """
     start_aya (Aya): the start aya
     num_aya: (int): number of ayat that is included in the search item
@@ -604,14 +613,14 @@ def search(
 
     for re_search in re.finditer(normalized_text, aya_imlaey):
         if re_search is not None:
-            aya_span, word_span = get_words_span(
+            start_vertex, end_vertex = get_words_span(
                 start=re_search.span()[0],
                 end=re_search.span()[1],
                 words=aya_imlaey_words)
             found.append(SearchItem(
-                start_aya=loop_aya.step(aya_span.start),
-                num_ayat=aya_span.end - aya_span.start,
-                imlaey_word_span=word_span,
+                start_aya=loop_aya.step(start_vertex.aya_idx),
+                num_ayat=end_vertex.aya_idx - start_vertex.aya_idx + 1,
+                imlaey_word_span=WordSpan(start=start_vertex.word_idx, end=end_vertex.word_idx),
                 has_bismillah=False,
                 uthmani_script=""))
     return found

@@ -562,13 +562,16 @@ class SearchItem:
     """
 
 
+class SearchStrLongerThanAyaWindow(Exception):
+    pass
+
+
 # TODO add:
-# *. window
 # *. include_bismillah
 def search(
     start_aya: Aya,
     text: str,
-    window: int = 1,
+    window: int = 2,
     include_bismillah=True,
     suffix=' ',
     **kwargs,
@@ -605,24 +608,26 @@ def search(
         ).split(suffix)
         aya_imlaey_words.append(aya_words)
 
-        aya_imlaey: str = normalize_aya(
+        aya_imlaey_str += normalize_aya(
             aya.get().imlaey,
             remove_spaces=True,
             **kwargs)
-        aya_imlaey_str += aya_imlaey
 
-    for re_search in re.finditer(normalized_text, aya_imlaey):
+    for re_search in re.finditer(normalized_text, aya_imlaey_str):
         if re_search is not None:
-            start_vertex, end_vertex = get_words_span(
+            print('Not None')
+            span = get_words_span(
                 start=re_search.span()[0],
                 end=re_search.span()[1],
-                words=aya_imlaey_words)
-            found.append(SearchItem(
-                start_aya=loop_aya.step(start_vertex.aya_idx),
-                num_ayat=end_vertex.aya_idx - start_vertex.aya_idx + 1,
-                imlaey_word_span=WordSpan(start=start_vertex.word_idx, end=end_vertex.word_idx),
-                has_bismillah=False,
-                uthmani_script=""))
+                words_list=aya_imlaey_words)
+            if span is not None:
+                start_vertex, end_vertex = span
+                found.append(SearchItem(
+                    start_aya=loop_aya.step(start_vertex.aya_idx),
+                    num_ayat=end_vertex.aya_idx - start_vertex.aya_idx + 1,
+                    imlaey_word_span=WordSpan(start=start_vertex.word_idx, end=end_vertex.word_idx),
+                    has_bismillah=False,
+                    uthmani_script=""))
     return found
 
 
@@ -690,8 +695,10 @@ def get_words_span(start: int, end: int, words_list=list[list[str]]
     return (start, end)
     (start.aya_idx=0, start.word_idx=0, end. aya_idx=1, end.word_idx=0 + 1)
 
-    return None (start not at the beginning of the word) or
-        (end is not at (end + 1) of the word)
+    return None if:
+        * start not at the beginning of the word.
+        * end is not at (end + 1) of the word.
+        * start >= end
 
     Args:
         start (int): the start char idx
@@ -724,6 +731,7 @@ def get_words_span(start: int, end: int, words_list=list[list[str]]
             start_word_idx = 0
         return None
 
+    # print('start=', start, ', end=', end)
     span = _get_start_span(start)
     # print(f'start=({span})')
     if span is None:

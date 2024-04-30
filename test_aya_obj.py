@@ -18,10 +18,10 @@ if __name__ == "__main__":
     # -------------------------------------------------------------------
     # Test Looping
     # -------------------------------------------------------------------
-    start_aya = Aya('quran-script/quran-uthmani-imlaey-map.json', 114, 5)
-    for idx, aya in enumerate(start_aya.get_ayat_after(num_ayat=10)):
-        print(aya)
-        print(idx)
+    # start_aya = Aya('quran-script/quran-uthmani-imlaey-map.json', 114, 5)
+    # for idx, aya in enumerate(start_aya.get_ayat_after(num_ayat=10)):
+    #     print(aya)
+    #     print(idx)
 
     # -------------------------------------------------------------------
     # Test set rasm
@@ -86,29 +86,29 @@ if __name__ == "__main__":
     # -------------------------------------------------------------------
     # Test search
     # -------------------------------------------------------------------
-    # start_aya = Aya('quran-script/quran-uthmani-imlaey-map.json', 1, 1)
-    # search_aya = start_aya.set_new(1, 1)
-    # # search_text = "الحمد لله"
-    # # search_text = "وأن لو"
-    # search_text = "إياك"
-    # results = search(
-    #     start_aya,
-    #     search_text,
-    #     # search_aya.get().imlaey,
-    #     ignore_hamazat=True,
-    #     ignore_alef_maksoora=True,
-    #     ignore_haa_motatrefa=True,
-    #     ignore_taa_marboota=True,
-    #     ignore_small_alef=True,
-    #     ignore_tashkeel=True,
-    # )
-    # count = 0
-    # for item in results:
-    #     span, aya = item
-    #     print(f'SPAN={span}, Imlaey={aya.get().imlaey}')
-    #     print('-' * 20)
-    #     count += 1
-    # print('Total Results:', count)
+    start_aya = Aya('quran-script/quran-uthmani-imlaey-map.json', 1, 3)
+    # search_aya = start_aya.set_new(1, 7)
+    # search_text = "الحمد لله"
+    # search_text = "وأن لو"
+    search_text = "إياك"
+    results = search(
+        start_aya,
+        search_text,
+        window=6236,
+        # search_aya.get().imlaey,
+        ignore_hamazat=True,
+        ignore_alef_maksoora=True,
+        ignore_haa_motatrefa=True,
+        ignore_taa_marboota=True,
+        ignore_small_alef=True,
+        ignore_tashkeel=True,
+    )
+    count = 0
+    for item in results:
+        print(item)
+        print('-' * 20)
+        count += 1
+    print('Total Results:', count)
 
     # -------------------------------------------------------------------
     # Test _encode_imlaey_to_uthmani

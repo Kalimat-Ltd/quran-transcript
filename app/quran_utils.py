@@ -455,7 +455,6 @@ class Aya(object):
             uthmani=uthmani_words,
             imlaey=imlaey_words)
 
-    # TODO: add end word span == None (rest of Aya)
     def imlaey_to_uthmani(self, imlaey_word_span: WordSpan) -> str:
         """
         return the uthmai script of the given imlaey script represented by
@@ -520,24 +519,34 @@ class Aya(object):
         imlaey_wordspan: WordSpan,
             ) -> str:
         """
+        Args:
+            Imlaey_wordspan: (start, end):
+                start: the start word idx in imlaey script of the aya
+                end: the (end + 1) word idx in imlaey script of the aya if end
+                    is None then means to the last word idx of the imlaey aya
         return the uthmani script of the given imlaey_word_span in
         Imlaey script Aya
         """
-        if imlaey_wordspan.end in imlaey2uthmani.keys():
-            if (imlaey2uthmani[imlaey_wordspan.end - 1] ==
-                    imlaey2uthmani[imlaey_wordspan.end]):
+        start = imlaey_wordspan.start
+        end = imlaey_wordspan.end
+        if imlaey_wordspan.end is None:
+            end = len(imlaey2uthmani)
+
+        if end in imlaey2uthmani.keys():
+            if (imlaey2uthmani[end - 1] ==
+                    imlaey2uthmani[end]):
                 raise PartOfUthmaniWord(
                     'The Imlay Word is part of uthmani word')
 
         out_script = ""
         prev_uth_idx = -1
         uthmani_words = self.get().uthmani.split(self.join_prefix)
-        for idx in range(imlaey_wordspan.start, imlaey_wordspan.end):
+        for idx in range(start, end):
             if prev_uth_idx != imlaey2uthmani[idx]:
                 out_script += uthmani_words[imlaey2uthmani[idx]]
 
                 # Adding space Except for end idx
-                if idx != imlaey_wordspan.end - 1:
+                if idx != end - 1:
                     out_script += self.join_prefix
             prev_uth_idx = imlaey2uthmani[idx]
         return out_script
@@ -567,6 +576,7 @@ class SearchStrLongerThanAyaWindow(Exception):
 
 
 # TODO add:
+# Formalize Window
 # *. include_bismillah
 def search(
     start_aya: Aya,
@@ -615,8 +625,7 @@ def search(
 
     for re_search in re.finditer(normalized_text, aya_imlaey_str):
         if re_search is not None:
-            print('Not None')
-            span = get_words_span(
+            span = _get_words_span(
                 start=re_search.span()[0],
                 end=re_search.span()[1],
                 words_list=aya_imlaey_words)
@@ -628,6 +637,12 @@ def search(
                     imlaey_word_span=WordSpan(start=start_vertex.word_idx, end=end_vertex.word_idx),
                     has_bismillah=False,
                     uthmani_script=""))
+                found[-1].uthmani_script = _get_uthmani_of_result_item(
+                    found[-1], suffix=suffix)
+
+                # Parsing Uthmani str form the search result
+                uthmani_str = _get_uthmani_of_result_item(found[-1])
+                found[-1].uthmani_script = uthmani_str
     return found
 
 
@@ -682,7 +697,7 @@ def normalize_aya(
     return norm_text
 
 
-def get_words_span(start: int, end: int, words_list=list[list[str]]
+def _get_words_span(start: int, end: int, words_list=list[list[str]]
                    ) -> tuple[Vertex, Vertex]:
     """
     return the word indices at every word boundary only not inside the word:
@@ -748,3 +763,22 @@ def get_words_span(start: int, end: int, words_list=list[list[str]]
     end_aya_idx, end_word_idx = span
     return (Vertex(aya_idx=start_aya_idx, word_idx=start_word_idx),
             Vertex(aya_idx=end_aya_idx, word_idx=end_word_idx))
+
+
+def _get_uthmani_of_result_item(search_item: SearchItem, suffix=' ') -> str:
+    """
+    add uthmani script of the imlaey script found in the SearchItem
+    """
+    # parsing spans
+    wordspans = [WordSpan(0, None) for _ in range(search_item.num_ayat)]
+    wordspans[0].start = search_item.imlaey_word_span.start
+    wordspans[-1].end = search_item.imlaey_word_span.end
+
+    uthmani_str = ''
+    for idx, aya in enumerate(search_item.start_aya.get_ayat_after(
+            num_ayat=search_item.num_ayat)):
+        uthmani_str += aya.imlaey_to_uthmani(wordspans[idx])
+        uthmani_str += suffix
+    uthmani_str = uthmani_str[:-len(suffix)]  # removing last suffix from the end
+
+    return uthmani_str

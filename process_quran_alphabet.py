@@ -1,5 +1,5 @@
 from app.quran_utils import Aya
-from app.alphabet import ImlaeyAlphabet, UniqueRasmMap
+from app.alphabet import ImlaeyAlphabet, UniqueRasmMap, Istiaatha
 from pathlib import Path
 from collections import defaultdict
 import json
@@ -72,6 +72,24 @@ def save_unique_rasm_map(alphabet_path,
         json.dump(alphabet_dict, f, indent=2, ensure_ascii=False)
 
 
+def save_istiaatha(alphabet_path):
+    alphabet_dict = {}
+    if Path(alphabet_path).is_file():
+        with open(alphabet_path, 'r', encoding='utf8') as f:
+            alphabet_dict = json.load(f)
+
+    istiaatha_imlaey = "أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ"
+    istiaatha = Istiaatha(
+        imlaey=istiaatha_imlaey,
+        uthmani="أَعُوذُ بِٱللَّهِ مِنَ ٱلشَّيْطَانِ ٱلرَّجِيمِ"
+    )
+
+    alphabet_dict['istiaatha'] = istiaatha.__dict__
+    with open(alphabet_path, 'w+', encoding='utf8') as f:
+        json.dump(alphabet_dict, f, indent=2, ensure_ascii=False)
+
+
+
 def get_alphabet(quran_map_path: str | Path, rasm_type: str) -> set[str]:
     assert rasm_type in ['uthmani', 'imlaey'], (
         f'only valid rasm_types are: {["uthmani", "imlaey"]}')
@@ -133,3 +151,6 @@ if __name__ == "__main__":
         unique_rasm_map_set=unique_rasm_set,
         unique_start_imlaey_words=unique_imlaey_start_words
     )
+
+    print('Saving Istiaatha ............')
+    save_istiaatha(quran_alphabet_path)

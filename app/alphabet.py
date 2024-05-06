@@ -21,10 +21,18 @@ class ImlaeyAlphabet:
 class UthmaniAlphabet:
     pass
 
+
 @dataclass
 class UniqueRasmMap:
     rasm_map: list[dict[str, str]]
     imlaey_starts: list[str]
+
+
+@dataclass
+class Istiaatha:
+    imlaey: str
+    uthmani: str
+
 
 """
 rasm_map=
@@ -45,3 +53,4 @@ with open(alphabet_path, 'r', encoding='utf8') as f:
     imlaey = ImlaeyAlphabet(**alphabet_dict['imlaey'])
     uthmani = UthmaniAlphabet(**alphabet_dict['uthmani'])
     unique_rasm = UniqueRasmMap(**alphabet_dict['unique_rasm_map'])
+    istiaatha = Istiaatha(**alphabet_dict['istiaatha'])

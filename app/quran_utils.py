@@ -466,39 +466,28 @@ class Aya(object):
     def imlaey_to_uthmani(self,
                           imlaey_word_span: WordSpan,
                           include_bismillah=False,
-                          include_istiaatha=False,
                           ) -> str:
         """
         return the uthmai script of the given imlaey script represented by
         the imlaey wordspand
         """
         imlaey2uthmani: dict[int, int] = self._encode_imlaey_to_uthmani(
-            include_bismillah=include_bismillah,
-            include_istiaatha=include_istiaatha,)
+            include_bismillah=include_bismillah)
         uthmani_script = self._decode_uthmani(
             imlaey2uthmani=imlaey2uthmani, imlaey_wordspan=imlaey_word_span,
-            include_bismillah=include_bismillah,
-            include_istiaatha=include_istiaatha)
+            include_bismillah=include_bismillah)
         return uthmani_script
 
     def _encode_imlaey_to_uthmani(self,
                                   include_bismillah=False,
-                                  include_istiaatha=False,
                                   ) -> dict[int, int]:
         """
         Args:
             inlcude_bismillah (bool): if True it will include bismillah in the
                 encoded dictionary as a part of the first aya
-            inlcude_istiaatha (bool): if True it will include istiaatha in the
-                encoded dictionary as a part of the aya
-
         """
         uthmani_words = []
         imlaey_words = []
-        if include_istiaatha and self.get().istiaatha_uthmani:
-            uthmani_words += self.get().istiaatha_uthmani.split(self.join_prefix)
-            imlaey_words += self.get().istiaatha_imlaey.split(self.join_prefix)
-
         if include_bismillah and (self.get().bismillah_uthmani is not None):
             uthmani_words += self.get().bismillah_uthmani.split(self.join_prefix)
             imlaey_words += self.get().bismillah_imlaey.split(self.join_prefix)
@@ -555,7 +544,6 @@ class Aya(object):
         imlaey2uthmani: dict[int, int],
         imlaey_wordspan: WordSpan,
         include_bismillah=False,
-        include_istiaatha=False,
             ) -> str:
         """
         Args:
@@ -564,8 +552,6 @@ class Aya(object):
                 end: the (end + 1) word idx in imlaey script of the aya if end
                     is None then means to the last word idx of the imlaey aya
             inlcude_bismillah (bool): if True it will include bismillah in the
-                decoding process
-            inlcude_istiaatha (bool): if True it will include istiaatha in the
                 decoding process
         return the uthmani script of the given imlaey_word_span in
         Imlaey script Aya
@@ -583,9 +569,6 @@ class Aya(object):
 
         # Preparing Uthamni Words
         uthmani_words = []
-        if include_istiaatha and self.get().istiaatha_uthmani:
-            uthmani_words += self.get().istiaatha_uthmani.split(self.join_prefix)
-
         if include_bismillah and (self.get().bismillah_uthmani is not None):
             uthmani_words += self.get().bismillah_uthmani.split(self.join_prefix)
 
@@ -622,7 +605,23 @@ class SearchItem:
         start: the start word idx of the imlaey scriptin thestart_aya
         end: the end imlaey_idx of the imlaey (start_aya + num_ayat - 1)
     uthmani_script (str) the equvilent uthmani script of the given imlaey script
+    if istiaatha is only will return:
+        start_aya=None, num_ayat=None, imlaey_word_span=None, has_bismillah=None
     """
+
+    def __str__(self):
+        out_str = ""
+        if self.start_aya:
+            out_str += f'start_aya(sura_idx={self.start_aya.get().sura_idx}, aya_idx={self.start_aya.get().aya_idx})'
+        else:
+            out_str += f'start_aya(sura_idx={None}, aya_idx={None})'
+        out_str += f', num_ayat={self.num_ayat}'
+        out_str += f', uthmnai_script={self.uthmani_script}'
+        out_str += f', has_istiaatha={self.has_istiaatha}'
+        out_str += f', has_bismillah={self.has_bismillah}'
+        out_str += f', imlaey_word_span={self.imlaey_word_span}'
+
+        return out_str
 
 
 # TODO add:
@@ -652,19 +651,44 @@ def search(
         text,
         remove_spaces=True,
         **kwargs)
+    if normalized_text == '':
+        return []
 
     # Prepare ayat within [-window/2, window/2]
     loop_aya = start_aya.step(-window // 2)
 
+    # ----------------------------------
+    # Checking for Itiaatha
+    # ----------------------------------
+    # NOTE: Assuming Istiaatha is at the first only
+    has_istiaatha = False
+    istiaatha_imlaey_words = normalize_aya(
+        start_aya.get().istiaatha_imlaey,
+        remove_spaces=False,
+        **kwargs,
+        ).split(suffix)
+    istiaatha_imlaey_str = "".join(istiaatha_imlaey_words)
+    re_span = re.search(istiaatha_imlaey_str, normalized_text)
+    if re_span:
+        normalized_text = normalized_text[re_span.span()[1]:]
+        has_istiaatha = True
+        if normalized_text == '':
+            # return istiaatha only
+            return [SearchItem(
+                        start_aya=None,
+                        num_ayat=None,
+                        imlaey_word_span=None,
+                        has_bismillah=None,
+                        has_istiaatha=has_istiaatha,
+                        uthmani_script=start_aya.get().istiaatha_uthmani)]
+
     found = []
-    for bismillah_flag, istiaatha_flag in zip([False, False, True, True],
-                                              [False, True, True, False]):
+    for bismillah_flag in [False, True]:
         aya_imlaey_words, aya_imlaey_str = _get_imlaey_words_and_str(
             start_aya=loop_aya,
             window=window,
             suffix=suffix,
             include_bismillah=bismillah_flag,
-            include_istiaatha=istiaatha_flag,
             **kwargs,
         )
 
@@ -681,12 +705,18 @@ def search(
                         num_ayat=end_vertex.aya_idx - start_vertex.aya_idx + 1,
                         imlaey_word_span=WordSpan(start=start_vertex.word_idx, end=end_vertex.word_idx),
                         has_bismillah=bismillah_flag,
-                        has_istiaatha=istiaatha_flag,
+                        has_istiaatha=has_istiaatha,
                         uthmani_script=""))
                     found[-1].uthmani_script = _get_uthmani_of_result_item(
                         found[-1], suffix=suffix)
         if found != []:
+            # add istiaatah uthamni script
+            if has_istiaatha:
+                for item in found:
+                    item.uthmani_script = (start_aya.get().istiaatha_uthmani +
+                                           suffix + item.uthmani_script)
             return found
+
 
     return found
 
@@ -825,7 +855,6 @@ def _get_uthmani_of_result_item(search_item: SearchItem, suffix=' ') -> str:
         uthmani_str += aya.imlaey_to_uthmani(
             wordspans[idx],
             include_bismillah=search_item.has_bismillah,
-            include_istiaatha=search_item.has_istiaatha,
         )
         uthmani_str += suffix
     uthmani_str = uthmani_str[:-len(suffix)]  # removing last suffix from the end
@@ -837,7 +866,6 @@ def _get_imlaey_words_and_str(
     start_aya: Aya,
     window: int,
     include_bismillah=False,
-    include_istiaatha=False,
     suffix=' ',
     **kwargs,
         ) -> tuple[list[list[str]], str]:
@@ -852,15 +880,8 @@ def _get_imlaey_words_and_str(
     for aya in start_aya.get_ayat_after(num_ayat=window + 1):
         aya_words = []
 
-        # Including Istiaatha
-        if include_istiaatha and aya.get().istiaatha_imlaey:
-            aya_words += normalize_aya(
-                aya.get().istiaatha_imlaey,
-                remove_spaces=False,
-                **kwargs,
-            ).split(suffix)
-
-        # Including Bismillah
+        # Including Bismillah at The start of sura except for:
+        # Alfatiha [is an Aya] and Al tuoba
         if include_bismillah and (aya.get().bismillah_imlaey is not None):
             aya_words += normalize_aya(
                 aya.get().bismillah_imlaey,

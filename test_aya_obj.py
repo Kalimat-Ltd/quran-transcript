@@ -5,7 +5,8 @@ if __name__ == "__main__":
     # -------------------------------------------------------------------
     # Test General Use
     # -------------------------------------------------------------------
-    # start_aya = Aya('quran-script/quran-uthmani-imlaey-map.json', 1, 1)
+    # start_aya = Aya(
+    #     1, 1, quran_path='quran-script/quran-uthmani-imlaey-map.json')
     # start_aya.set(114, 2)
     # # print(start_aya.get())
     # start = time.time()
@@ -18,7 +19,8 @@ if __name__ == "__main__":
     # -------------------------------------------------------------------
     # Test Looping
     # -------------------------------------------------------------------
-    # start_aya = Aya('quran-script/quran-uthmani-imlaey-map.json', 114, 5)
+    # start_aya = Aya(
+    #     114, 5, quran_path='quran-script/quran-uthmani-imlaey-map.json')
     # for idx, aya in enumerate(start_aya.get_ayat_after(num_ayat=10)):
     #     print(aya)
     #     print(idx)
@@ -26,7 +28,8 @@ if __name__ == "__main__":
     # -------------------------------------------------------------------
     # Test set rasm
     # -------------------------------------------------------------------
-    # start_aya = Aya('quran-script/quran-uthmani-imlaey-map.json', 113, 1)
+    # start_aya = Aya(
+    #     113, 1, quran_path='quran-script/quran-uthmani-imlaey-map.json')
     #
     # print('Before: ')
     # print(start_aya.get())
@@ -41,7 +44,8 @@ if __name__ == "__main__":
     # -------------------------------------------------------------------
     # Test General Step
     # -------------------------------------------------------------------
-    # start_aya = Aya('quran-script/quran-uthmani-imlaey-map.json', 114, 1)
+    # start_aya = Aya(
+    #     114, 1, quran_path='quran-script/quran-uthmani-imlaey-map.json')
     # steps = [0, 1, 293, 493, 292, -1, -2, -11]
     # # steps = [-1]
     # for step in steps:
@@ -52,13 +56,15 @@ if __name__ == "__main__":
     # -------------------------------------------------------------------
     # Test get_fromatted_rasmp_map
     # -------------------------------------------------------------------
-    # aya = Aya('quran-script/quran-uthmani-imlaey-map.json', 111, 1)
+    # aya = Aya(
+    #     111, 1, quran_path='quran-script/quran-uthmani-imlaey-map.json')
     # print(aya.get_formatted_rasm_map())
 
     # -------------------------------------------------------------------
     # Test set_new
     # -------------------------------------------------------------------
-    # aya = Aya('quran-script/quran-uthmani-imlaey-map.json', 111, 1)
+    # aya = Aya(
+    #     111, 1, quran_path='quran-script/quran-uthmani-imlaey-map.json')
     # new_aya = aya.set_new(4, 4)
     # print('OLD AYA')
     # print(aya)
@@ -69,16 +75,17 @@ if __name__ == "__main__":
     # -------------------------------------------------------------------
     # Test normaliz text
     # -------------------------------------------------------------------
-    # aya = Aya('quran-script/quran-uthmani-imlaey-map.json', 2, 5)
+    # aya = Aya(
+    #     111, 1, quran_path='quran-script/quran-uthmani-imlaey-map.json')
     # norm_aya = normalize_aya(
     #     aya.get().imlaey,
     #     remove_spaces=True,
     #     ignore_hamazat=True,
     #     ignore_alef_maksoora=True,
-    #     ignore_haa_motatrefa=True,
-    #     ignore_taa_marboota=True,
-    #     ignore_small_alef=True,
-    #     ignore_tashkeel=True,
+    #     ignore_taa_marboota=False,
+    #     normalize_taat=False,
+    #     remove_small_alef=True,
+    #     remove_tashkeel=True,
     # )
     # print(aya.get().imlaey)
     # print(norm_aya)
@@ -86,7 +93,8 @@ if __name__ == "__main__":
     # -------------------------------------------------------------------
     # Test search
     # -------------------------------------------------------------------
-    start_aya = Aya('quran-script/quran-uthmani-imlaey-map.json', 1, 1)
+    # start_aya = Aya('quran-script/quran-uthmani-imlaey-map.json', 1, 1)
+    start_aya = Aya(1, 1)
     # search_aya = start_aya.set_new(1, 7)
     # search_text = "الحمد لله"
     # search_text = "وأن لو"
@@ -105,16 +113,15 @@ if __name__ == "__main__":
     # search_text = 'test'
     start_time = time.time()
     results = search(
-        start_aya,
         search_text,
+        # start_aya=start_aya,
         window=6236,
-        # search_aya.get().imlaey,
         ignore_hamazat=False,
         ignore_alef_maksoora=False,
-        ignore_haa_motatrefa=False,
         ignore_taa_marboota=False,
-        ignore_small_alef=True,
-        ignore_tashkeel=True,
+        normalize_taat=False,
+        remove_small_alef=True,
+        remove_tashkeel=True,
     )
     end_time = time.time()
     count = 0
@@ -128,24 +135,16 @@ if __name__ == "__main__":
     # -------------------------------------------------------------------
     # Test _encode_imlaey_to_uthmani
     # -------------------------------------------------------------------
-    # aya = Aya('quran-script/quran-uthmani-imlaey-map.json', 1, 5)
+    # aya = Aya(
+    #     1, 5, quran_path='quran-script/quran-uthmani-imlaey-map.json')
     # print(aya)
     # print(aya._encode_imlaey_to_uthmani())
 
     # -------------------------------------------------------------------
     # Test _encode_imlaey_to_uthmani
     # -------------------------------------------------------------------
-    # aya = Aya('quran-script/quran-uthmani-imlaey-map.json', 72, 16)
+    # # aya = Aya('quran-script/quran-uthmani-imlaey-map.json', 72, 16)
+    # aya = Aya(
+    #     72, 16, quran_path='quran-script/quran-uthmani-imlaey-map.json')
     # span = WordSpan(0, 7)
     # print(aya.imlaey_to_uthmani(span))
-
-
-
-
-
-
-
-
-
-
-

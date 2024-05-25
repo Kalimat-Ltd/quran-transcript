@@ -12,7 +12,7 @@ async def lifespan(app: FastAPI):
     # StartUP event (called before start)
 
     # Get Sura names
-    start_aya = Aya(QURAN_MAP_PATH, sura_idx=1, aya_idx=1)
+    start_aya = Aya(sura_idx=1, aya_idx=1, quran_path=QURAN_MAP_PATH)
     suar_names = []
     for sura_idx in range(1, 115, 1):
         start_aya.set(sura_idx=sura_idx, aya_idx=1)
@@ -111,12 +111,3 @@ async def save_rasm_map(rasm_map: RasmMap, response: Response):
 async def save_quran_dict():
     global AYA
     AYA.save_quran_dict()
-
-
-
-
-
-
-
-
-

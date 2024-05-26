@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "quran_transcript"
+version = "0.0.1"
+authors = [
+  { name="Abdullah Aml", email="abdullahamlyossef@gmail.com" },
+]
+description = "Phonatic transcript of the Holy Quran with additional utils"
+readme = "README.md"
+dependencies = [
+    "xmltodict",
+]
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/Abdullahaml1/quran-transcript"
+Issues = "https://github.com/Abdullahaml1/quran-transcript/issues"

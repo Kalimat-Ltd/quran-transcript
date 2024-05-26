@@ -3,7 +3,9 @@ import json
 import xmltodict
 from dataclasses import dataclass
 import re
-from app import alphabet as alpha
+from quran_transcript import alphabet as alpha
+
+BASE_PATH = Path(__file__).parent
 
 
 class PartOfUthmaniWord(Exception):
@@ -76,7 +78,7 @@ class Aya(object):
         self,
         sura_idx=1,
         aya_idx=1,
-        quran_path: str | Path = 'quran-script/quran-uthmani-imlaey.json',
+        quran_path: str | Path = BASE_PATH / '../../quran-script/quran-uthmani-imlaey.json',
         quran_dict: dict = None,
         prefix="@",
         map_key="rasm_map",

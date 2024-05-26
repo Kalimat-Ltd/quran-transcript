@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 import json
+from pathlib import Path
 
 
 @dataclass
@@ -46,8 +47,8 @@ rasm_map=
 imlaey_starts: ["يا", "ويا", "ها"]
 """
 
-
-alphabet_path = 'quran-script/quran-alphabet.json'
+BASE_PATH = Path(__file__).parent
+alphabet_path = BASE_PATH / '../../quran-script/quran-alphabet.json'
 with open(alphabet_path, 'r', encoding='utf8') as f:
     alphabet_dict = json.load(f)
     imlaey = ImlaeyAlphabet(**alphabet_dict['imlaey'])

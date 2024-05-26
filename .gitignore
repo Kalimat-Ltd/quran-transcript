@@ -2,7 +2,7 @@
 **/__pycache__/
 
 # builds
-**/*.egg
+**/*.egg-info
 
 # Last Working Aya
 APP_AYA_IDS.json

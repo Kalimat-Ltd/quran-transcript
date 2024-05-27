@@ -44,6 +44,47 @@ class AyaFormat:
     bismillah_uthmani: str = None
     bismillah_imlaey: str = None
     bismillah_map: dict[str, list[str]] = None
+    """
+    Attributes:
+        sura_idx (int): the absoulte index of the sura starting form 1
+        aya_idx (int): the absoulte index of the aya starting from 1
+        sura_name (str): the name of the sura
+        num_aya_in_sura (int): number of ayat in the sura
+        uthmani (str): the uthmani script of the aya
+        imlaey (str): the imlaey script of the aya
+        istiaatha_uthmani (str): the Istiaatha in Uthmani script
+        istiaatha_imlaey (str): the Istiaatha in Imlaey script
+
+        rasm_map (list[dict[str, str]]): maping from imaley to uthmani
+            scritps (word of uthmani to word or words of imlaey) and the
+            opesite. Example:
+            rasm_map=[
+                {'@uthmani': 'مِنَ', '@imlaey': 'مِنَ'},
+                {'@uthmani': 'ٱلْجِنَّةِ', '@imlaey': 'الْجِنَّةِ'},
+                {'@uthmani': 'وَٱلنَّاسِ', '@imlaey': 'وَالنَّاسِ'}]
+            Every item in the item is a dict with "@uthmain" and
+            if None: the rasem map is not set yet
+
+        bismillah_uthmani (str): bismillah in uthmani script if the
+            aya index == 1 and the sura has bismillah or bismillah is
+            not aya like sura Alfateha and else (None)
+
+        bismillah_imlaey (str): bismillah in uthmani script if the
+            aya index == 1 and the sura has bismillah or bismillah is
+            not aya like sura Alfateha and else (None)
+
+        bismillah_map (list[dict[str, str]]): maping from imaley to uthmani
+            scritps (word of uthmani to word or words of imlaey) and
+            the opesite. Example:
+            bismillah_map=[
+                {'@uthmani': 'بِسْمِ', '@imlaey': 'بِسْمِ'},
+                {'@uthmani': 'ٱللَّهِ', '@imlaey': 'اللَّهِ'},
+                {'@uthmani': 'ٱلرَّحْمَـٰنِ', '@imlaey': 'الرَّحْمَٰنِ'},
+                {'@uthmani': 'ٱلرَّحِيمِ', '@imlaey': 'الرَّحِيمِ'}]
+                Every item in the item is a dict with "@uthmain" and
+            if None: the aya is not the first aya of the sura
+            (Note: bismillah maping is set automaticllay no by the user)
+    """
 
     def get_formatted_rasm_map(
         self,
@@ -78,7 +119,7 @@ class Aya(object):
         self,
         sura_idx=1,
         aya_idx=1,
-        quran_path: str | Path = BASE_PATH / '../../quran-script/quran-uthmani-imlaey.json',
+        quran_path: str | Path = BASE_PATH / 'quran-script/quran-uthmani-imlaey.json',
         quran_dict: dict = None,
         prefix="@",
         map_key="rasm_map",
@@ -149,6 +190,8 @@ class Aya(object):
                 num_aya_in_sura (int): number of ayat in the sura
                 uthmani (str): the uthmani script of the aya
                 imlaey (str): the imlaey script of the aya
+                istiaatha_uthmani (str): the Istiaatha in Uthmani script
+                istiaatha_imlaey (str): the Istiaatha in Imlaey script
 
                 rasm_map (list[dict[str, str]]): maping from imaley to uthmani
                     scritps (word of uthmani to word or words of imlaey) and the

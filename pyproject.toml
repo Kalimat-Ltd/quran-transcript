@@ -24,3 +24,6 @@ classifiers = [
 [project.urls]
 Homepage = "https://github.com/Abdullahaml1/quran-transcript"
 Issues = "https://github.com/Abdullahaml1/quran-transcript/issues"
+
+[tool.setuptools.package-data]
+quran_transcript = ["quran-script/*"]

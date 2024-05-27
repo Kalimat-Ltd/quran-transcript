@@ -30,4 +30,4 @@ Issues = "https://github.com/Abdullahaml1/quran-transcript/issues"
 
 # for addint data: https://setuptools.pypa.io/en/latest/userguide/datafiles.html#package-data
 [tool.setuptools.package-data]
-quran_transcript = ["../../quran-script/*"]
+quran_transcript = ["quran-script/*"]

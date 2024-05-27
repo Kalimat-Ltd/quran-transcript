@@ -1,3 +1,3 @@
-streamlit
+streamlit == 1.30.0
 xmltodict
-fastapi[all]
+fastapi[all] == 0.110.0

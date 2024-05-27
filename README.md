@@ -1,3 +1,17 @@
+# `quran_transcript` package
+TODO: docs
+
+# Annotation Application of annotation imlaey to uthmnai
+To start server:
+```bash
+python -m uvicorn server:app --port 900
+```
+
+To start streamlit
+```bash
+python -m streamlit run streamlit_app
+```
+
 # Quran Script Description
 [TODO]
 
@@ -28,4 +42,9 @@ Example within the repo (json):
 ```bash
 python merge_uthman_imlaey.py --uthmani-file quran-script/quran-uthmani-without-pause-sajda-hizb-marks.xml --imlaey-file quran-script/quran-simple-imlaey-without-puase-sajda-hizb-marks-and-tatweel.xml --output-file quran-script/quran-uthmani-imlaey.xml
 ```
+
+# TODO
+[ ] `quran_transcript` docs
+[ ] adding tests
+[ ] CI/CD with github
 

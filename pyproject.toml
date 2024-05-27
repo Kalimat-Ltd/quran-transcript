@@ -1,7 +1,7 @@
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
-include-package-data = true
+include-package-data = true # to include data directories
 
 [project]
 name = "quran_transcript"
@@ -25,5 +25,6 @@ classifiers = [
 Homepage = "https://github.com/Abdullahaml1/quran-transcript"
 Issues = "https://github.com/Abdullahaml1/quran-transcript/issues"
 
+# for addint data: https://setuptools.pypa.io/en/latest/userguide/datafiles.html#package-data
 [tool.setuptools.package-data]
 quran_transcript = ["quran-script/*"]

@@ -1,5 +1,5 @@
 from requests import get, post
-from app.quran_utils import AyaFormat
+from quran_transcript import AyaFormat
 
 
 URL = 'http://127.0.0.1:9000'
@@ -44,7 +44,7 @@ def save_rasm_map(
     aya_idx: int,
     uthmani_words: list[list[str]],
     imlaey_words: list[list[str]]
-        ):
+):
     to_send = {
         'sura_idx': sura_idx,
         'aya_idx': aya_idx,

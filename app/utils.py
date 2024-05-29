@@ -3,7 +3,7 @@ from typing import Any
 from pathlib import Path
 import json
 import app.api_utils as api
-from app.quran_utils import AyaFormat
+from quran_transcript import AyaFormat
 
 
 DEFAULT_AYA_SAVE = 'APP_AYA_IDS.json'
@@ -143,7 +143,7 @@ def save_rasm_map_click(
     aya_format: AyaFormat,
     uthmani_words: list[list[str]],
     imlaey_words: list[list[str]]
-        ):
+):
 
     st.session_state.edit_imlaey = False
     st.session_state.edit_uthmani = False
@@ -220,7 +220,7 @@ def get_selected_aya() -> AyaFormat:
         sura_idx=aya_format.sura_idx,
         aya_idx=aya_format.aya_idx,
         last_aya_save_file=DEFAULT_AYA_SAVE,
-        )
+    )
     return aya_format
 
 
@@ -232,7 +232,7 @@ def next_prev_aya(ayaformat: AyaFormat, step=1):
 
 def get_last_aya(
     last_aya_save_file: str | Path = Path('aya_ids.json')
-        ) -> tuple[int, int]:
+) -> tuple[int, int]:
     """
     get last aya of indeices from last work
     Return:
@@ -255,7 +255,7 @@ def save_last_aya(
     sura_idx: int,
     aya_idx: int,
     last_aya_save_file: str | Path = Path('aya_ids.json'),
-        ):
+):
     """
     set last aya of indices to be loaded one the beginning of the app
     Return:
@@ -457,7 +457,6 @@ def deselect_left_most_box_idx(m_select_idx: int,
         de_box_idx: (int) the id of the del box in m_save_obj[m_selecd_idx]['value']
     """
 
-
     N = len(m_save_obj)
     if m_select_idx == N - 1:
         # move select it & the reset of boxes to options
@@ -636,10 +635,10 @@ def multiselect_callback(m_select_idx: int,
         elif ((del_box_idx == len(m_save_obj[m_select_idx]['value']) - 1) and
                 (m_select_idx != N - 1)):
             deselect_right_most_box_idx(
-                    m_select_idx=m_select_idx,
-                    m_save_obj=m_save_obj,
-                    del_box=del_box,
-                    del_box_idx=del_box_idx)
+                m_select_idx=m_select_idx,
+                m_save_obj=m_save_obj,
+                del_box=del_box,
+                del_box_idx=del_box_idx)
 
         else:
             m_save_obj[m_select_idx]['value'] = sorted(
@@ -652,7 +651,8 @@ def multiselect_callback(m_select_idx: int,
 
     # assetion if the selected options are not following each other
     if st.session_state[f'{multiselect}_{m_select_idx}']:
-        sorted_values = sorted(st.session_state[f'{multiselect}_{m_select_idx}'])
+        sorted_values = sorted(
+            st.session_state[f'{multiselect}_{m_select_idx}'])
         low = sorted_values[0]
         high = sorted_values[-1]
         if sorted_values != list(range(low, high + 1, 1)):

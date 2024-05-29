@@ -1,6 +1,13 @@
 # `quran_transcript` package
 TODO: docs
 
+# Build for Source
+create a `venv` or a conda environment to avoid coflicts, Then
+```bash
+cd quran-transcript
+python -m pip intall -r ./
+
+````
 # Annotation Application of annotation imlaey to uthmnai
 To start server:
 ```bash

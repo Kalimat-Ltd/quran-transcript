@@ -1,6 +1,6 @@
 import time
 import sys
-from aya.utils import Aya, normalize_aya, search, WordSpan
+from quran_transcript import Aya, normalize_aya, search, WordSpan
 
 
 if __name__ == "__main__":

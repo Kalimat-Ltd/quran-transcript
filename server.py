@@ -1,7 +1,7 @@
+from quran_transcript.utils import Aya
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Response, status
 from pydantic import BaseModel
-from app.quran_utils import Aya, AyaFormat
 
 
 QURAN_MAP_PATH = 'quran-script/quran-uthmani-imlaey-map.json'

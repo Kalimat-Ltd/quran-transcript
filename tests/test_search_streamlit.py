@@ -1,5 +1,5 @@
 import streamlit as st
-from app.quran_utils import Aya, search
+from quran_transcript import Aya, search
 
 if __name__ == "__main__":
     search_text = st.text_input('نص البحث')
@@ -23,7 +23,3 @@ if __name__ == "__main__":
         for result in results:
             st.write(f'{result}')
             st.write('-' * 10)
-
-
-
-

@@ -5,7 +5,7 @@ TODO: docs
 create a `venv` or a conda environment to avoid coflicts, Then
 ```bash
 cd quran-transcript
-python -m pip intall -r ./
+python -m pip install -r ./
 
 ````
 # Annotation Application of annotation imlaey to uthmnai
@@ -51,7 +51,7 @@ python merge_uthman_imlaey.py --uthmani-file quran-script/quran-uthmani-without-
 ```
 
 # TODO
-[ ] `quran_transcript` docs
-[ ] adding tests
-[ ] CI/CD with github
+- [ ] `quran_transcript` docs
+- [ ] adding tests
+- [ ] CI/CD with github
 

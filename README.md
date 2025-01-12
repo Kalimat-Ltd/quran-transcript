@@ -1,5 +1,7 @@
 # Quran Transcript
 
+[![Open In Colab](https://img.shields.io/badge/Open%20in-Colab-orange?logo=google-colab&style=flat-square)](https://colab.research.google.com/drive/1d9-mVu2eiPOPS9z5sS2V4TQ579xIUBi-?usp=sharing)
+
 
 # `quran_transcript` package
 TODO: docs

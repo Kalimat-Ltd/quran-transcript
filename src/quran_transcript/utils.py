@@ -1,9 +1,12 @@
 from pathlib import Path
 import json
-import xmltodict
 from dataclasses import dataclass
 import re
-from quran_transcript import alphabet as alpha
+from typing import Optional
+
+import xmltodict
+
+from . import alphabet as alpha
 
 BASE_PATH = Path(__file__).parent
 
@@ -27,7 +30,7 @@ class Vertex:
 @dataclass
 class WordSpan:
     start: int
-    end: int
+    end: int | None
 
 
 @dataclass
@@ -40,10 +43,10 @@ class AyaFormat:
     imlaey: str
     istiaatha_uthmani: str
     istiaatha_imlaey: str
-    rasm_map: dict[str, list[str]] = None
-    bismillah_uthmani: str = None
-    bismillah_imlaey: str = None
-    bismillah_map: dict[str, list[str]] = None
+    rasm_map: dict[str, list[str]] | None = None
+    bismillah_uthmani: str | None = None
+    bismillah_imlaey: str | None = None
+    bismillah_map: dict[str, list[str]] | None = None
     """
     Attributes:
         sura_idx (int): the absoulte index of the sura starting form 1
@@ -113,14 +116,33 @@ class AyaFormat:
         return RasmFormat(uthmani=uthmani_words, imlaey=imlaey_words)
 
 
+@dataclass
+class SegmentScripts:
+    text: str
+    imalaey: str
+    uthmani: str
+    has_istiaatha: bool
+    has_bismillah: bool
+    has_sadk: bool
+    sura_span: tuple[int, int]
+    aya_span: tuple[int, int]
+    imlaey_span_chars: tuple[int, int]
+    uthmani_span_chars: tuple[int, int]
+
+
 # TODO: Add quran_dict as default
 class Aya(object):
     def __init__(
         self,
         sura_idx=1,
         aya_idx=1,
-        quran_path: str | Path = BASE_PATH / 'quran-script/quran-uthmani-imlaey.json',
-        quran_dict: dict = None,
+        quran_path: str | Path = BASE_PATH / "quran-script/quran-uthmani-imlaey.json",
+        quran_dict: Optional[dict] = None,
+        imlaey_words: Optional[list[str]] = None,
+        start_words_imlaey: Optional[int] = None,
+        include_istiaatha_in_by_words_mode: Optional[bool] = True,
+        include_bismillah_in_by_words_mode: Optional[bool] = True,
+        include_sdak_in_by_words_mode: Optional[bool] = True,
         prefix="@",
         map_key="rasm_map",
         bismillah_map_key="bismillah_map",
@@ -148,6 +170,7 @@ class Aya(object):
         self.istiaatha_uthmani = alpha.istiaatha.uthmani
 
         self._check_indices(sura_idx - 1, aya_idx - 1)
+        # NOTE: we are storing sura index and aya index as absolute index (starting from 0 not 1)
         self.sura_idx = sura_idx - 1
         self.aya_idx = aya_idx - 1
 
@@ -159,6 +182,11 @@ class Aya(object):
         self.bismillah_uthmani_key = f"{prefix}{bismillah_key}_{uthmani_key}"
         self.bismillah_imlaey_key = f"{prefix}{bismillah_key}_{imlaey_key}"
         self.join_prefix = join_prefix
+
+        # NOTE: self.imaley_words and self.start_words_imlaey are for
+        # self.get_by_imlaey_words method
+        # TODO:
+        self.imlaey_words = imlaey_words
 
     def _get_sura(self, sura_idx):
         assert sura_idx >= 0 and sura_idx <= 113, f"Wrong Sura index {sura_idx + 1}"
@@ -223,16 +251,14 @@ class Aya(object):
                     if None: the aya is not the first aya of the sura
                     (Note: bismillah maping is set automaticllay no by the user)
         """
-        bismillah = {self.bismillah_uthmani_key: None,
-                     self.bismillah_imlaey_key: None}
+        bismillah = {self.bismillah_uthmani_key: None, self.bismillah_imlaey_key: None}
         for key in bismillah.keys():
             if key in self._get_aya(sura_idx, aya_idx).keys():
                 bismillah[key] = self._get_aya(sura_idx, aya_idx)[key]
 
         bismillah_map = None
         if self.bismillah_map_key in self._get_aya(sura_idx, aya_idx).keys():
-            bismillah_map = self._get_aya(sura_idx, aya_idx)[
-                self.bismillah_map_key]
+            bismillah_map = self._get_aya(sura_idx, aya_idx)[self.bismillah_map_key]
 
         rasm_map = None
         if self.map_key in self._get_aya(sura_idx, aya_idx).keys():
@@ -278,6 +304,9 @@ class Aya(object):
     def __str__(self):
         return str(self.get())
 
+    def __repr__(self):
+        return str(self.get())
+
     def _check_indices(self, sura_idx: int, aya_idx: int):
         """
         check sura ds compatibility
@@ -316,9 +345,10 @@ class Aya(object):
             quran_dict=self.quran_dict,
         )
 
-    def step(self, step_len: int):
+    def step(self, step_len: int) -> "Aya":
         """
         Return new Aya object with "step_len" aya after of before
+        circular loop
         """
         aya_relative_idx = step_len + self.aya_idx
 
@@ -326,8 +356,7 @@ class Aya(object):
         if aya_relative_idx >= 0:
             sura_idx = self.sura_idx
             while True:
-                num_ayat = self._get(
-                    sura_idx=sura_idx, aya_idx=0).num_ayat_in_sura
+                num_ayat = self._get(sura_idx=sura_idx, aya_idx=0).num_ayat_in_sura
                 if aya_relative_idx < num_ayat:
                     break
                 aya_relative_idx -= num_ayat
@@ -337,8 +366,7 @@ class Aya(object):
         else:
             sura_idx = (self.sura_idx - 1) % 114
             while True:
-                num_ayat = self._get(
-                    sura_idx=sura_idx, aya_idx=0).num_ayat_in_sura
+                num_ayat = self._get(sura_idx=sura_idx, aya_idx=0).num_ayat_in_sura
                 aya_relative_idx += num_ayat
                 if aya_relative_idx >= 0:
                     break
@@ -351,7 +379,7 @@ class Aya(object):
         )
 
     # TODO: Add vertix
-    def get_ayat_after(self, end_vertix=(114, 6), num_ayat=None):
+    def get_ayat_after(self, end_vertix=(114, 6), num_ayat: int | None = None):
         """
         iterator looping over Quran ayayt (verses) starting from the
         current aya to the end of the Holy Quran
@@ -365,6 +393,7 @@ class Aya(object):
                 aya = aya.step(1)
             return
 
+        # TODO: subject to end_vertix
         aya_start_idx = self.aya_idx
         for sura_loop_idx in range(self.sura_idx, 114):
             for aya_loop_idx in range(
@@ -380,7 +409,7 @@ class Aya(object):
 
     def _get_map_dict(
         self, uthmani_list: list[str], imlaey_list: list[str]
-    ) -> dict[str, list[dict[str, str]]]:
+    ) -> list[dict[str, str]]:
         """
         Return:
             [
@@ -490,8 +519,7 @@ class Aya(object):
         uthmani_words: list[list[str]] = []
         imlaey_words: list[list[str]] = []
         for item in self.get().rasm_map:
-            uthmani_words.append(
-                item[self.uthmani_key].split(self.join_prefix))
+            uthmani_words.append(item[self.uthmani_key].split(self.join_prefix))
             imlaey_words.append(item[self.imlaey_key].split(self.join_prefix))
         return RasmFormat(uthmani=uthmani_words, imlaey=imlaey_words)
 
@@ -533,17 +561,22 @@ class Aya(object):
         """
         uthmani_words = []
         imlaey_words = []
+        # bismillah is part of surah Al fatiha so according to Hafs so we do not
+        # inlcude it
         if include_bismillah and (self.get().bismillah_uthmani is not None):
             uthmani_words += self.get().bismillah_uthmani.split(self.join_prefix)
             imlaey_words += self.get().bismillah_imlaey.split(self.join_prefix)
 
+        # The Aya itself
         uthmani_words += self.get().uthmani.split(self.join_prefix)
         imlaey_words += self.get().imlaey.split(self.join_prefix)
 
+        # Same words map to each other for both imlaey and uthmani
         if len(uthmani_words) == len(imlaey_words):
             return {idx: idx for idx in range(len(uthmani_words))}
 
-        # len mismatch
+        # len mismatch: some words in uthmani map to more than words in the imlaey
+        # for example: يبتنؤم in uthmani maps to يا ابن أم in imlaey
         iml_idx = 0
         imlaey2uthmani = {}
         for uth_idx in range(len(uthmani_words)):
@@ -554,6 +587,8 @@ class Aya(object):
                     imlaey2uthmani[idx] = uth_idx
                 iml_idx += span
 
+            # words in uthmnai starts with يأيهاو هأنتم maps to two imlaey words
+            # يا أيها ها أنتم
             elif imlaey_words[iml_idx] in alpha.unique_rasm.imlaey_starts:
                 imlaey2uthmani[iml_idx] = uth_idx
                 imlaey2uthmani[iml_idx + 1] = uth_idx
@@ -569,7 +604,7 @@ class Aya(object):
 
         return imlaey2uthmani
 
-    def _get_unique_rasm_map_span(self, idx: int, words: list[int]) -> int:
+    def _get_unique_rasm_map_span(self, idx: int, words: list[int]) -> int | None:
         """
         check that words starting of idx is in alphabet.unique_rasm.rasm_map
         if that applies, it will return the number of imlaey words in
@@ -578,7 +613,7 @@ class Aya(object):
         """
         for unique_rasm in alpha.unique_rasm.rasm_map:
             span = len(unique_rasm["imlaey"].split(self.join_prefix))
-            if self.join_prefix.join(words[idx: idx + span]) == unique_rasm["imlaey"]:
+            if self.join_prefix.join(words[idx : idx + span]) == unique_rasm["imlaey"]:
                 return span
         return None
 
@@ -600,14 +635,14 @@ class Aya(object):
         Imlaey script Aya
         """
         start = imlaey_wordspan.start
-        end = imlaey_wordspan.end
         if imlaey_wordspan.end is None:
             end = len(imlaey2uthmani)
+        else:
+            end = imlaey_wordspan.end
 
         if end in imlaey2uthmani.keys():
             if imlaey2uthmani[end - 1] == imlaey2uthmani[end]:
-                raise PartOfUthmaniWord(
-                    "The Imlay Word is part of uthmani word")
+                raise PartOfUthmaniWord("The Imlay Word is part of uthmani word")
 
         # Preparing Uthamni Words
         uthmani_words = []
@@ -628,13 +663,27 @@ class Aya(object):
             prev_uth_idx = imlaey2uthmani[idx]
         return out_script
 
+    def get_by_imlaey_words(self, start: int, window: int) -> SegmentScripts:
+        """returns the script format given start imlaey index (can be -ve) wiht length `window` words
+
+        Args:
+            start (int): the start index can be +ve or -ve. if -ve it will uses words
+            from previous aya even in aya 1 sura 1 (circular looping)
+            window (int): the number or imaley words to get
+        """
+        ...
+
+    def step_by_imlaey_words(self, step: int) -> "Aya":
+        """returns new `Aya` moved with steps in words by imaley script"""
+        ...
+
 
 @dataclass
 class SearchItem:
-    start_aya: Aya
+    start_aya: Aya | None
     num_ayat: int
-    imlaey_word_span: WordSpan
-    uthmani_script: int
+    imlaey_word_span: WordSpan | None
+    uthmani_script: str
     has_bismillah: bool = False
     has_istiaatha: bool = False
     """
@@ -737,16 +786,16 @@ def search(
     istiaatha_imlaey_str = "".join(istiaatha_imlaey_words)
     re_span = re.search(istiaatha_imlaey_str, normalized_text)
     if re_span:
-        normalized_text = normalized_text[re_span.span()[1]:]
+        normalized_text = normalized_text[re_span.span()[1] :]
         has_istiaatha = True
         if normalized_text == "":
             # return istiaatha only
             return [
                 SearchItem(
                     start_aya=None,
-                    num_ayat=None,
+                    num_ayat=0,
                     imlaey_word_span=None,
-                    has_bismillah=None,
+                    has_bismillah=False,
                     has_istiaatha=has_istiaatha,
                     uthmani_script=start_aya.get().istiaatha_uthmani,
                 )
@@ -837,7 +886,8 @@ def normalize_aya(
             str: the normalied imlaey text
     """
     assert not (ignore_taa_marboota and normalize_taat), (
-        'You can not `ignore_taa_marboota` and `normaize_taat` at the same time')
+        "You can not `ignore_taa_marboota` and `normaize_taat` at the same time"
+    )
 
     norm_text = text
 
@@ -847,12 +897,10 @@ def normalize_aya(
         norm_text = re.sub(r"\s+", "", norm_text)
 
     if ignore_alef_maksoora:
-        norm_text = re.sub(alpha.imlaey.alef_maksoora,
-                           alpha.imlaey.alef, norm_text)
+        norm_text = re.sub(alpha.imlaey.alef_maksoora, alpha.imlaey.alef, norm_text)
 
     if ignore_hamazat:
-        norm_text = re.sub(f"[{alpha.imlaey.hamazat}]",
-                           alpha.imlaey.hamza, norm_text)
+        norm_text = re.sub(f"[{alpha.imlaey.hamazat}]", alpha.imlaey.hamza, norm_text)
 
     if ignore_taa_marboota:
         norm_text = re.sub(
@@ -878,8 +926,8 @@ def normalize_aya(
 
 
 def _get_words_span(
-    start: int, end: int, words_list=list[list[str]]
-) -> tuple[Vertex, Vertex]:
+    start: int, end: int, words_list: list[list[str]]
+) -> tuple[Vertex, Vertex] | None:
     """
     return the word indices at every word boundary only not inside the word:
     which means:
@@ -907,7 +955,7 @@ def _get_words_span(
         if valid boundary else None
     """
 
-    def _get_start_span(start_char: int) -> tuple[int, int]:
+    def _get_start_span(start_char: int) -> tuple[int, int] | None:
         chars_count = 0
         for aya_idx in range(len(words_list)):
             for word_idx in range(len(words_list[aya_idx])):
@@ -919,7 +967,7 @@ def _get_words_span(
 
     def _get_end_span(
         end_char: int, chars_count=0, start_aya_idx=0, start_word_idx=0
-    ) -> tuple[int, int]:
+    ) -> tuple[int, int] | None:
         for aya_idx in range(start_aya_idx, len(words_list)):
             for word_idx in range(start_word_idx, len(words_list[aya_idx])):
                 chars_count += len(words_list[aya_idx][word_idx])
@@ -969,7 +1017,7 @@ def _get_uthmani_of_result_item(search_item: SearchItem, suffix=" ") -> str:
             include_bismillah=search_item.has_bismillah,
         )
         uthmani_str += suffix
-    # removing last suffix from the end
+    # removing last suffix from the nd
     uthmani_str = uthmani_str[: -len(suffix)]
 
     return uthmani_str

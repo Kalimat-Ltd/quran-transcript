@@ -118,6 +118,13 @@ class AyaFormat:
 
 
 @dataclass
+class EncodingOutput:
+    imlaey2uthmani: dict[int, int]
+    uthmani_words: list[str]
+    imlaey_words: list[str]
+
+
+@dataclass
 class SegmentScripts:
     text: str
     imalaey: str
@@ -139,11 +146,7 @@ class Aya(object):
         aya_idx=1,
         quran_path: str | Path = BASE_PATH / "quran-script/quran-uthmani-imlaey.json",
         quran_dict: Optional[dict] = None,
-        imlaey_words: Optional[list[str]] = None,
-        start_words_imlaey: Optional[int] = None,
-        include_istiaatha_in_by_words_mode: Optional[bool] = True,
-        include_bismillah_in_by_words_mode: Optional[bool] = True,
-        include_sdak_in_by_words_mode: Optional[bool] = True,
+        start_imlaey_word_idx: Optional[int] = None,
         prefix="@",
         map_key="rasm_map",
         bismillah_map_key="bismillah_map",
@@ -186,10 +189,11 @@ class Aya(object):
         self.bismillah_imlaey_key = f"{prefix}{bismillah_key}_{imlaey_key}"
         self.join_prefix = join_prefix
 
-        # NOTE: self.imaley_words and self.start_words_imlaey are for
-        # self.get_by_imlaey_words method
-        # TODO:
-        self.imlaey_words = imlaey_words
+        # NOTE: this variables used in by word steping for imlaey script in methods:
+        # * ``
+        # * ``
+        self.start_imlaey_word_idx = start_imlaey_word_idx
+        self.decoding_cache = {}
 
     def _get_sura(self, sura_idx):
         assert sura_idx >= 0 and sura_idx <= 113, f"Wrong Sura index {sura_idx + 1}"
@@ -526,52 +530,12 @@ class Aya(object):
             imlaey_words.append(item[self.imlaey_key].split(self.join_prefix))
         return RasmFormat(uthmani=uthmani_words, imlaey=imlaey_words)
 
-    def imlaey_to_uthmani(
-        self,
-        imlaey_word_span: WordSpan,
-        include_bismillah=False,
-        include_istiaatha=False,
-        include_sadaka=False,
-    ) -> str:
-        """return the uthmai script of the given imlaey script word indices
-
-        Args:
-            imlaey_word_span (WordSpan): the input imlay word ids in the Aya.
-            Wordspan.start: the start word index, WordSpan.end: the end word index if is `None` means to the end of the aya
-
-            include_bismillah (bool): If True, includes "Bismillah" (بسم الله الرحمن الرحيم)
-                as part of the first ayah's encoding. Note: Bismillah is automatically
-                included in Surah Al-Fatihah (as it is considered an ayah) and excluded
-                in Surah At-Tawbah (no Bismillah in this surah).
-
-            include_istiaatha (bool): If True, includes the Istiaatha (أعوذ بالله من الشيطان الرجيم)
-                at the beginning of the surah (only for the first ayah).
-
-            include_sadaka (bool): If True, appends "Sadaka Allahu Al-'Azeem" (صدق الله العظيم)
-                after the last ayah of the surah.
-
-        Returns:
-            str:
-                The uthmain script
-        """
-        imlaey2uthmani, uthmani_words = self._encode_imlaey_to_uthmani(
-            include_bismillah=include_bismillah,
-            include_istiaatha=include_istiaatha,
-            include_sadaka=include_sadaka,
-        )
-        uthmani_script = self._decode_uthmani(
-            imlaey_wordspan=imlaey_word_span,
-            imlaey2uthmani=imlaey2uthmani,
-            uthmani_words=uthmani_words,
-        )
-        return uthmani_script
-
     def _encode_imlaey_to_uthmani(
         self,
         include_bismillah=False,
         include_istiaatha=False,
         include_sadaka=False,
-    ) -> tuple[dict[int, int], list[str]]:
+    ) -> EncodingOutput:
         """
         Encodes Imlaey text into Uthmani script with optional prefixes/suffixes.
 
@@ -588,14 +552,31 @@ class Aya(object):
                 after the last ayah of the surah.
 
         Returns:
-            tuple[dict[int, int], list[str]]:
+            tuple[dict[int, int], list[str], list[str]]:
                 - A dictionary mapping Imlaey word indices to Uthmani word indices.
                 - A list of Uthmani words (with optional prefixes/suffixes if enabled).
+                - A list of Imlaey words (with optional prefixes/suffixes if enabled).
 
         Notes:
             - Warnings are issued if Istiaatha, Bismillah, or Sadaka are requested in invalid positions.
             - Handles edge cases where Uthmani and Imlaey word counts differ (e.g., due to unique Rasm rules).
         """
+        # caching decoding (indexing starge) for fasster infernce
+        if self.decoding_cache:
+            if (
+                self.decoding_cache["include_istiaatha"] == include_istiaatha
+                and self.decoding_cache["include_bismillah"] == include_bismillah
+                and self.decoding_cache["include_sadaka"] == include_sadaka
+            ):
+                imlaey2uthmani = self.decoding_cache["imlaey2uthmani"]
+                uthmani_words = self.decoding_cache["uthmani_words"]
+                imlaey_words = self.decoding_cache["imlaey_words"]
+                return EncodingOutput(
+                    imlaey2uthmani=imlaey2uthmani,
+                    uthmani_words=uthmani_words,
+                    imlaey_words=imlaey_words,
+                )
+
         uthmani_words = []
         imlaey_words = []
         # NOTE: include istiaathta only at the begining of the sura
@@ -635,7 +616,12 @@ class Aya(object):
 
         # Same words map to each other for both imlaey and uthmani
         if len(uthmani_words) == len(imlaey_words):
-            return {idx: idx for idx in range(len(uthmani_words))}, uthmani_words
+            imlaey2uthmani = {idx: idx for idx in range(len(uthmani_words))}
+            return EncodingOutput(
+                imlaey2uthmani=imlaey2uthmani,
+                uthmani_words=uthmani_words,
+                imlaey_words=imlaey_words,
+            )
 
         # len mismatch: some words in uthmani map to more than words in the imlaey
         # for example: يبتنؤم in uthmani maps to يا ابن أم in imlaey
@@ -664,7 +650,19 @@ class Aya(object):
         #
         assert sorted(imlaey2uthmani.values())[-1] == len(uthmani_words) - 1
 
-        return imlaey2uthmani, uthmani_words
+        # Saving the claculated inices in cache
+        self.decoding_cache["imlaey2uthmani"] = imlaey2uthmani
+        self.decoding_cache["uthmani_words"] = uthmani_words
+        self.decoding_cache["imlaey_words"] = imlaey_words
+        self.decoding_cache["include_istiaatha"] = include_istiaatha
+        self.decoding_cache["include_bismillah"] = include_bismillah
+        self.decoding_cache["include_sadaka"] = include_sadaka
+
+        return EncodingOutput(
+            imlaey2uthmani=imlaey2uthmani,
+            uthmani_words=uthmani_words,
+            imlaey_words=imlaey_words,
+        )
 
     def _get_unique_rasm_map_span(self, idx: int, words: list[int]) -> int | None:
         """
@@ -691,13 +689,6 @@ class Aya(object):
                 start: the start word idx in imlaey script of the aya
                 end: the (end + 1) word idx in imlaey script of the aya if end
                     is None then means to the last word idx of the imlaey aya
-            inlcude_bismillah (bool): if True it will include bismillah in the
-                decoding process
-            inlcude_istiaatha (bool): if True it will include Istiatha in the
-                decoding process
-            include_sadaka (bool): include sadaka (صدق الله العظيم) as a part of the Aya whilecalculating uthmani str
-
-
         return the uthmani script of the given imlaey_word_span in
         Imlaey script Aya
         """
@@ -722,6 +713,47 @@ class Aya(object):
                     out_script += self.join_prefix
             prev_uth_idx = imlaey2uthmani[idx]
         return out_script
+
+    def imlaey_to_uthmani(
+        self,
+        imlaey_word_span: WordSpan,
+        include_bismillah=False,
+        include_istiaatha=False,
+        include_sadaka=False,
+    ) -> str:
+        """return the uthmai script of the given imlaey script word indices
+
+        Args:
+            imlaey_word_span (WordSpan): the input imlay word ids in the Aya.
+            Wordspan.start: the start word index, WordSpan.end: the end word index if is `None` means to the end of the aya
+
+            include_bismillah (bool): If True, includes "Bismillah" (بسم الله الرحمن الرحيم)
+                as part of the first ayah's encoding. Note: Bismillah is automatically
+                included in Surah Al-Fatihah (as it is considered an ayah) and excluded
+                in Surah At-Tawbah (no Bismillah in this surah).
+
+            include_istiaatha (bool): If True, includes the Istiaatha (أعوذ بالله من الشيطان الرجيم)
+                at the beginning of the surah (only for the first ayah).
+
+            include_sadaka (bool): If True, appends "Sadaka Allahu Al-'Azeem" (صدق الله العظيم)
+                after the last ayah of the surah.
+
+        Returns:
+            str:
+                The uthmain script
+        """
+        encoding_out = self._encode_imlaey_to_uthmani(
+            include_bismillah=include_bismillah,
+            include_istiaatha=include_istiaatha,
+            include_sadaka=include_sadaka,
+        )
+
+        uthmani_script = self._decode_uthmani(
+            imlaey_wordspan=imlaey_word_span,
+            imlaey2uthmani=encoding_out.imlaey2uthmani,
+            uthmani_words=encoding_out.uthmani_words,
+        )
+        return uthmani_script
 
     def get_by_imlaey_words(self, start: int, window: int) -> SegmentScripts:
         """returns the script format given start imlaey index (can be -ve) wiht length `window` words

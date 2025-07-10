@@ -143,6 +143,24 @@ from quran_transcript import Aya, WordSpan
             False,
             "هَـٰٓأَنتُمْ هَـٰٓؤُلَآءِ تُدْعَوْنَ لِتُنفِقُوا۟",
         ),
+        (
+            Aya(72, 16),
+            0,
+            None,
+            False,
+            False,
+            False,
+            "وَأَلَّوِ ٱسْتَقَـٰمُوا۟ عَلَى ٱلطَّرِيقَةِ لَأَسْقَيْنَـٰهُم مَّآءً غَدَقًۭا",
+        ),
+        (
+            Aya(72, 16),
+            0,
+            4,
+            False,
+            False,
+            False,
+            "وَأَلَّوِ ٱسْتَقَـٰمُوا۟ عَلَى",
+        ),
     ],
 )
 def test_imlaey_to_uthmani(
@@ -163,3 +181,141 @@ def test_imlaey_to_uthmani(
     )
     print(out_uth_str)
     assert out_uth_str == exp_uth_text
+
+
+def test_imlaey_to_uthmai_with_caching():
+    aya = Aya(72, 16)
+    start = 0
+    end = None
+    istiaatha = False
+    bismillah = False
+    sadaka = False
+    expected_uthmani = "وَأَلَّوِ ٱسْتَقَـٰمُوا۟ عَلَى ٱلطَّرِيقَةِ لَأَسْقَيْنَـٰهُم مَّآءً غَدَقًۭا"
+
+    out_uthmni = aya.imlaey_to_uthmani(
+        WordSpan(start, end),
+        include_istiaatha=istiaatha,
+        include_bismillah=bismillah,
+        include_sadaka=sadaka,
+    )
+    assert out_uthmni == expected_uthmani
+
+    start = 0
+    end = 3
+    istiaatha = False
+    bismillah = False
+    sadaka = False
+    expected_uthmani = "وَأَلَّوِ ٱسْتَقَـٰمُوا۟"
+    out_uthmni = aya.imlaey_to_uthmani(
+        WordSpan(start, end),
+        include_istiaatha=istiaatha,
+        include_bismillah=bismillah,
+        include_sadaka=sadaka,
+    )
+    assert out_uthmni == expected_uthmani
+
+    start = 0
+    end = 3
+    istiaatha = True
+    bismillah = False
+    sadaka = False
+    expected_uthmani = "وَأَلَّوِ ٱسْتَقَـٰمُوا۟"
+    out_uthmni = aya.imlaey_to_uthmani(
+        WordSpan(start, end),
+        include_istiaatha=istiaatha,
+        include_bismillah=bismillah,
+        include_sadaka=sadaka,
+    )
+    assert out_uthmni == expected_uthmani
+
+
+def test_imlaey_to_uthmai_with_caching_istiaahta():
+    aya = Aya(1, 1)
+    start = 0
+    end = None
+    istiaatha = False
+    bismillah = False
+    sadaka = False
+    expected_uthmani = "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ"
+
+    out_uthmni = aya.imlaey_to_uthmani(
+        WordSpan(start, end),
+        include_istiaatha=istiaatha,
+        include_bismillah=bismillah,
+        include_sadaka=sadaka,
+    )
+    assert out_uthmni == expected_uthmani
+
+    istiaatha = True
+    bismillah = False
+    sadaka = False
+    expected_uthmani = "أَعُوذُ بِٱللَّهِ مِنَ ٱلشَّيْطَانِ ٱلرَّجِيمِ" + " " + "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ"
+    out_uthmni = aya.imlaey_to_uthmani(
+        WordSpan(start, end),
+        include_istiaatha=istiaatha,
+        include_bismillah=bismillah,
+        include_sadaka=sadaka,
+    )
+    assert out_uthmni == expected_uthmani
+
+
+def test_imlaey_to_uthmai_with_caching_sadaka():
+    aya = Aya(1, 7)
+    start = 0
+    end = None
+    istiaatha = False
+    bismillah = False
+    sadaka = False
+    expected_uthmani = "صِرَٰطَ ٱلَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ ٱلْمَغْضُوبِ عَلَيْهِمْ وَلَا ٱلضَّآلِّينَ"
+
+    out_uthmni = aya.imlaey_to_uthmani(
+        WordSpan(start, end),
+        include_istiaatha=istiaatha,
+        include_bismillah=bismillah,
+        include_sadaka=sadaka,
+    )
+    assert out_uthmni == expected_uthmani
+
+    istiaatha = False
+    bismillah = False
+    sadaka = True
+    expected_uthmani = (
+        "صِرَٰطَ ٱلَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ ٱلْمَغْضُوبِ عَلَيْهِمْ وَلَا ٱلضَّآلِّينَ" + " " + "صَدَقَ ٱللَّهُ ٱلْعَظِيمُ"
+    )
+    out_uthmni = aya.imlaey_to_uthmani(
+        WordSpan(start, end),
+        include_istiaatha=istiaatha,
+        include_bismillah=bismillah,
+        include_sadaka=sadaka,
+    )
+    assert out_uthmni == expected_uthmani
+
+
+def test_imlaey_to_uthmai_with_caching_bismlillah():
+    aya = Aya(2, 1)
+    start = 0
+    end = None
+    istiaatha = False
+    bismillah = False
+    sadaka = False
+    expected_uthmani = "الٓمٓ"
+
+    out_uthmni = aya.imlaey_to_uthmani(
+        WordSpan(start, end),
+        include_istiaatha=istiaatha,
+        include_bismillah=bismillah,
+        include_sadaka=sadaka,
+    )
+    assert out_uthmni == expected_uthmani
+
+    istiaatha = False
+    bismillah = True
+    sadaka = True
+    expected_uthmani = "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ" + " " + "الٓمٓ"
+    out_uthmni = aya.imlaey_to_uthmani(
+        WordSpan(start, end),
+        include_istiaatha=istiaatha,
+        include_bismillah=bismillah,
+        include_sadaka=sadaka,
+    )
+    assert out_uthmni == expected_uthmani

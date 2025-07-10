@@ -35,6 +35,12 @@ class Istiaatha:
     uthmani: str
 
 
+@dataclass
+class Sadaka:
+    imlaey: str
+    uthmani: str
+
+
 """
 rasm_map=
 [
@@ -48,10 +54,11 @@ imlaey_starts: ["يا", "ويا", "ها"]
 """
 
 BASE_PATH = Path(__file__).parent
-alphabet_path = BASE_PATH / 'quran-script/quran-alphabet.json'
-with open(alphabet_path, 'r', encoding='utf8') as f:
+alphabet_path = BASE_PATH / "quran-script/quran-alphabet.json"
+with open(alphabet_path, "r", encoding="utf8") as f:
     alphabet_dict = json.load(f)
-    imlaey = ImlaeyAlphabet(**alphabet_dict['imlaey'])
-    uthmani = UthmaniAlphabet(**alphabet_dict['uthmani'])
-    unique_rasm = UniqueRasmMap(**alphabet_dict['unique_rasm_map'])
-    istiaatha = Istiaatha(**alphabet_dict['istiaatha'])
+    imlaey = ImlaeyAlphabet(**alphabet_dict["imlaey"])
+    uthmani = UthmaniAlphabet(**alphabet_dict["uthmani"])
+    unique_rasm = UniqueRasmMap(**alphabet_dict["unique_rasm_map"])
+    istiaatha = Istiaatha(**alphabet_dict["istiaatha"])
+    sadaka = Sadaka(**alphabet_dict["sadaka"])

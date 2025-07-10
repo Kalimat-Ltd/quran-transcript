@@ -3,6 +3,7 @@ import json
 from dataclasses import dataclass
 import re
 from typing import Optional
+import warnings
 
 import xmltodict
 
@@ -123,7 +124,7 @@ class SegmentScripts:
     uthmani: str
     has_istiaatha: bool
     has_bismillah: bool
-    has_sadk: bool
+    has_sadaka: bool
     sura_span: tuple[int, int]
     aya_span: tuple[int, int]
     imlaey_span_chars: tuple[int, int]
@@ -171,6 +172,8 @@ class Aya(object):
 
         self._check_indices(sura_idx - 1, aya_idx - 1)
         # NOTE: we are storing sura index and aya index as absolute index (starting from 0 not 1)
+        # TODO: confuse naming we should make it clean that is diffrent for user
+        # exepctations we should name it python_sura_idx to diffrentiate it
         self.sura_idx = sura_idx - 1
         self.aya_idx = aya_idx - 1
 
@@ -527,53 +530,112 @@ class Aya(object):
         self,
         imlaey_word_span: WordSpan,
         include_bismillah=False,
+        include_istiaatha=False,
+        include_sadaka=False,
     ) -> str:
         """return the uthmai script of the given imlaey script word indices
 
         Args:
             imlaey_word_span (WordSpan): the input imlay word ids in the Aya.
-            Wordspan.start: the start word index, WordSpan.end: the end word index
+            Wordspan.start: the start word index, WordSpan.end: the end word index if is `None` means to the end of the aya
 
-            include_bimillah (bool): include Bismillah as a part of the Aya while
-            calculating uthmani str
+            include_bismillah (bool): If True, includes "Bismillah" (بسم الله الرحمن الرحيم)
+                as part of the first ayah's encoding. Note: Bismillah is automatically
+                included in Surah Al-Fatihah (as it is considered an ayah) and excluded
+                in Surah At-Tawbah (no Bismillah in this surah).
 
-        Return:
-            the uthmain script
+            include_istiaatha (bool): If True, includes the Istiaatha (أعوذ بالله من الشيطان الرجيم)
+                at the beginning of the surah (only for the first ayah).
+
+            include_sadaka (bool): If True, appends "Sadaka Allahu Al-'Azeem" (صدق الله العظيم)
+                after the last ayah of the surah.
+
+        Returns:
+            str:
+                The uthmain script
         """
-        imlaey2uthmani: dict[int, int] = self._encode_imlaey_to_uthmani(
-            include_bismillah=include_bismillah
+        imlaey2uthmani, uthmani_words = self._encode_imlaey_to_uthmani(
+            include_bismillah=include_bismillah,
+            include_istiaatha=include_istiaatha,
+            include_sadaka=include_sadaka,
         )
         uthmani_script = self._decode_uthmani(
-            imlaey2uthmani=imlaey2uthmani,
             imlaey_wordspan=imlaey_word_span,
-            include_bismillah=include_bismillah,
+            imlaey2uthmani=imlaey2uthmani,
+            uthmani_words=uthmani_words,
         )
         return uthmani_script
 
     def _encode_imlaey_to_uthmani(
         self,
         include_bismillah=False,
-    ) -> dict[int, int]:
+        include_istiaatha=False,
+        include_sadaka=False,
+    ) -> tuple[dict[int, int], list[str]]:
         """
+        Encodes Imlaey text into Uthmani script with optional prefixes/suffixes.
+
         Args:
-            inlcude_bismillah (bool): if True it will include bismillah in the
-                encoded dictionary as a part of the first aya
+            include_bismillah (bool): If True, includes "Bismillah" (بسم الله الرحمن الرحيم)
+                as part of the first ayah's encoding. Note: Bismillah is automatically
+                included in Surah Al-Fatihah (as it is considered an ayah) and excluded
+                in Surah At-Tawbah (no Bismillah in this surah).
+
+            include_istiaatha (bool): If True, includes the Istiaatha (أعوذ بالله من الشيطان الرجيم)
+                at the beginning of the surah (only for the first ayah).
+
+            include_sadaka (bool): If True, appends "Sadaka Allahu Al-'Azeem" (صدق الله العظيم)
+                after the last ayah of the surah.
+
+        Returns:
+            tuple[dict[int, int], list[str]]:
+                - A dictionary mapping Imlaey word indices to Uthmani word indices.
+                - A list of Uthmani words (with optional prefixes/suffixes if enabled).
+
+        Notes:
+            - Warnings are issued if Istiaatha, Bismillah, or Sadaka are requested in invalid positions.
+            - Handles edge cases where Uthmani and Imlaey word counts differ (e.g., due to unique Rasm rules).
         """
         uthmani_words = []
         imlaey_words = []
+        # NOTE: include istiaathta only at the begining of the sura
+        if include_istiaatha:
+            if (self.aya_idx + 1) == 1:
+                uthmani_words += alpha.istiaatha.uthmani.split(self.join_prefix)
+                imlaey_words += alpha.istiaatha.imlaey.split(self.join_prefix)
+            else:
+                warnings.warn(
+                    f"Istiaatha will not be included. We only include Istiaatha at the beginning of every sura (first aya only). Aya index is: `{self.aya_idx + 1}`"
+                )
+        # NOTE: we inlcude bimillah only at the first of every sura except for every sura number 9
+        # surah Al-Tawba
         # bismillah is part of surah Al fatiha so according to Hafs so we do not
-        # inlcude it
-        if include_bismillah and (self.get().bismillah_uthmani is not None):
-            uthmani_words += self.get().bismillah_uthmani.split(self.join_prefix)
-            imlaey_words += self.get().bismillah_imlaey.split(self.join_prefix)
-
+        # inlcude it as it is already an aya
+        if include_bismillah:
+            if self.get().bismillah_uthmani is not None:
+                uthmani_words += self.get().bismillah_uthmani.split(self.join_prefix)
+                imlaey_words += self.get().bismillah_imlaey.split(self.join_prefix)
+            else:
+                warnings.warn(
+                    f"Bismillah will not be included, as it is only placed at the beginning of each surah (except Surah At-Tawbah (9)). Note: Bismillah is counted as an ayah in Surah Al-Fatiha (1). The sura is : `{self.sura_idx + 1}` and Aya is: `{self.aya_idx + 1}`"
+                )
         # The Aya itself
         uthmani_words += self.get().uthmani.split(self.join_prefix)
         imlaey_words += self.get().imlaey.split(self.join_prefix)
 
+        # NOTE: include sadaka and the aya is the last aya in the sura only
+        if include_sadaka:
+            if (self.aya_idx + 1) == self.get().num_ayat_in_sura:
+                uthmani_words += alpha.sadaka.uthmani.split(self.join_prefix)
+                imlaey_words += alpha.sadaka.imlaey.split(self.join_prefix)
+            else:
+                warnings.warn(
+                    f"صدق الله العظيم will not be included. We only include `sadaka` after the end of every sura. The Sura idx is: `{self.sura_idx + 1}`, the aya is: `{self.aya_idx + 1}` and the last aya is `{self.get().num_ayat_in_sura}` "
+                )
+
         # Same words map to each other for both imlaey and uthmani
         if len(uthmani_words) == len(imlaey_words):
-            return {idx: idx for idx in range(len(uthmani_words))}
+            return {idx: idx for idx in range(len(uthmani_words))}, uthmani_words
 
         # len mismatch: some words in uthmani map to more than words in the imlaey
         # for example: يبتنؤم in uthmani maps to يا ابن أم in imlaey
@@ -602,7 +664,7 @@ class Aya(object):
         #
         assert sorted(imlaey2uthmani.values())[-1] == len(uthmani_words) - 1
 
-        return imlaey2uthmani
+        return imlaey2uthmani, uthmani_words
 
     def _get_unique_rasm_map_span(self, idx: int, words: list[int]) -> int | None:
         """
@@ -619,9 +681,9 @@ class Aya(object):
 
     def _decode_uthmani(
         self,
-        imlaey2uthmani: dict[int, int],
         imlaey_wordspan: WordSpan,
-        include_bismillah=False,
+        imlaey2uthmani: dict[int, int],
+        uthmani_words: list[str],
     ) -> str:
         """
         Args:
@@ -631,6 +693,11 @@ class Aya(object):
                     is None then means to the last word idx of the imlaey aya
             inlcude_bismillah (bool): if True it will include bismillah in the
                 decoding process
+            inlcude_istiaatha (bool): if True it will include Istiatha in the
+                decoding process
+            include_sadaka (bool): include sadaka (صدق الله العظيم) as a part of the Aya whilecalculating uthmani str
+
+
         return the uthmani script of the given imlaey_word_span in
         Imlaey script Aya
         """
@@ -643,13 +710,6 @@ class Aya(object):
         if end in imlaey2uthmani.keys():
             if imlaey2uthmani[end - 1] == imlaey2uthmani[end]:
                 raise PartOfUthmaniWord("The Imlay Word is part of uthmani word")
-
-        # Preparing Uthamni Words
-        uthmani_words = []
-        if include_bismillah and (self.get().bismillah_uthmani is not None):
-            uthmani_words += self.get().bismillah_uthmani.split(self.join_prefix)
-
-        uthmani_words += self.get().uthmani.split(self.join_prefix)
 
         out_script = ""
         prev_uth_idx = -1

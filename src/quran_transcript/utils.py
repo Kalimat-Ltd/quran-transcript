@@ -126,16 +126,19 @@ class EncodingOutput:
 
 @dataclass
 class SegmentScripts:
-    text: str
     imalaey: str
     uthmani: str
     has_istiaatha: bool
     has_bismillah: bool
     has_sadaka: bool
-    sura_span: tuple[int, int]
-    aya_span: tuple[int, int]
-    imlaey_span_chars: tuple[int, int]
-    uthmani_span_chars: tuple[int, int]
+    start_span: tuple[int, int]
+    end_span: tuple[int, int]
+
+    """
+    Attirubutes:
+        start_span (tuple[int, int]): (start sura index from 1 to 114, start aya index from 1)
+        end_span (tuple[int, int]): (end sura index from 1 to 114, end aya index from 1) inclusive indexing  unlike python indexing
+    """
 
 
 # TODO: Add quran_dict as default
@@ -192,7 +195,10 @@ class Aya(object):
         # NOTE: this variables used in by word steping for imlaey script in methods:
         # * ``
         # * ``
-        self.start_imlaey_word_idx = start_imlaey_word_idx
+        if start_imlaey_word_idx is None:
+            self.start_imlaey_word_idx = 0
+        else:
+            self.start_imlaey_word_idx = start_imlaey_word_idx
         self.decoding_cache = {}
 
     def _get_sura(self, sura_idx):
@@ -755,7 +761,14 @@ class Aya(object):
         )
         return uthmani_script
 
-    def get_by_imlaey_words(self, start: int, window: int) -> SegmentScripts:
+    def get_by_imlaey_words(
+        self,
+        start: int,
+        window: int,
+        include_bismillah=False,
+        include_istiaatha=False,
+        include_sadaka=False,
+    ) -> SegmentScripts:
         """returns the script format given start imlaey index (can be -ve) wiht length `window` words
 
         Args:
@@ -763,11 +776,103 @@ class Aya(object):
             from previous aya even in aya 1 sura 1 (circular looping)
             window (int): the number or imaley words to get
         """
-        ...
+        start_aya = self
+        # making the start relative to the saved (self.start_imaley_words_idx)
+        start += self.start_imlaey_word_idx
+        if start < 0:
+            new_start = start
+            while new_start < 0:
+                start_aya = start_aya.step(-1)
+                encoding_out = start_aya._encode_imlaey_to_uthmani(
+                    include_bismillah=include_bismillah,
+                    include_istiaatha=include_istiaatha,
+                    include_sadaka=include_sadaka,
+                )
+                new_start += len(encoding_out.imlaey_words)
+            start = new_start
 
-    def step_by_imlaey_words(self, step: int) -> "Aya":
+        imlaey_str = ""
+        uthmani_str = ""
+        start_aya_idx = start_aya.get().aya_idx
+        start_sura_idx = start_aya.get().sura_idx
+        loop_aya = start_aya
+        while window > 0:
+            if imlaey_str != "":
+                imlaey_str += self.join_prefix
+            if uthmani_str != "":
+                uthmani_str += self.join_prefix
+
+            encoding_out = loop_aya._encode_imlaey_to_uthmani(
+                include_bismillah=include_bismillah,
+                include_istiaatha=include_istiaatha,
+                include_sadaka=include_sadaka,
+            )
+            end = min(window, len(encoding_out.imlaey_words))
+            imlaey_str += self.join_prefix.join(encoding_out.imlaey_words[start:end])
+            uthmani_str += loop_aya.imlaey_to_uthmani(
+                WordSpan(start, end),
+                include_istiaatha=include_istiaatha,
+                include_bismillah=include_bismillah,
+                include_sadaka=include_sadaka,
+            )
+            assert end > start
+            window -= end - start
+            end_aya_idx = loop_aya.get().aya_idx
+            end_sura_idx = loop_aya.get().sura_idx
+            loop_aya = loop_aya.step(1)
+            start = 0
+
+        return SegmentScripts(
+            imalaey=imlaey_str,
+            uthmani=uthmani_str,
+            start_span=(start_sura_idx, start_aya_idx),
+            end_span=(end_sura_idx, end_aya_idx),
+            has_istiaatha=None,
+            has_bismillah=None,
+            has_sadaka=None,
+        )
+
+    def step_by_imlaey_words(
+        self,
+        start: int,
+        window: int,
+        include_bismillah=False,
+        include_istiaatha=False,
+        include_sadaka=False,
+    ) -> "Aya":
         """returns new `Aya` moved with steps in words by imaley script"""
-        ...
+        step = self.start_imlaey_word_idx + start + window
+
+        loop_aya = self
+        # -ve step
+        if step < 0:
+            while step < 0:
+                loop_aya = loop_aya.step(-1)
+                encoding_out = loop_aya._encode_imlaey_to_uthmani(
+                    include_bismillah=include_bismillah,
+                    include_istiaatha=include_istiaatha,
+                    include_sadaka=include_sadaka,
+                )
+                step += len(encoding_out.imlaey_words)
+        # -ve step
+        else:
+            while True:
+                encoding_out = loop_aya._encode_imlaey_to_uthmani(
+                    include_bismillah=include_bismillah,
+                    include_istiaatha=include_istiaatha,
+                    include_sadaka=include_sadaka,
+                )
+                if step < len(encoding_out.imlaey_words):
+                    break
+                step -= len(encoding_out.imlaey_words)
+                loop_aya = loop_aya.step(1)
+
+        return Aya(
+            sura_idx=loop_aya.sura_idx + 1,
+            aya_idx=loop_aya.aya_idx + 1,
+            start_imlaey_word_idx=step,
+            quran_dict=self.quran_dict,
+        )
 
 
 @dataclass

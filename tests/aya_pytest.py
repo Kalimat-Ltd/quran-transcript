@@ -1,6 +1,7 @@
 import pytest
 
 from quran_transcript import Aya, WordSpan
+from quran_transcript.utils import SegmentScripts
 
 
 @pytest.mark.parametrize(
@@ -319,3 +320,206 @@ def test_imlaey_to_uthmai_with_caching_bismlillah():
         include_sadaka=sadaka,
     )
     assert out_uthmni == expected_uthmani
+
+
+@pytest.mark.parametrize(
+    "aya, start, window, istiaatha, bismillah, sadaka, ex_segment_scripts",
+    [
+        (
+            Aya(1, 1),
+            0,
+            4,
+            False,
+            False,
+            False,
+            SegmentScripts(
+                imalaey="بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+                uthmani="بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ",
+                start_span=(1, 1),
+                end_span=(1, 1),
+                has_istiaatha=None,
+                has_bismillah=None,
+                has_sadaka=None,
+            ),
+        ),
+        (
+            Aya(1, 1),
+            -2,
+            6,
+            False,
+            False,
+            False,
+            SegmentScripts(
+                imalaey="الْجِنَّةِ وَالنَّاسِ" + " " + "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+                uthmani="ٱلْجِنَّةِ وَٱلنَّاسِ" + " " + "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ",
+                start_span=(114, 6),
+                end_span=(1, 1),
+                has_istiaatha=None,
+                has_bismillah=None,
+                has_sadaka=None,
+            ),
+        ),
+        (
+            Aya(1, 1),
+            -10,
+            12,
+            False,
+            False,
+            False,
+            SegmentScripts(
+                imalaey="الْوَسْوَاسِ الْخَنَّاسِ"
+                + " "
+                + "الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ"
+                + " "
+                + "مِنَ الْجِنَّةِ وَالنَّاسِ"
+                + " "
+                + "بِسْمِ اللَّهِ",
+                uthmani="ٱلْوَسْوَاسِ ٱلْخَنَّاسِ"
+                + " "
+                + "ٱلَّذِى يُوَسْوِسُ فِى صُدُورِ ٱلنَّاسِ"
+                + " "
+                + "مِنَ ٱلْجِنَّةِ وَٱلنَّاسِ"
+                + " "
+                + "بِسْمِ ٱللَّهِ",
+                start_span=(114, 4),
+                end_span=(1, 1),
+                has_istiaatha=None,
+                has_bismillah=None,
+                has_sadaka=None,
+            ),
+        ),
+        (
+            Aya(1, 1),
+            -10,
+            20,
+            False,
+            False,
+            False,
+            SegmentScripts(
+                imalaey="الْوَسْوَاسِ الْخَنَّاسِ"
+                + " "
+                + "الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ"
+                + " "
+                + "مِنَ الْجِنَّةِ وَالنَّاسِ"
+                + " "
+                + "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"
+                + " "
+                + "الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ"
+                + " "
+                + "الرَّحْمَٰنِ الرَّحِيمِ",
+                uthmani="ٱلْوَسْوَاسِ ٱلْخَنَّاسِ"
+                + " "
+                + "ٱلَّذِى يُوَسْوِسُ فِى صُدُورِ ٱلنَّاسِ"
+                + " "
+                + "مِنَ ٱلْجِنَّةِ وَٱلنَّاسِ"
+                + " "
+                + "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ"
+                + " "
+                + "ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَـٰلَمِينَ"
+                + " "
+                + "ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ",
+                start_span=(114, 4),
+                end_span=(1, 3),
+                has_istiaatha=None,
+                has_bismillah=None,
+                has_sadaka=None,
+            ),
+        ),
+    ],
+)
+def test_get_by_imlaey_words(
+    aya: Aya,
+    start,
+    window,
+    istiaatha,
+    bismillah,
+    sadaka,
+    ex_segment_scripts: SegmentScripts,
+):
+    out_seg_scripts = aya.get_by_imlaey_words(
+        start=start,
+        window=window,
+        include_istiaatha=istiaatha,
+        include_bismillah=bismillah,
+        include_sadaka=sadaka,
+    )
+    print(out_seg_scripts)
+    assert out_seg_scripts == ex_segment_scripts
+
+
+@pytest.mark.parametrize(
+    "aya, start, window, istiaatha, bismillah, sadaka, ex_aya",
+    [
+        (
+            Aya(1, 1),
+            0,
+            4,
+            False,
+            False,
+            False,
+            Aya(
+                sura_idx=1,
+                aya_idx=2,
+                start_imlaey_word_idx=0,
+            ),
+        ),
+        (
+            Aya(1, 1),
+            -2,
+            6,
+            False,
+            False,
+            False,
+            Aya(
+                sura_idx=1,
+                aya_idx=2,
+                start_imlaey_word_idx=0,
+            ),
+        ),
+        (
+            Aya(1, 1),
+            -10,
+            12,
+            False,
+            False,
+            False,
+            Aya(
+                sura_idx=1,
+                aya_idx=1,
+                start_imlaey_word_idx=2,
+            ),
+        ),
+        (
+            Aya(1, 1),
+            -10,
+            20,
+            False,
+            False,
+            False,
+            Aya(
+                sura_idx=1,
+                aya_idx=4,
+                start_imlaey_word_idx=0,
+            ),
+        ),
+    ],
+)
+def test_step_by_imlaey_words(
+    aya: Aya,
+    start,
+    window,
+    istiaatha,
+    bismillah,
+    sadaka,
+    ex_aya: Aya,
+):
+    out_aya = aya.step_by_imlaey_words(
+        start=start,
+        window=window,
+        include_istiaatha=istiaatha,
+        include_bismillah=bismillah,
+        include_sadaka=sadaka,
+    )
+    assert out_aya.sura_idx == ex_aya.sura_idx
+    assert out_aya.aya_idx == ex_aya.aya_idx
+    assert out_aya.start_imlaey_word_idx == ex_aya.start_imlaey_word_idx

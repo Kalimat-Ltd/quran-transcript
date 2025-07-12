@@ -119,6 +119,25 @@ class AyaFormat:
 
 @dataclass
 class EncodingOutput:
+    """
+    Output container for Quranic text encoding operations.
+
+    Attributes:
+        imlaey2uthmani: Mapping from Imlaey word indices to Uthmani word indices
+        uthmani_words: List of Uthmani script words
+        imlaey_words: List of Imlaey script words
+        aya_imlaey_span_words: Tuple (start, end) of Imlaey word indices for core Quranic content
+        istiaatha_imlaey_span_words: Span for Istiaatha (أعوذ بالله) if present, else None
+        bismillah_imlaey_span_words: Span for Bismillah (بسم الله) if present, else None
+        sadaka_imlaey_span_words: Span for Sadaka (صدق الله) if present, else None
+
+    Note:
+        All spans use Python-style exclusive indexing:
+        - start: inclusive index
+        - end: exclusive index
+        Example: (2, 4) covers words at indices 2 and 3
+    """
+
     imlaey2uthmani: dict[int, int]
     uthmani_words: list[str]
     imlaey_words: list[str]
@@ -130,12 +149,52 @@ class EncodingOutput:
 
 @dataclass
 class QuranWordIndex:
+    """
+    Represents bidirectional word indices between scripts using exclusive indexing.
+    Can be used as a start or end
+
+    Attributes:
+        imlaey: Word index in Imlaey script (exclusive boundary)
+        uthmani: Word index in Uthmani script (exclusive boundary)
+
+    Example:
+        Given words = ["بِسْمِ", "ٱللَّهِ", "ٱلرَّحْمَـٰنِ", "ٱلرَّحِيمِ"]
+        start = QuranWordIndex(imlaey=1, uthmani=1) →
+            Starts AFTER first word ("بِسْمِ")
+        end = QuranWordIndex(imlaey=3, uthmani=3) →
+            Position BEFORE third word ("ٱلرَّحْمَـٰنِ") in output
+    """
+
     imlaey: int
     uthmani: int
 
 
 @dataclass
 class Imlaey2uthmaniOutput:
+    """
+    Container for Imlaey to Uthmani conversion results.
+
+    Attributes:
+        imlaey: Imlaey script text segment
+        uthmani: Converted Uthmani script text
+        quran_start: Starting Quran word indices (None if no Quran content)
+        quran_end: Ending Quran word indices (None if no Quran content)
+        has_istiaatha: True if segment contains Istiaatha (أعوذ بالله من الشيطان الرحيم)
+        has_bismillah: True if segment contains Bismillah (بسم الله الرحمن الريحم)
+        has_sadaka: True if segment contains Sadaka (صدق الله العظيم)
+        has_quran: True if segment contains core Quranic text.
+            Istiaath, Bismillah and Sadaka are not considered a part of Holy Quan
+
+    Note:
+        - quran_start and quran_end use exclusive indexing (Python-style)
+        - Bismillah in Surah 1:1 and Surah 27:30 is considered Quranic content, so `has_bismillah` will be `False`
+        - Non-Quran components: Istiaatha, Bismillah (when not part of verse), Sadaka
+        Example:
+            quran_start=QuranWordIndex(imlaey=0, uthmani=0) → Beginning of text
+            quran_end=QuranWordIndex(imlaey=4, uthmani=4) → After fourth word
+            position 4 is not counted in the output
+    """
+
     imlaey: str
     uthmani: str
     quran_start: QuranWordIndex | None
@@ -148,19 +207,35 @@ class Imlaey2uthmaniOutput:
     # NOTE: At suraht Alfatiha (1) in Aya (1) ans Surhat Alnaml (27) aya (3)
     # بسم الله الرحمن الرحيم is considerd an aya so `has_bismillah` will be `False`
 
-    """
-    Attrubutes:
-
-        has_quran (bool): whether the segment part contains quran or not.
-            Note: `bimillah` (بسم الله الحرم الريحم) , `istiaatha` (أعوذ بالله من الشيطان الرجيم)
-            and `sadaka` (صدق اللع العظيم) are not considered part of the Holy Quran
-
-        quran_end is execlusive just like python indexing
-    """
-
 
 @dataclass
 class SegmentScripts:
+    """
+    Container for segmented Quranic text with dual indexing.
+
+    Attributes:
+        imalaey: Full Imlaey script text
+        uthmani: Full Uthmani script text
+        has_istiaatha: True if segment contains Istiaatha (أعوذ بالله من الشيطان الرجيم)
+        has_bismillah: True if segment contains Bismillah  (بسما لله الرحمن الريحم)
+        has_sadaka: True if segment contains Sadaka (صدق الله العظيم)
+        has_quran: True if segment contains core Quranic text
+        start_span: (sura_idx, aya_idx, word_index) for start position
+        end_span: (sura_idx, aya_idx, word_index) for end position
+
+    Note:
+        - Indices: sura_idx (1-114), aya_idx (≥1)
+        - Bismillah in Surah 1:1 and Surah 27:30 is considered Quranic aya, so `has_bismillah` will be `False`
+        - Sura/aya indices use INCLUSIVE 1-based indexing (Quranic standard)
+        - Word indices use EXCLUSIVE 0-based indexing (Python standard)
+        - Spans are None if has_quran=False
+        Example:
+            (1, 1, QuranWordIndex(imlaey=0, uthmani=0)) →
+                Surah 1, Ayah 1, starting at first word
+            (2, 3, QuranWordIndex(imlaey=5, uthmani=5)) →
+                Surah 2, Ayah 3, before 6th word (word index 5 is not included)
+    """
+
     imalaey: str
     uthmani: str
     has_istiaatha: bool
@@ -176,7 +251,9 @@ class SegmentScripts:
     Attirubutes:
         start_span (tuple[int, int] | None): (start sura index from 1 to 114, start aya index from 1) or `None`
             if `has_quran` is `False`
-        end_span (tuple[int, int] None): (end sura index from 1 to 114, end aya index from 1) inclusive indexing  unlike python indexing
+        end_span (tuple[int, int] None): (end sura index from 1 to 114, end aya index from 1)
+            Note: `sura_index` and `aya_index` are inclusive indexing  unlike python indexing and QuranWordIndex in execlusive
+            just like python indexing
             or `None` if `has_quran` is `False`
 
         has_quran (bool): whether the segment part contains quran or not.
@@ -601,11 +678,6 @@ class Aya(object):
             include_sadaka (bool): If True, appends "Sadaka Allahu Al-'Azeem" (صدق الله العظيم)
                 after the last ayah of the surah.
 
-        Returns:
-            tuple[dict[int, int], list[str], list[str]]:
-                - A dictionary mapping Imlaey word indices to Uthmani word indices.
-                - A list of Uthmani words (with optional prefixes/suffixes if enabled).
-                - A list of Imlaey words (with optional prefixes/suffixes if enabled).
 
         Notes:
             - Warnings are issued if Istiaatha, Bismillah, or Sadaka are requested in invalid positions.
@@ -830,8 +902,12 @@ class Aya(object):
                 after the last ayah of the surah.
 
         Returns:
-            str:
-                The uthmain script
+            str: uthmani script if return_checks=False
+            Imlaey2uthmaniOutput if return_checks=True
+
+        Example:
+            For Bismillah words ["بِسْمِ", "ٱللَّهِ", "ٱلرَّحْمَـٰنِ", "ٱلرَّحِيمِ"]
+            WordSpan(start=1, end=3) → "ٱللَّهِ ٱلرَّحْمَـٰنِ"
         """
         encoding_out = self._encode_imlaey_to_uthmani(
             include_bismillah=include_bismillah,
@@ -912,6 +988,25 @@ class Aya(object):
             start (int): the start index can be +ve or -ve. if -ve it will uses words
             from previous aya even in aya 1 sura 1 (circular looping)
             window (int): the number or imaley words to get
+
+            include_bismillah (bool): If True, includes "Bismillah" (بسم الله الرحمن الرحيم)
+                as part of the first ayah's encoding. Note: Bismillah is automatically
+                included in Surah Al-Fatihah (as it is considered an ayah) and excluded
+                in Surah At-Tawbah (no Bismillah in this surah).
+
+            include_istiaatha (bool): If True, includes the Istiaatha (أعوذ بالله من الشيطان الرجيم)
+                at the beginning of the surah (only for the first ayah).
+
+            include_sadaka (bool): If True, appends "Sadaka Allahu Al-'Azeem" (صدق الله العظيم)
+                after the last ayah of the surah.
+
+        Returns:
+            SegmentScripts container
+
+        Example:
+            start=-2, window=5 in Surah 1:1:
+            - Retrieves last 2 words of previous ayah (114:6)
+            - First 3 words of Surah 1:1
         """
         start_aya = self
         # making the start relative to the saved (self.start_imaley_words_idx)
@@ -1003,7 +1098,33 @@ class Aya(object):
         include_istiaatha=False,
         include_sadaka=False,
     ) -> "Aya":
-        """returns new `Aya` moved with steps in words by imaley script"""
+        """Navigates to new Aya position by word offset.
+
+        Args:
+            start (int): the start index can be +ve or -ve. if -ve it will uses words
+                from previous aya even in aya 1 sura 1 (circular looping)
+            window (int): the number or imaley words to get
+
+            include_bismillah (bool): If True, includes "Bismillah" (بسم الله الرحمن الرحيم)
+                as part of the first ayah's encoding. Note: Bismillah is automatically
+                included in Surah Al-Fatihah (as it is considered an ayah) and excluded
+                in Surah At-Tawbah (no Bismillah in this surah).
+
+            include_istiaatha (bool): If True, includes the Istiaatha (أعوذ بالله من الشيطان الرجيم)
+                at the beginning of the surah (only for the first ayah).
+
+            include_sadaka (bool): If True, appends "Sadaka Allahu Al-'Azeem" (صدق الله العظيم)
+                after the last ayah of the surah.
+
+        Returns:
+             New Aya object at calculated position
+
+        Example:
+            In Surah 1:1 with 4 words:
+            step_by_imlaey_words(start=3, window=2) →
+                Position at word 1 of next ayah (1:2)
+
+        """
         step = self.start_imlaey_word_idx + start + window
 
         loop_aya = self

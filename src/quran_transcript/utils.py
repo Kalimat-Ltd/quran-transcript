@@ -129,9 +129,17 @@ class EncodingOutput:
 
 
 @dataclass
+class QuranWordIndex:
+    imlaey: int
+    uthmani: int
+
+
+@dataclass
 class Imlaey2uthmaniOutput:
     imlaey: str
     uthmani: str
+    quran_start: QuranWordIndex | None
+    quran_end: QuranWordIndex | None
     has_istiaatha: bool
     has_bismillah: bool
     has_sadaka: bool
@@ -146,6 +154,8 @@ class Imlaey2uthmaniOutput:
         has_quran (bool): whether the segment part contains quran or not.
             Note: `bimillah` (بسم الله الحرم الريحم) , `istiaatha` (أعوذ بالله من الشيطان الرجيم)
             and `sadaka` (صدق اللع العظيم) are not considered part of the Holy Quran
+
+        quran_end is execlusive just like python indexing
     """
 
 
@@ -157,8 +167,8 @@ class SegmentScripts:
     has_bismillah: bool
     has_sadaka: bool
     has_quran: bool
-    start_span: tuple[int, int] | None
-    end_span: tuple[int, int] | None
+    start_span: tuple[int, int, QuranWordIndex] | None
+    end_span: tuple[int, int, QuranWordIndex] | None
 
     # NOTE: At suraht Alfatiha (1) in Aya (1) ans Surhat Alnaml (27) aya (3)
     # بسم الله الرحمن الرحيم is considerd an aya so `has_bismillah` will be `False`
@@ -841,15 +851,38 @@ class Aya(object):
                 else len(encoding_out.imlaey_words)
             )
             input_iml_word_span = (imlaey_word_span.start, end_imlaey)
+            has_quran = self._has_intersection(
+                input_iml_word_span, encoding_out.aya_imlaey_span_words
+            )
+            if has_quran:
+                quran_imlaey_word_start = max(
+                    imlaey_word_span.start - encoding_out.aya_imlaey_span_words[0], 0
+                )
+                quran_imlaey_word_end = min(
+                    end_imlaey - encoding_out.aya_imlaey_span_words[0],
+                    encoding_out.aya_imlaey_span_words[1]
+                    - encoding_out.aya_imlaey_span_words[0],
+                )
+                quran_start = QuranWordIndex(
+                    imlaey=quran_imlaey_word_start,
+                    uthmani=encoding_out.imlaey2uthmani[quran_imlaey_word_start],
+                )
+                quran_end = QuranWordIndex(
+                    imlaey=quran_imlaey_word_end,
+                    uthmani=encoding_out.imlaey2uthmani[quran_imlaey_word_end - 1] + 1,
+                )
+            else:
+                quran_start = None
+                quran_end = None
 
             return Imlaey2uthmaniOutput(
                 imlaey=self.join_prefix.join(
                     encoding_out.imlaey_words[imlaey_word_span.start : end_imlaey]
                 ),
                 uthmani=uthmani_script,
-                has_quran=self._has_intersection(
-                    input_iml_word_span, encoding_out.aya_imlaey_span_words
-                ),
+                quran_start=quran_start,
+                quran_end=quran_end,
+                has_quran=has_quran,
                 has_istiaatha=self._has_intersection(
                     input_iml_word_span,
                     encoding_out.istiaatha_imlaey_span_words,
@@ -901,6 +934,9 @@ class Aya(object):
         has_bismillah = False
         has_quran = False
         has_sadaka = False
+        first_time = True
+        quran_word_start: QuranWordIndex | None = None
+        quran_word_end: QuranWordIndex | None = None
         start_aya_idx = start_aya.get().aya_idx
         start_sura_idx = start_aya.get().sura_idx
         loop_aya = start_aya
@@ -923,6 +959,11 @@ class Aya(object):
                 include_sadaka=include_sadaka,
                 return_checks=True,
             )
+
+            if first_time and iml2uth_out.has_quran:
+                first_time = False
+                quran_word_start = iml2uth_out.quran_start
+
             imlaey_str += iml2uth_out.imlaey
             uthmani_str += iml2uth_out.uthmani
             has_quran = has_quran or iml2uth_out.has_quran
@@ -930,18 +971,24 @@ class Aya(object):
             has_bismillah = has_bismillah or iml2uth_out.has_bismillah
             has_sadaka = has_sadaka or iml2uth_out.has_sadaka
 
-            assert end > start
-            window -= end - start
+            if has_quran:
+                quran_word_end = iml2uth_out.quran_end
             end_aya_idx = loop_aya.get().aya_idx
             end_sura_idx = loop_aya.get().sura_idx
+
+            # Steping
+            assert end > start
+            window -= end - start
             loop_aya = loop_aya.step(1)
             start = 0
 
         return SegmentScripts(
             imalaey=imlaey_str,
             uthmani=uthmani_str,
-            start_span=(start_sura_idx, start_aya_idx) if has_quran else None,
-            end_span=(end_sura_idx, end_aya_idx) if has_quran else None,
+            start_span=(start_sura_idx, start_aya_idx, quran_word_start)
+            if has_quran
+            else None,
+            end_span=(end_sura_idx, end_aya_idx, quran_word_end) if has_quran else None,
             has_quran=has_quran,
             has_istiaatha=has_istiaatha,
             has_bismillah=has_bismillah,

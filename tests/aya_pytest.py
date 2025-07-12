@@ -1,7 +1,7 @@
 import pytest
 
 from quran_transcript import Aya, WordSpan
-from quran_transcript.utils import SegmentScripts
+from quran_transcript.utils import SegmentScripts, QuranWordIndex
 
 
 @pytest.mark.parametrize(
@@ -393,8 +393,8 @@ def test_imlaey_to_uthmai_with_caching_bismlillah():
             SegmentScripts(
                 imalaey="بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
                 uthmani="بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ",
-                start_span=(1, 1),
-                end_span=(1, 1),
+                start_span=(1, 1, QuranWordIndex(imlaey=0, uthmani=0)),
+                end_span=(1, 1, QuranWordIndex(imlaey=4, uthmani=4)),
                 has_quran=True,
                 has_istiaatha=False,
                 has_bismillah=False,
@@ -412,8 +412,8 @@ def test_imlaey_to_uthmai_with_caching_bismlillah():
             SegmentScripts(
                 imalaey="أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ" + " " + "بِسْمِ اللَّهِ",
                 uthmani="أَعُوذُ بِٱللَّهِ مِنَ ٱلشَّيْطَانِ ٱلرَّجِيمِ" + " " + "بِسْمِ ٱللَّهِ",
-                start_span=(1, 1),
-                end_span=(1, 1),
+                start_span=(1, 1, QuranWordIndex(imlaey=0, uthmani=0)),
+                end_span=(1, 1, QuranWordIndex(imlaey=2, uthmani=2)),
                 has_quran=True,
                 has_istiaatha=True,
                 has_bismillah=False,
@@ -431,8 +431,8 @@ def test_imlaey_to_uthmai_with_caching_bismlillah():
             SegmentScripts(
                 imalaey="الرَّحْمَٰنِ الرَّحِيمِ" + " الم" + " " + "ذَٰلِكَ",
                 uthmani="ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ" + " " + "الٓمٓ" + " " + "ذَٰلِكَ",
-                start_span=(2, 1),
-                end_span=(2, 2),
+                start_span=(2, 1, QuranWordIndex(imlaey=0, uthmani=0)),
+                end_span=(2, 2, QuranWordIndex(imlaey=1, uthmani=1)),
                 has_quran=True,
                 has_istiaatha=False,
                 has_bismillah=True,
@@ -462,8 +462,8 @@ def test_imlaey_to_uthmai_with_caching_bismlillah():
                 + "الٓمٓ"
                 + " "
                 + "ذَٰلِكَ",
-                start_span=(2, 1),
-                end_span=(2, 2),
+                start_span=(2, 1, QuranWordIndex(imlaey=0, uthmani=0)),
+                end_span=(2, 2, QuranWordIndex(imlaey=1, uthmani=1)),
                 has_quran=True,
                 has_istiaatha=True,
                 has_bismillah=True,
@@ -481,8 +481,8 @@ def test_imlaey_to_uthmai_with_caching_bismlillah():
             SegmentScripts(
                 imalaey="مِنَ الْجِنَّةِ وَالنَّاسِ" + " " + "صَدَقَ اللَّهُ",
                 uthmani="مِنَ ٱلْجِنَّةِ وَٱلنَّاسِ" + " " + "صَدَقَ ٱللَّهُ",
-                start_span=(114, 6),
-                end_span=(114, 6),
+                start_span=(114, 6, QuranWordIndex(imlaey=0, uthmani=0)),
+                end_span=(114, 6, QuranWordIndex(imlaey=3, uthmani=3)),
                 has_quran=True,
                 has_istiaatha=False,
                 has_bismillah=False,
@@ -499,8 +499,8 @@ def test_imlaey_to_uthmai_with_caching_bismlillah():
             SegmentScripts(
                 imalaey="بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
                 uthmani="بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ",
-                start_span=(1, 1),
-                end_span=(1, 1),
+                start_span=(1, 1, QuranWordIndex(imlaey=0, uthmani=0)),
+                end_span=(1, 1, QuranWordIndex(imlaey=4, uthmani=4)),
                 has_quran=True,
                 has_istiaatha=False,
                 has_bismillah=False,
@@ -517,8 +517,8 @@ def test_imlaey_to_uthmai_with_caching_bismlillah():
             SegmentScripts(
                 imalaey="الْجِنَّةِ وَالنَّاسِ" + " " + "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
                 uthmani="ٱلْجِنَّةِ وَٱلنَّاسِ" + " " + "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ",
-                start_span=(114, 6),
-                end_span=(1, 1),
+                start_span=(114, 6, QuranWordIndex(imlaey=1, uthmani=1)),
+                end_span=(1, 1, QuranWordIndex(imlaey=4, uthmani=4)),
                 has_quran=True,
                 has_istiaatha=False,
                 has_bismillah=False,
@@ -547,8 +547,8 @@ def test_imlaey_to_uthmai_with_caching_bismlillah():
                 + "مِنَ ٱلْجِنَّةِ وَٱلنَّاسِ"
                 + " "
                 + "بِسْمِ ٱللَّهِ",
-                start_span=(114, 4),
-                end_span=(1, 1),
+                start_span=(114, 4, QuranWordIndex(imlaey=2, uthmani=2)),
+                end_span=(1, 1, QuranWordIndex(imlaey=2, uthmani=2)),
                 has_quran=True,
                 has_istiaatha=False,
                 has_bismillah=False,
@@ -585,8 +585,8 @@ def test_imlaey_to_uthmai_with_caching_bismlillah():
                 + "ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَـٰلَمِينَ"
                 + " "
                 + "ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ",
-                start_span=(114, 4),
-                end_span=(1, 3),
+                start_span=(114, 4, QuranWordIndex(imlaey=2, uthmani=2)),
+                end_span=(1, 3, QuranWordIndex(imlaey=2, uthmani=2)),
                 has_quran=True,
                 has_istiaatha=False,
                 has_bismillah=False,
@@ -622,8 +622,26 @@ def test_imlaey_to_uthmai_with_caching_bismlillah():
                         "وَمِن",
                     ]
                 ),
-                start_span=(112, 4),
-                end_span=(113, 5),
+                start_span=(112, 4, QuranWordIndex(imlaey=4, uthmani=4)),
+                end_span=(113, 5, QuranWordIndex(imlaey=1, uthmani=1)),
+                has_quran=True,
+                has_istiaatha=False,
+                has_bismillah=False,
+                has_sadaka=False,
+            ),
+        ),
+        (
+            Aya(2, 21),
+            0,
+            5,
+            False,
+            False,
+            False,
+            SegmentScripts(
+                imalaey="يَا أَيُّهَا النَّاسُ اعْبُدُوا رَبَّكُمُ",
+                uthmani="يَـٰٓأَيُّهَا ٱلنَّاسُ ٱعْبُدُوا۟ رَبَّكُمُ",
+                start_span=(2, 21, QuranWordIndex(imlaey=0, uthmani=0)),
+                end_span=(2, 21, QuranWordIndex(imlaey=5, uthmani=4)),
                 has_quran=True,
                 has_istiaatha=False,
                 has_bismillah=False,

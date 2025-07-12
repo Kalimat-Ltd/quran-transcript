@@ -325,6 +325,170 @@ def test_imlaey_to_uthmai_with_caching_bismlillah():
 @pytest.mark.parametrize(
     "aya, start, window, istiaatha, bismillah, sadaka, ex_segment_scripts",
     [
+        # sadaka with no quran
+        (
+            Aya(112, 4),
+            6,
+            2,
+            False,
+            False,
+            True,
+            SegmentScripts(
+                imalaey="اللَّهُ الْعَظِيمُ",
+                uthmani="ٱللَّهُ ٱلْعَظِيمُ",
+                start_span=None,
+                end_span=None,
+                has_quran=False,
+                has_istiaatha=False,
+                has_bismillah=False,
+                has_sadaka=True,
+            ),
+        ),
+        # istiaatha with no quran
+        (
+            Aya(50, 1),
+            0,
+            5,
+            True,
+            True,
+            False,
+            SegmentScripts(
+                imalaey="أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ",
+                uthmani="أَعُوذُ بِٱللَّهِ مِنَ ٱلشَّيْطَانِ ٱلرَّجِيمِ",
+                start_span=None,
+                end_span=None,
+                has_quran=False,
+                has_istiaatha=True,
+                has_bismillah=False,
+                has_sadaka=False,
+            ),
+        ),
+        # bimillah with no quran
+        (
+            Aya(20, 1),
+            0,
+            4,
+            False,
+            True,
+            False,
+            SegmentScripts(
+                imalaey="بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+                uthmani="بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ",
+                start_span=None,
+                end_span=None,
+                has_quran=False,
+                has_istiaatha=False,
+                has_bismillah=True,
+                has_sadaka=False,
+            ),
+        ),
+        # Adding istiaatha
+        (
+            Aya(1, 1),
+            5,
+            4,
+            True,
+            False,
+            False,
+            SegmentScripts(
+                imalaey="بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+                uthmani="بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ",
+                start_span=(1, 1),
+                end_span=(1, 1),
+                has_quran=True,
+                has_istiaatha=False,
+                has_bismillah=False,
+                has_sadaka=False,
+            ),
+        ),
+        # Adding istiaatha
+        (
+            Aya(1, 1),
+            0,
+            7,
+            True,
+            False,
+            False,
+            SegmentScripts(
+                imalaey="أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ" + " " + "بِسْمِ اللَّهِ",
+                uthmani="أَعُوذُ بِٱللَّهِ مِنَ ٱلشَّيْطَانِ ٱلرَّجِيمِ" + " " + "بِسْمِ ٱللَّهِ",
+                start_span=(1, 1),
+                end_span=(1, 1),
+                has_quran=True,
+                has_istiaatha=True,
+                has_bismillah=False,
+                has_sadaka=False,
+            ),
+        ),
+        # Adding bismillah
+        (
+            Aya(2, 1),
+            2,
+            4,
+            False,
+            True,
+            False,
+            SegmentScripts(
+                imalaey="الرَّحْمَٰنِ الرَّحِيمِ" + " الم" + " " + "ذَٰلِكَ",
+                uthmani="ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ" + " " + "الٓمٓ" + " " + "ذَٰلِكَ",
+                start_span=(2, 1),
+                end_span=(2, 2),
+                has_quran=True,
+                has_istiaatha=False,
+                has_bismillah=True,
+                has_sadaka=False,
+            ),
+        ),
+        # Adding istiaatha + bismillah
+        (
+            Aya(2, 1),
+            0,
+            11,
+            True,
+            True,
+            False,
+            SegmentScripts(
+                imalaey="أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ"
+                + " "
+                + "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"
+                + " "
+                + "الم"
+                + " "
+                + "ذَٰلِكَ",
+                uthmani="أَعُوذُ بِٱللَّهِ مِنَ ٱلشَّيْطَانِ ٱلرَّجِيمِ"
+                + " "
+                + "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ"
+                + " "
+                + "الٓمٓ"
+                + " "
+                + "ذَٰلِكَ",
+                start_span=(2, 1),
+                end_span=(2, 2),
+                has_quran=True,
+                has_istiaatha=True,
+                has_bismillah=True,
+                has_sadaka=False,
+            ),
+        ),
+        # Adding sadaka
+        (
+            Aya(114, 6),
+            0,
+            5,
+            False,
+            False,
+            True,
+            SegmentScripts(
+                imalaey="مِنَ الْجِنَّةِ وَالنَّاسِ" + " " + "صَدَقَ اللَّهُ",
+                uthmani="مِنَ ٱلْجِنَّةِ وَٱلنَّاسِ" + " " + "صَدَقَ ٱللَّهُ",
+                start_span=(114, 6),
+                end_span=(114, 6),
+                has_quran=True,
+                has_istiaatha=False,
+                has_bismillah=False,
+                has_sadaka=True,
+            ),
+        ),
         (
             Aya(1, 1),
             0,
@@ -337,9 +501,10 @@ def test_imlaey_to_uthmai_with_caching_bismlillah():
                 uthmani="بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ",
                 start_span=(1, 1),
                 end_span=(1, 1),
-                has_istiaatha=None,
-                has_bismillah=None,
-                has_sadaka=None,
+                has_quran=True,
+                has_istiaatha=False,
+                has_bismillah=False,
+                has_sadaka=False,
             ),
         ),
         (
@@ -354,9 +519,10 @@ def test_imlaey_to_uthmai_with_caching_bismlillah():
                 uthmani="ٱلْجِنَّةِ وَٱلنَّاسِ" + " " + "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ",
                 start_span=(114, 6),
                 end_span=(1, 1),
-                has_istiaatha=None,
-                has_bismillah=None,
-                has_sadaka=None,
+                has_quran=True,
+                has_istiaatha=False,
+                has_bismillah=False,
+                has_sadaka=False,
             ),
         ),
         (
@@ -383,9 +549,10 @@ def test_imlaey_to_uthmai_with_caching_bismlillah():
                 + "بِسْمِ ٱللَّهِ",
                 start_span=(114, 4),
                 end_span=(1, 1),
-                has_istiaatha=None,
-                has_bismillah=None,
-                has_sadaka=None,
+                has_quran=True,
+                has_istiaatha=False,
+                has_bismillah=False,
+                has_sadaka=False,
             ),
         ),
         (
@@ -420,9 +587,47 @@ def test_imlaey_to_uthmai_with_caching_bismlillah():
                 + "ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ",
                 start_span=(114, 4),
                 end_span=(1, 3),
-                has_istiaatha=None,
-                has_bismillah=None,
-                has_sadaka=None,
+                has_quran=True,
+                has_istiaatha=False,
+                has_bismillah=False,
+                has_sadaka=False,
+            ),
+        ),
+        # +ve only
+        (
+            Aya(112, 4),
+            4,
+            20,
+            False,
+            False,
+            False,
+            SegmentScripts(
+                imalaey=" ".join(
+                    [
+                        "أَحَدٌ",
+                        "قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ",
+                        "مِن شَرِّ مَا خَلَقَ",
+                        "وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ",
+                        "وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ",
+                        "وَمِن",
+                    ]
+                ),
+                uthmani=" ".join(
+                    [
+                        "أَحَدٌۢ",
+                        "قُلْ أَعُوذُ بِرَبِّ ٱلْفَلَقِ",
+                        "مِن شَرِّ مَا خَلَقَ",
+                        "وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ",
+                        "وَمِن شَرِّ ٱلنَّفَّـٰثَـٰتِ فِى ٱلْعُقَدِ",
+                        "وَمِن",
+                    ]
+                ),
+                start_span=(112, 4),
+                end_span=(113, 5),
+                has_quran=True,
+                has_istiaatha=False,
+                has_bismillah=False,
+                has_sadaka=False,
             ),
         ),
     ],

@@ -122,6 +122,31 @@ class EncodingOutput:
     imlaey2uthmani: dict[int, int]
     uthmani_words: list[str]
     imlaey_words: list[str]
+    aya_imlaey_span_words: tuple[int, int]
+    istiaatha_imlaey_span_words: tuple[int, int] | None
+    bismillah_imlaey_span_words: tuple[int, int] | None
+    sadaka_imlaey_span_words: tuple[int, int] | None
+
+
+@dataclass
+class Imlaey2uthmaniOutput:
+    imlaey: str
+    uthmani: str
+    has_istiaatha: bool
+    has_bismillah: bool
+    has_sadaka: bool
+    has_quran: bool
+
+    # NOTE: At suraht Alfatiha (1) in Aya (1) ans Surhat Alnaml (27) aya (3)
+    # بسم الله الرحمن الرحيم is considerd an aya so `has_bismillah` will be `False`
+
+    """
+    Attrubutes:
+
+        has_quran (bool): whether the segment part contains quran or not.
+            Note: `bimillah` (بسم الله الحرم الريحم) , `istiaatha` (أعوذ بالله من الشيطان الرجيم)
+            and `sadaka` (صدق اللع العظيم) are not considered part of the Holy Quran
+    """
 
 
 @dataclass
@@ -131,13 +156,22 @@ class SegmentScripts:
     has_istiaatha: bool
     has_bismillah: bool
     has_sadaka: bool
-    start_span: tuple[int, int]
-    end_span: tuple[int, int]
+    has_quran: bool
+    start_span: tuple[int, int] | None
+    end_span: tuple[int, int] | None
 
+    # NOTE: At suraht Alfatiha (1) in Aya (1) ans Surhat Alnaml (27) aya (3)
+    # بسم الله الرحمن الرحيم is considerd an aya so `has_bismillah` will be `False`
     """
     Attirubutes:
-        start_span (tuple[int, int]): (start sura index from 1 to 114, start aya index from 1)
-        end_span (tuple[int, int]): (end sura index from 1 to 114, end aya index from 1) inclusive indexing  unlike python indexing
+        start_span (tuple[int, int] | None): (start sura index from 1 to 114, start aya index from 1) or `None`
+            if `has_quran` is `False`
+        end_span (tuple[int, int] None): (end sura index from 1 to 114, end aya index from 1) inclusive indexing  unlike python indexing
+            or `None` if `has_quran` is `False`
+
+        has_quran (bool): whether the segment part contains quran or not.
+            Note: `bimillah` (بسم الله الحرم الريحم) , `istiaatha` (أعوذ بالله من الشيطان الرجيم)
+            and `sadaka` (صدق اللع العظيم) are not considered part of the Holy Quran
     """
 
 
@@ -581,15 +615,30 @@ class Aya(object):
                     imlaey2uthmani=imlaey2uthmani,
                     uthmani_words=uthmani_words,
                     imlaey_words=imlaey_words,
+                    aya_imlaey_span_words=self.decoding_cache["aya_imlaey_span_words"],
+                    istiaatha_imlaey_span_words=self.decoding_cache[
+                        "istiaatha_imlaey_span_words"
+                    ],
+                    bismillah_imlaey_span_words=self.decoding_cache[
+                        "bismillah_imlaey_span_words"
+                    ],
+                    sadaka_imlaey_span_words=self.decoding_cache[
+                        "sadaka_imlaey_span_words"
+                    ],
                 )
 
         uthmani_words = []
         imlaey_words = []
+        istiaatha_imlaey_span_words = None
+        bismillah_imlaey_span_words = None
+        sadaka_imlaey_span_words = None
         # NOTE: include istiaathta only at the begining of the sura
         if include_istiaatha:
             if (self.aya_idx + 1) == 1:
+                ist_start = len(imlaey_words)
                 uthmani_words += alpha.istiaatha.uthmani.split(self.join_prefix)
                 imlaey_words += alpha.istiaatha.imlaey.split(self.join_prefix)
+                istiaatha_imlaey_span_words = (ist_start, len(imlaey_words))
             else:
                 warnings.warn(
                     f"Istiaatha will not be included. We only include Istiaatha at the beginning of every sura (first aya only). Aya index is: `{self.aya_idx + 1}`"
@@ -600,21 +649,27 @@ class Aya(object):
         # inlcude it as it is already an aya
         if include_bismillah:
             if self.get().bismillah_uthmani is not None:
+                bis_start = len(imlaey_words)
                 uthmani_words += self.get().bismillah_uthmani.split(self.join_prefix)
                 imlaey_words += self.get().bismillah_imlaey.split(self.join_prefix)
+                bismillah_imlaey_span_words = (bis_start, len(imlaey_words))
             else:
                 warnings.warn(
                     f"Bismillah will not be included, as it is only placed at the beginning of each surah (except Surah At-Tawbah (9)). Note: Bismillah is counted as an ayah in Surah Al-Fatiha (1). The sura is : `{self.sura_idx + 1}` and Aya is: `{self.aya_idx + 1}`"
                 )
         # The Aya itself
+        aya_imlaey_span_start = len(imlaey_words)
         uthmani_words += self.get().uthmani.split(self.join_prefix)
         imlaey_words += self.get().imlaey.split(self.join_prefix)
+        aya_imlaey_span_words = (aya_imlaey_span_start, len(imlaey_words))
 
         # NOTE: include sadaka and the aya is the last aya in the sura only
         if include_sadaka:
             if (self.aya_idx + 1) == self.get().num_ayat_in_sura:
+                s_start = len(imlaey_words)
                 uthmani_words += alpha.sadaka.uthmani.split(self.join_prefix)
                 imlaey_words += alpha.sadaka.imlaey.split(self.join_prefix)
+                sadaka_imlaey_span_words = (s_start, len(imlaey_words))
             else:
                 warnings.warn(
                     f"صدق الله العظيم will not be included. We only include `sadaka` after the end of every sura. The Sura idx is: `{self.sura_idx + 1}`, the aya is: `{self.aya_idx + 1}` and the last aya is `{self.get().num_ayat_in_sura}` "
@@ -623,34 +678,30 @@ class Aya(object):
         # Same words map to each other for both imlaey and uthmani
         if len(uthmani_words) == len(imlaey_words):
             imlaey2uthmani = {idx: idx for idx in range(len(uthmani_words))}
-            return EncodingOutput(
-                imlaey2uthmani=imlaey2uthmani,
-                uthmani_words=uthmani_words,
-                imlaey_words=imlaey_words,
-            )
 
-        # len mismatch: some words in uthmani map to more than words in the imlaey
-        # for example: يبتنؤم in uthmani maps to يا ابن أم in imlaey
-        iml_idx = 0
-        imlaey2uthmani = {}
-        for uth_idx in range(len(uthmani_words)):
-            # special words of Uthmani Rasm
-            span = self._get_unique_rasm_map_span(iml_idx, imlaey_words)
-            if span is not None:
-                for idx in range(iml_idx, iml_idx + span):
-                    imlaey2uthmani[idx] = uth_idx
-                iml_idx += span
+        else:
+            # len mismatch: some words in uthmani map to more than words in the imlaey
+            # for example: يبتنؤم in uthmani maps to يا ابن أم in imlaey
+            iml_idx = 0
+            imlaey2uthmani = {}
+            for uth_idx in range(len(uthmani_words)):
+                # special words of Uthmani Rasm
+                span = self._get_unique_rasm_map_span(iml_idx, imlaey_words)
+                if span is not None:
+                    for idx in range(iml_idx, iml_idx + span):
+                        imlaey2uthmani[idx] = uth_idx
+                    iml_idx += span
 
-            # words in uthmnai starts with يأيهاو هأنتم maps to two imlaey words
-            # يا أيها ها أنتم
-            elif imlaey_words[iml_idx] in alpha.unique_rasm.imlaey_starts:
-                imlaey2uthmani[iml_idx] = uth_idx
-                imlaey2uthmani[iml_idx + 1] = uth_idx
-                iml_idx += 2
+                # words in uthmnai starts with يأيهاو هأنتم maps to two imlaey words
+                # يا أيها ها أنتم
+                elif imlaey_words[iml_idx] in alpha.unique_rasm.imlaey_starts:
+                    imlaey2uthmani[iml_idx] = uth_idx
+                    imlaey2uthmani[iml_idx + 1] = uth_idx
+                    iml_idx += 2
 
-            else:
-                imlaey2uthmani[iml_idx] = uth_idx
-                iml_idx += 1
+                else:
+                    imlaey2uthmani[iml_idx] = uth_idx
+                    iml_idx += 1
 
         assert sorted(imlaey2uthmani.keys())[-1] == len(imlaey_words) - 1
         #
@@ -660,6 +711,10 @@ class Aya(object):
         self.decoding_cache["imlaey2uthmani"] = imlaey2uthmani
         self.decoding_cache["uthmani_words"] = uthmani_words
         self.decoding_cache["imlaey_words"] = imlaey_words
+        self.decoding_cache["aya_imlaey_span_words"] = aya_imlaey_span_words
+        self.decoding_cache["istiaatha_imlaey_span_words"] = istiaatha_imlaey_span_words
+        self.decoding_cache["bismillah_imlaey_span_words"] = bismillah_imlaey_span_words
+        self.decoding_cache["sadaka_imlaey_span_words"] = sadaka_imlaey_span_words
         self.decoding_cache["include_istiaatha"] = include_istiaatha
         self.decoding_cache["include_bismillah"] = include_bismillah
         self.decoding_cache["include_sadaka"] = include_sadaka
@@ -668,6 +723,10 @@ class Aya(object):
             imlaey2uthmani=imlaey2uthmani,
             uthmani_words=uthmani_words,
             imlaey_words=imlaey_words,
+            aya_imlaey_span_words=aya_imlaey_span_words,
+            istiaatha_imlaey_span_words=istiaatha_imlaey_span_words,
+            bismillah_imlaey_span_words=bismillah_imlaey_span_words,
+            sadaka_imlaey_span_words=sadaka_imlaey_span_words,
         )
 
     def _get_unique_rasm_map_span(self, idx: int, words: list[int]) -> int | None:
@@ -720,13 +779,29 @@ class Aya(object):
             prev_uth_idx = imlaey2uthmani[idx]
         return out_script
 
+    def _has_intersection(
+        self, x: tuple[int, int] | None, y: tuple[int, int] | None
+    ) -> bool:
+        """
+        Args:
+            x: (tuple[int, int]): (start, end)
+            y: (tuple[int, int]): (start, end)
+        """
+        if x is None or y is None:
+            return False
+        start = max(x[0], y[0])
+        end = min(x[1], y[1])
+
+        return end > start
+
     def imlaey_to_uthmani(
         self,
         imlaey_word_span: WordSpan,
         include_bismillah=False,
         include_istiaatha=False,
         include_sadaka=False,
-    ) -> str:
+        return_checks=False,
+    ) -> str | Imlaey2uthmaniOutput:
         """return the uthmai script of the given imlaey script word indices
 
         Args:
@@ -759,14 +834,43 @@ class Aya(object):
             imlaey2uthmani=encoding_out.imlaey2uthmani,
             uthmani_words=encoding_out.uthmani_words,
         )
+        if return_checks:
+            end_imlaey = (
+                imlaey_word_span.end
+                if imlaey_word_span.end is not None
+                else len(encoding_out.imlaey_words)
+            )
+            input_iml_word_span = (imlaey_word_span.start, end_imlaey)
+
+            return Imlaey2uthmaniOutput(
+                imlaey=self.join_prefix.join(
+                    encoding_out.imlaey_words[imlaey_word_span.start : end_imlaey]
+                ),
+                uthmani=uthmani_script,
+                has_quran=self._has_intersection(
+                    input_iml_word_span, encoding_out.aya_imlaey_span_words
+                ),
+                has_istiaatha=self._has_intersection(
+                    input_iml_word_span,
+                    encoding_out.istiaatha_imlaey_span_words,
+                ),
+                has_bismillah=self._has_intersection(
+                    input_iml_word_span,
+                    encoding_out.bismillah_imlaey_span_words,
+                ),
+                has_sadaka=self._has_intersection(
+                    input_iml_word_span,
+                    encoding_out.sadaka_imlaey_span_words,
+                ),
+            )
         return uthmani_script
 
     def get_by_imlaey_words(
         self,
         start: int,
         window: int,
-        include_bismillah=False,
         include_istiaatha=False,
+        include_bismillah=False,
         include_sadaka=False,
     ) -> SegmentScripts:
         """returns the script format given start imlaey index (can be -ve) wiht length `window` words
@@ -793,6 +897,10 @@ class Aya(object):
 
         imlaey_str = ""
         uthmani_str = ""
+        has_istiaatha = False
+        has_bismillah = False
+        has_quran = False
+        has_sadaka = False
         start_aya_idx = start_aya.get().aya_idx
         start_sura_idx = start_aya.get().sura_idx
         loop_aya = start_aya
@@ -807,14 +915,21 @@ class Aya(object):
                 include_istiaatha=include_istiaatha,
                 include_sadaka=include_sadaka,
             )
-            end = min(window, len(encoding_out.imlaey_words))
-            imlaey_str += self.join_prefix.join(encoding_out.imlaey_words[start:end])
-            uthmani_str += loop_aya.imlaey_to_uthmani(
+            end = min(start + window, len(encoding_out.imlaey_words))
+            iml2uth_out = loop_aya.imlaey_to_uthmani(
                 WordSpan(start, end),
                 include_istiaatha=include_istiaatha,
                 include_bismillah=include_bismillah,
                 include_sadaka=include_sadaka,
+                return_checks=True,
             )
+            imlaey_str += iml2uth_out.imlaey
+            uthmani_str += iml2uth_out.uthmani
+            has_quran = has_quran or iml2uth_out.has_quran
+            has_istiaatha = has_istiaatha or iml2uth_out.has_istiaatha
+            has_bismillah = has_bismillah or iml2uth_out.has_bismillah
+            has_sadaka = has_sadaka or iml2uth_out.has_sadaka
+
             assert end > start
             window -= end - start
             end_aya_idx = loop_aya.get().aya_idx
@@ -825,11 +940,12 @@ class Aya(object):
         return SegmentScripts(
             imalaey=imlaey_str,
             uthmani=uthmani_str,
-            start_span=(start_sura_idx, start_aya_idx),
-            end_span=(end_sura_idx, end_aya_idx),
-            has_istiaatha=None,
-            has_bismillah=None,
-            has_sadaka=None,
+            start_span=(start_sura_idx, start_aya_idx) if has_quran else None,
+            end_span=(end_sura_idx, end_aya_idx) if has_quran else None,
+            has_quran=has_quran,
+            has_istiaatha=has_istiaatha,
+            has_bismillah=has_bismillah,
+            has_sadaka=has_sadaka,
         )
 
     def step_by_imlaey_words(

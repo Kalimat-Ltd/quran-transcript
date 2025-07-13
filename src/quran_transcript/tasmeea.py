@@ -232,24 +232,21 @@ def check_sura_missing_parts(
             last_quran_seg = seg
 
     assert last_quran_seg is not None, "No Quan segments"
-    if last_quran_seg != start_aya.get().sura_idx:
+    if last_quran_seg.end_span[0] != sura_idx:
         end = last_quran_seg.end_span
-        missings += _find_missings(
-            _start_aya=start_aya,
-            _start=start,
-            _end=end,
-        )
     else:
-        start_aya_encoding = start_aya._encode_imlaey_to_uthmani()
-        iml_words = len(start_aya_encoding.imlaey_words)
+        last_aya = start_aya.step(start_aya.get().num_ayat_in_sura - 1)
+        last_aya_encoding = last_aya._encode_imlaey_to_uthmani()
+        iml_words = len(last_aya_encoding.imlaey_words)
         end = (
             start_aya.get().sura_idx,
             start_aya.get().num_ayat_in_sura,
             QuranWordIndex(
                 imlaey=iml_words,
-                uthmani=start_aya_encoding.imlaey2uthmani[iml_words - 1] + 1,
+                uthmani=last_aya_encoding.imlaey2uthmani[iml_words - 1] + 1,
             ),
         )
-        missings += _find_missings(_start_aya=start_aya, _start=start, _end=end)
+
+    missings += _find_missings(_start_aya=start_aya, _start=start, _end=end)
 
     return missings

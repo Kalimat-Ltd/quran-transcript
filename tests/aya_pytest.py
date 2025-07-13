@@ -648,6 +648,25 @@ def test_imlaey_to_uthmai_with_caching_bismlillah():
                 has_sadaka=False,
             ),
         ),
+        # Failed Case
+        (
+            Aya(114, 1, start_imlaey_word_idx=4),
+            4,
+            2,
+            False,
+            True,
+            False,
+            SegmentScripts(
+                imalaey="مَلِكِ النَّاسِ",
+                uthmani="مَلِكِ ٱلنَّاسِ",
+                start_span=(114, 2, QuranWordIndex(imlaey=0, uthmani=0)),
+                end_span=(114, 2, QuranWordIndex(imlaey=2, uthmani=2)),
+                has_quran=True,
+                has_istiaatha=False,
+                has_bismillah=False,
+                has_sadaka=False,
+            ),
+        ),
     ],
 )
 def test_get_by_imlaey_words(

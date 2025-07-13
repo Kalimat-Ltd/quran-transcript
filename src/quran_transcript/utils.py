@@ -41,6 +41,8 @@ class AyaFormat:
     sura_name: str
     num_ayat_in_sura: int
     uthmani: str
+    uthmani_words: list[str]
+    imlaey_words: list[str]
     imlaey: str
     istiaatha_uthmani: str
     istiaatha_imlaey: str
@@ -322,6 +324,9 @@ class Aya(object):
             self.start_imlaey_word_idx = start_imlaey_word_idx
         self.decoding_cache = {}
 
+    def get_start_imlaey_word_idx(self):
+        return self.start_imlaey_word_idx
+
     def _get_sura(self, sura_idx):
         assert sura_idx >= 0 and sura_idx <= 113, f"Wrong Sura index {sura_idx + 1}"
         return self.quran_dict["quran"]["sura"][sura_idx]["aya"]
@@ -404,7 +409,13 @@ class Aya(object):
             sura_name=self._get_sura_object(sura_idx)[self.sura_name_key],
             num_ayat_in_sura=len(self._get_sura(sura_idx)),
             uthmani=self._get_aya(sura_idx, aya_idx)[self.uthmani_key],
+            uthmani_words=self._get_aya(sura_idx, aya_idx)[self.uthmani_key].split(
+                self.join_prefix
+            ),
             imlaey=self._get_aya(sura_idx, aya_idx)[self.imlaey_key],
+            imlaey_words=self._get_aya(sura_idx, aya_idx)[self.imlaey_key].split(
+                self.join_prefix
+            ),
             rasm_map=rasm_map,
             bismillah_uthmani=bismillah[self.bismillah_uthmani_key],
             bismillah_imlaey=bismillah[self.bismillah_imlaey_key],
@@ -435,6 +446,10 @@ class Aya(object):
 
         return self._get(self.sura_idx, self.aya_idx)
 
+    def is_last(self) -> bool:
+        """Whether the aya is the last aya in the sura or not"""
+        return (self.aya_idx + 1) == self.get().num_ayat_in_sura
+
     def __str__(self):
         return str(self.get())
 
@@ -457,7 +472,7 @@ class Aya(object):
         self.sura_idx = sura_idx
         self.aya_idx = aya_idx
 
-    def set(self, sura_idx, aya_idx) -> None:
+    def set(self, sura_idx, aya_idx, start_imlaey_word_idx: int | None = None) -> None:
         """Set the aya
         Args:
         sura_idx: the index of the Sura in the Quran starting with 1 to 114
@@ -465,6 +480,8 @@ class Aya(object):
         """
         self._check_indices(sura_idx - 1, aya_idx - 1)
         self._set_ids(sura_idx=sura_idx - 1, aya_idx=aya_idx - 1)
+        if start_imlaey_word_idx:
+            self.start_imlaey_word_idx = start_imlaey_word_idx
 
     def set_new(self, sura_idx, aya_idx):
         """Return new aya with sura, and aya indices
@@ -741,8 +758,8 @@ class Aya(object):
                 )
         # The Aya itself
         aya_imlaey_span_start = len(imlaey_words)
-        uthmani_words += self.get().uthmani.split(self.join_prefix)
-        imlaey_words += self.get().imlaey.split(self.join_prefix)
+        uthmani_words += self.get().uthmani_words
+        imlaey_words += self.get().imlaey_words
         aya_imlaey_span_words = (aya_imlaey_span_start, len(imlaey_words))
 
         # NOTE: include sadaka and the aya is the last aya in the sura only
@@ -1022,6 +1039,19 @@ class Aya(object):
                 )
                 new_start += len(encoding_out.imlaey_words)
             start = new_start
+
+        # Moving the aya to the start position
+        while True:
+            encoding_out = start_aya._encode_imlaey_to_uthmani(
+                include_bismillah=include_bismillah,
+                include_istiaatha=include_istiaatha,
+                include_sadaka=include_sadaka,
+            )
+            num_iml_words = len(encoding_out.imlaey_words)
+            if start < num_iml_words:
+                break
+            start -= num_iml_words
+            start_aya = start_aya.step(1)
 
         imlaey_str = ""
         uthmani_str = ""

@@ -483,7 +483,7 @@ class Aya(object):
         if start_imlaey_word_idx:
             self.start_imlaey_word_idx = start_imlaey_word_idx
 
-    def set_new(self, sura_idx, aya_idx):
+    def set_new(self, sura_idx, aya_idx, start_imlaey_word_idx: int | None = None):
         """Return new aya with sura, and aya indices
         Args:
         sura_idx: the index of the Sura in the Quran starting with 1 to 114
@@ -494,6 +494,7 @@ class Aya(object):
             sura_idx=sura_idx,
             aya_idx=aya_idx,
             quran_dict=self.quran_dict,
+            start_imlaey_word_idx=start_imlaey_word_idx,
         )
 
     def step(self, step_len: int) -> "Aya":

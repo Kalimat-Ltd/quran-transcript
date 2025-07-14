@@ -865,7 +865,9 @@ class Aya(object):
 
         if end in imlaey2uthmani.keys():
             if imlaey2uthmani[end - 1] == imlaey2uthmani[end]:
-                raise PartOfUthmaniWord("The Imlay Word is part of uthmani word")
+                raise PartOfUthmaniWord(
+                    f"The Imlay Word is part of uthmani word, Sura: `{self.sura_idx + 1}`, Aya: `{self.aya_idx + 1}`, Imlaey Wordspan: ({start}, {end}), Uthmai Aya: {self.join_prefix.join(uthmani_words)}"
+                )
 
         out_script = ""
         prev_uth_idx = -1

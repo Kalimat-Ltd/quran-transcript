@@ -38,7 +38,12 @@ def tasmeea_sura(
     include_sadaka=True,
     **kwargs,
 ) -> list[tuple[SegmentScripts | None, float]]:
-    """Returns the best matching quracic script for every text part"""
+    """Returns the best matching quracic script for every text part
+
+    Note:
+        - We only support Istiaatha to be spearate segment not connected to other ayat or bismillah
+        - We only support Sadaka to be spearate segment not connected to other ayat or bismillah
+    """
 
     def _check_segment(
         _best: BestSegment,
@@ -125,10 +130,10 @@ def tasmeea_sura(
             if out:
                 best = out
 
-        print(aya.get().sura_idx, aya.get().aya_idx, aya.get_start_imlaey_word_idx())
-        print(
-            f"Text: {text_seg}, Min Window: {min_winodw_len}, Max Window: {max_windwo_len}, Overlap: {overlap_len + overlap_penalty}, Window Penlty: {window_penalty}"
-        )
+        # print(aya.get().sura_idx, aya.get().aya_idx, aya.get_start_imlaey_word_idx())
+        # print(
+        #     f"Text: {text_seg}, Min Window: {min_winodw_len}, Max Window: {max_windwo_len}, Overlap: {overlap_len + overlap_penalty}, Window Penlty: {window_penalty}"
+        # )
         # Initializing step words with min_window_len if not acceptable match
         for start_words in range(
             -(overlap_len + overlap_penalty),
@@ -167,6 +172,156 @@ def tasmeea_sura(
         prev_norm_text = norm_text
 
     return outputs
+
+
+def compute_prefix_function(pattern):
+    pi = [0] * len(pattern)
+    k = 0
+    for q in range(1, len(pattern)):
+        while k > 0 and pattern[k] != pattern[q]:
+            k = pi[k - 1]
+        if pattern[k] == pattern[q]:
+            k += 1
+        pi[q] = k
+    return pi
+
+
+def merge_text(texts: list[str]) -> str:
+    if not texts:
+        return ""
+    merged = texts[0]
+    for i in range(1, len(texts)):
+        next_text = texts[i]
+        L = min(len(merged), len(next_text))
+        s_tail = merged[-L:]
+        pi = compute_prefix_function(next_text)
+        state = 0  # number of matched chars
+        for char in s_tail:
+            # going batch to tha last matching prefix
+            while state > 0 and next_text[state] != char:
+                state = pi[state - 1]
+            if next_text[state] == char:
+                state += 1
+        # if state < min_merge_chars:
+        #     raise SmallTarteelOverlap("Very Small overlap to merge on")
+        merged += next_text[state:]
+    return merged
+
+
+def merge_segment_scritps(
+    seg_scrips: list[SegmentScripts | None],
+) -> SegmentScripts | None:
+    # TODO:
+    # Potensional bug if the span are not in order
+    # Istiaatha, Bsimillah, and Saadka support
+    if any(s is None for s in seg_scrips):
+        return None
+
+    assert any(s.has_quran for s in seg_scrips), (
+        "We support only merging scripts with quranic verses"
+    )
+    assert not (
+        any(s.has_istiaatha for s in seg_scrips)
+        or any(s.has_bismillah for s in seg_scrips)
+        or any(s.has_sadaka for s in seg_scrips)
+    ), "We only support quranic verses"
+
+    start_span = seg_scrips[0].start_span
+    end_span = seg_scrips[-1].end_span
+
+    assert start_span is not None and end_span is not None
+    start_aya = Aya(
+        start_span[0], start_span[1], start_imlaey_word_idx=start_span[2].imlaey
+    )
+
+    # Computing Window
+    loop_aya = start_aya
+    window = 0
+    while True:
+        if (
+            loop_aya.get().sura_idx == end_span[0]
+            and loop_aya.get().aya_idx == end_span[1]
+        ):
+            window += end_span[2].imlaey - loop_aya.get_start_imlaey_word_idx()
+            break
+        else:
+            window += (
+                len(loop_aya._encode_imlaey_to_uthmani().imlaey_words)
+                - loop_aya.get_start_imlaey_word_idx()
+            )
+            loop_aya.step(1)
+
+    return start_aya.get_by_imlaey_words(start=0, window=window)
+
+
+def tasmeea_sura_multi_part(
+    text_segments: list[list[str]],
+    sura_idx: int,
+    overlap_words: int = 6,
+    window_words=30,
+    acceptance_ratio: float = 0.5,
+    include_istiaatha=True,
+    include_bismillah=True,
+    include_sadaka=True,
+    multi_part_truncation_words=2,
+    **kwargs,
+) -> list[tuple[SegmentScripts | None, float]]:
+    """Returns the best matching quracic script for every text part
+
+    Note:
+        - We only support Istiaatha to be spearate segment not connected to other ayat or bismillah
+        - We only support Sadaka to be spearate segment not connected to other ayat or bismillah
+    """
+
+    def _trim_multi_segs(_segs: list[str], _truncation_words: int = 2) -> list[str]:
+        # Removing trailing words and starting words
+        # to avoide (part of word wrong transcrips)
+        # Not removing the start of the first transcript
+        words = _segs[0].split(" ")
+        _segs[0] = " ".join(words[: len(words) - _truncation_words])
+        for idx in range(1, len(_segs) - 1):
+            words = _segs[idx].split(" ")
+            _segs[idx] = " ".join(
+                words[_truncation_words : len(words) - _truncation_words]
+            )
+        # Not removing the tail of the last transcript
+        _segs[-1] = " ".join(_segs[-1].split(" ")[_truncation_words:])
+        return _segs
+
+    to_process_segs = []
+    # (start_index, num_segments)
+    multi_part_ids: dict[int, int] = {}
+    for seg in text_segments:
+        if len(seg) > 1:
+            multi_part_ids[len(to_process_segs)] = len(seg)
+            seg = _trim_multi_segs(seg, _truncation_words=multi_part_truncation_words)
+        to_process_segs += seg
+
+    outs_parted = tasmeea_sura(
+        text_segments=to_process_segs,
+        sura_idx=sura_idx,
+        include_istiaatha=include_istiaatha,
+        include_bismillah=include_bismillah,
+        include_sadaka=include_sadaka,
+        window_words=window_words,
+        acceptance_ratio=acceptance_ratio,
+        **kwargs,
+    )
+
+    outs = []
+    idx = 0
+    while idx < len(outs_parted):
+        if idx in multi_part_ids:
+            multi_seg = outs_parted[idx : idx + multi_part_ids[idx]]
+            seg = merge_segment_scritps([o[0] for o in multi_seg])
+            avg_score = sum([o[1] for o in multi_seg]) / len(multi_seg)
+            outs.append((seg, avg_score))
+            idx += len(multi_seg)
+        else:
+            outs.append(outs_parted[idx])
+            idx += 1
+
+    return outs
 
 
 def check_sura_missing_parts(

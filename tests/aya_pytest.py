@@ -2,7 +2,7 @@ import pytest
 
 from quran_transcript import Aya, WordSpan
 from quran_transcript.utils import SegmentScripts, QuranWordIndex
-from quran_transcript.tasmeea import check_sura_missing_parts
+from quran_transcript.tasmeea import check_sura_missing_parts, merge_segment_scritps
 
 
 @pytest.mark.parametrize(
@@ -1136,3 +1136,191 @@ def test_check_sura_missing_parts(sura_idx, fixed_segments, ex_missings):
     )
     assert len(missings) == len(ex_missings)
     assert missings == ex_missings
+
+
+@pytest.mark.parametrize(
+    "seg_scripts, ex_seg",
+    [
+        (
+            [
+                SegmentScripts(
+                    imalaey="وَقُلْنَا يَا آدَمُ اسْكُنْ أَنتَ وَزَوْجُكَ الْجَنَّةَ وَكُلَا مِنْهَا رَغَدًا",
+                    uthmani="وَقُلْنَا يَـٰٓـَٔادَمُ ٱسْكُنْ أَنتَ وَزَوْجُكَ ٱلْجَنَّةَ وَكُلَا مِنْهَا رَغَدًا",
+                    has_istiaatha=False,
+                    has_bismillah=False,
+                    has_sadaka=False,
+                    has_quran=True,
+                    start_span=(2, 35, QuranWordIndex(imlaey=0, uthmani=0)),
+                    end_span=(2, 35, QuranWordIndex(imlaey=10, uthmani=9)),
+                ),
+                SegmentScripts(
+                    imalaey="شِئْتُمَا وَلَا تَقْرَبَا هَٰذِهِ الشَّجَرَةَ فَتَكُونَا مِنَ الظَّالِمِينَ",
+                    uthmani="شِئْتُمَا وَلَا تَقْرَبَا هَـٰذِهِ ٱلشَّجَرَةَ فَتَكُونَا مِنَ ٱلظَّـٰلِمِينَ",
+                    has_istiaatha=False,
+                    has_bismillah=False,
+                    has_sadaka=False,
+                    has_quran=True,
+                    start_span=(2, 35, QuranWordIndex(imlaey=11, uthmani=10)),
+                    end_span=(2, 35, QuranWordIndex(imlaey=19, uthmani=18)),
+                ),
+            ],
+            SegmentScripts(
+                imalaey="وَقُلْنَا يَا آدَمُ اسْكُنْ أَنتَ وَزَوْجُكَ الْجَنَّةَ وَكُلَا مِنْهَا رَغَدًا حَيْثُ شِئْتُمَا وَلَا تَقْرَبَا هَٰذِهِ الشَّجَرَةَ فَتَكُونَا مِنَ الظَّالِمِينَ",
+                uthmani="وَقُلْنَا يَـٰٓـَٔادَمُ ٱسْكُنْ أَنتَ وَزَوْجُكَ ٱلْجَنَّةَ وَكُلَا مِنْهَا رَغَدًا حَيْثُ شِئْتُمَا وَلَا تَقْرَبَا هَـٰذِهِ ٱلشَّجَرَةَ فَتَكُونَا مِنَ ٱلظَّـٰلِمِينَ",
+                has_istiaatha=False,
+                has_bismillah=False,
+                has_sadaka=False,
+                has_quran=True,
+                start_span=(2, 35, QuranWordIndex(imlaey=0, uthmani=0)),
+                end_span=(2, 35, QuranWordIndex(imlaey=19, uthmani=18)),
+            ),
+        ),
+        (
+            [
+                SegmentScripts(
+                    imalaey="رَبَّنَا لَا تُزِغْ قُلُوبَنَا بَعْدَ إِذْ هَدَيْتَنَا وَهَبْ",
+                    uthmani="رَبَّنَا لَا تُزِغْ قُلُوبَنَا بَعْدَ إِذْ هَدَيْتَنَا وَهَبْ",
+                    has_istiaatha=False,
+                    has_bismillah=False,
+                    has_sadaka=False,
+                    has_quran=True,
+                    start_span=(3, 8, QuranWordIndex(imlaey=0, uthmani=0)),
+                    end_span=(3, 8, QuranWordIndex(imlaey=8, uthmani=8)),
+                ),
+                SegmentScripts(
+                    imalaey="لَنَا مِن لَّدُنكَ رَحْمَةً",
+                    uthmani="لَنَا مِن لَّدُنكَ رَحْمَةً",
+                    has_istiaatha=False,
+                    has_bismillah=False,
+                    has_sadaka=False,
+                    has_quran=True,
+                    start_span=(3, 8, QuranWordIndex(imlaey=8, uthmani=8)),
+                    end_span=(3, 8, QuranWordIndex(imlaey=12, uthmani=12)),
+                ),
+                SegmentScripts(
+                    imalaey="إِنَّكَ أَنتَ الْوَهَّابُ",
+                    uthmani="إِنَّكَ أَنتَ ٱلْوَهَّابُ",
+                    has_istiaatha=False,
+                    has_bismillah=False,
+                    has_sadaka=False,
+                    has_quran=True,
+                    start_span=(3, 8, QuranWordIndex(imlaey=12, uthmani=12)),
+                    end_span=(3, 8, QuranWordIndex(imlaey=15, uthmani=15)),
+                ),
+            ],
+            SegmentScripts(
+                imalaey="رَبَّنَا لَا تُزِغْ قُلُوبَنَا بَعْدَ إِذْ هَدَيْتَنَا وَهَبْ لَنَا مِن لَّدُنكَ رَحْمَةً إِنَّكَ أَنتَ الْوَهَّابُ",
+                uthmani="رَبَّنَا لَا تُزِغْ قُلُوبَنَا بَعْدَ إِذْ هَدَيْتَنَا وَهَبْ لَنَا مِن لَّدُنكَ رَحْمَةً إِنَّكَ أَنتَ ٱلْوَهَّابُ",
+                has_istiaatha=False,
+                has_bismillah=False,
+                has_sadaka=False,
+                has_quran=True,
+                start_span=(3, 8, QuranWordIndex(imlaey=0, uthmani=0)),
+                end_span=(3, 8, QuranWordIndex(imlaey=15, uthmani=15)),
+            ),
+        ),
+        (
+            [
+                SegmentScripts(
+                    imalaey="رَبَّنَا لَا تُزِغْ قُلُوبَنَا بَعْدَ إِذْ هَدَيْتَنَا وَهَبْ",
+                    uthmani="رَبَّنَا لَا تُزِغْ قُلُوبَنَا بَعْدَ إِذْ هَدَيْتَنَا وَهَبْ",
+                    has_istiaatha=False,
+                    has_bismillah=False,
+                    has_sadaka=False,
+                    has_quran=True,
+                    start_span=(3, 8, QuranWordIndex(imlaey=0, uthmani=0)),
+                    end_span=(3, 8, QuranWordIndex(imlaey=8, uthmani=8)),
+                ),
+            ],
+            SegmentScripts(
+                imalaey="رَبَّنَا لَا تُزِغْ قُلُوبَنَا بَعْدَ إِذْ هَدَيْتَنَا وَهَبْ",
+                uthmani="رَبَّنَا لَا تُزِغْ قُلُوبَنَا بَعْدَ إِذْ هَدَيْتَنَا وَهَبْ",
+                has_istiaatha=False,
+                has_bismillah=False,
+                has_sadaka=False,
+                has_quran=True,
+                start_span=(3, 8, QuranWordIndex(imlaey=0, uthmani=0)),
+                end_span=(3, 8, QuranWordIndex(imlaey=8, uthmani=8)),
+            ),
+        ),
+        # With None
+        (
+            [
+                SegmentScripts(
+                    imalaey="رَبَّنَا لَا تُزِغْ قُلُوبَنَا بَعْدَ إِذْ هَدَيْتَنَا وَهَبْ",
+                    uthmani="رَبَّنَا لَا تُزِغْ قُلُوبَنَا بَعْدَ إِذْ هَدَيْتَنَا وَهَبْ",
+                    has_istiaatha=False,
+                    has_bismillah=False,
+                    has_sadaka=False,
+                    has_quran=True,
+                    start_span=(3, 8, QuranWordIndex(imlaey=0, uthmani=0)),
+                    end_span=(3, 8, QuranWordIndex(imlaey=8, uthmani=8)),
+                ),
+                SegmentScripts(
+                    imalaey="لَنَا مِن لَّدُنكَ رَحْمَةً",
+                    uthmani="لَنَا مِن لَّدُنكَ رَحْمَةً",
+                    has_istiaatha=False,
+                    has_bismillah=False,
+                    has_sadaka=False,
+                    has_quran=True,
+                    start_span=(3, 8, QuranWordIndex(imlaey=8, uthmani=8)),
+                    end_span=(3, 8, QuranWordIndex(imlaey=12, uthmani=12)),
+                ),
+                SegmentScripts(
+                    imalaey="إِنَّكَ أَنتَ الْوَهَّابُ",
+                    uthmani="إِنَّكَ أَنتَ ٱلْوَهَّابُ",
+                    has_istiaatha=False,
+                    has_bismillah=False,
+                    has_sadaka=False,
+                    has_quran=True,
+                    start_span=(3, 8, QuranWordIndex(imlaey=12, uthmani=12)),
+                    end_span=(3, 8, QuranWordIndex(imlaey=15, uthmani=15)),
+                ),
+                None,
+            ],
+            None,
+        ),
+        (
+            [
+                None,
+                SegmentScripts(
+                    imalaey="رَبَّنَا لَا تُزِغْ قُلُوبَنَا بَعْدَ إِذْ هَدَيْتَنَا وَهَبْ",
+                    uthmani="رَبَّنَا لَا تُزِغْ قُلُوبَنَا بَعْدَ إِذْ هَدَيْتَنَا وَهَبْ",
+                    has_istiaatha=False,
+                    has_bismillah=False,
+                    has_sadaka=False,
+                    has_quran=True,
+                    start_span=(3, 8, QuranWordIndex(imlaey=0, uthmani=0)),
+                    end_span=(3, 8, QuranWordIndex(imlaey=8, uthmani=8)),
+                ),
+                SegmentScripts(
+                    imalaey="لَنَا مِن لَّدُنكَ رَحْمَةً",
+                    uthmani="لَنَا مِن لَّدُنكَ رَحْمَةً",
+                    has_istiaatha=False,
+                    has_bismillah=False,
+                    has_sadaka=False,
+                    has_quran=True,
+                    start_span=(3, 8, QuranWordIndex(imlaey=8, uthmani=8)),
+                    end_span=(3, 8, QuranWordIndex(imlaey=12, uthmani=12)),
+                ),
+                SegmentScripts(
+                    imalaey="إِنَّكَ أَنتَ الْوَهَّابُ",
+                    uthmani="إِنَّكَ أَنتَ ٱلْوَهَّابُ",
+                    has_istiaatha=False,
+                    has_bismillah=False,
+                    has_sadaka=False,
+                    has_quran=True,
+                    start_span=(3, 8, QuranWordIndex(imlaey=12, uthmani=12)),
+                    end_span=(3, 8, QuranWordIndex(imlaey=15, uthmani=15)),
+                ),
+            ],
+            None,
+        ),
+        # More than aya
+    ],
+)
+def test_merge_segscritps(
+    seg_scripts: list[SegmentScripts | None], ex_seg: SegmentScripts | None
+):
+    out_seg = merge_segment_scritps(seg_scripts)
+    assert out_seg == ex_seg

@@ -3,19 +3,19 @@ import math
 
 import Levenshtein as lv
 
-from .utils import normalize_aya, Aya, SegmentScripts, QuranWordIndex
+from .utils import normalize_aya, Aya, SegmentScripts, QuranWordIndex, PartOfUthmaniWord
 
 
 def estimate_window_len(text: str, winodw_words: int) -> tuple[int, int]:
-    return (max(1, int(len(text) / 5)), math.ceil(len(text) / 3))
+    return (max(1, int(len(text) / 8)), math.ceil(len(text) / 2))
 
 
 def estimate_overlap(text: str, prev_text: str | None, max_overlap: int) -> int:
     if prev_text is None:
         return 0
 
-    # suppose that the word has 5 characters
-    return min(int(len(prev_text) / 10), max_overlap)
+    # suppose that the word has 2 characters
+    return min(int(len(prev_text) / 4), max_overlap)
 
 
 @dataclass
@@ -25,6 +25,11 @@ class BestSegment:
     segment_scripts: SegmentScripts | None = None
     ratio: float = 0.0
     bisimillah: bool = False
+
+
+def get_match_ratio(ref_text: str, other_text: str) -> float:
+    # ratio = lv.ratio(ref_text, other_text)
+    return 1 - (min(lv.distance(ref_text, other_text), len(ref_text)) / len(ref_text))
 
 
 def tasmeea_sura(
@@ -48,33 +53,37 @@ def tasmeea_sura(
     def _check_segment(
         _best: BestSegment,
         _aya,
+        _norm_text: str,
         _start,
         _window,
         _istiaatha=False,
         _bismillah=False,
         _sadaka=False,
     ) -> BestSegment | None:
-        segment_scripts = _aya.get_by_imlaey_words(
-            start=_start,
-            window=_window,
-            include_istiaatha=_istiaatha,
-            include_bismillah=_bismillah,
-            include_sadaka=_sadaka,
-        )
-        aya_imalaey_str = normalize_aya(segment_scripts.imalaey, **kwargs)
-        match_ratio = lv.ratio(norm_text, aya_imalaey_str)
-        if (match_ratio >= acceptance_ratio) and (match_ratio > _best.ratio):
-            _best.segment_scripts = segment_scripts
-            _best.ratio = match_ratio
-            _best.bisimillah = _bismillah
-            if _istiaatha or _sadaka:
-                _best.window = 0
-                _best.start = 0
+        try:
+            segment_scripts = _aya.get_by_imlaey_words(
+                start=_start,
+                window=_window,
+                include_istiaatha=_istiaatha,
+                include_bismillah=_bismillah,
+                include_sadaka=_sadaka,
+            )
+            aya_imalaey_str = normalize_aya(segment_scripts.imalaey, **kwargs)
+            match_ratio = get_match_ratio(_norm_text, aya_imalaey_str)
+            if (match_ratio >= acceptance_ratio) and (match_ratio > _best.ratio):
+                _best.segment_scripts = segment_scripts
+                _best.ratio = match_ratio
+                _best.bisimillah = _bismillah
+                if _istiaatha or _sadaka:
+                    _best.window = 0
+                    _best.start = 0
+                else:
+                    _best.window = _window
+                    _best.start = _start
+                return _best
             else:
-                _best.window = _window
-                _best.start = _start
-            return _best
-        else:
+                return None
+        except PartOfUthmaniWord:
             return None
 
     assert overlap_words >= 0
@@ -100,11 +109,15 @@ def tasmeea_sura(
             window=min_winodw_len,
             bisimillah=False,
         )
+        if len(norm_text) == 0:
+            continue
+
         # istiaatha at the first
         if idx == 0 and include_istiaatha:
             out = _check_segment(
                 _best=best,
                 _aya=aya,
+                _norm_text=norm_text,
                 _start=0,
                 _window=5,
                 _istiaatha=True,
@@ -121,6 +134,7 @@ def tasmeea_sura(
             out = _check_segment(
                 _best=best,
                 _aya=last_aya,
+                _norm_text=norm_text,
                 _start=sadaka_start,
                 _window=3,
                 _istiaatha=False,
@@ -130,9 +144,8 @@ def tasmeea_sura(
             if out:
                 best = out
 
-        # print(aya.get().sura_idx, aya.get().aya_idx, aya.get_start_imlaey_word_idx())
         # print(
-        #     f"Text: {text_seg}, Min Window: {min_winodw_len}, Max Window: {max_windwo_len}, Overlap: {overlap_len + overlap_penalty}, Window Penlty: {window_penalty}"
+        #     f"{idx} -> Start Span{aya.get().sura_idx, aya.get().aya_idx, aya.get_start_imlaey_word_idx()}, Text: {text_seg}, Min Window: {min_winodw_len}, Max Window: {max_windwo_len}, Overlap: {overlap_len + overlap_penalty}, Window Penlty: {window_penalty}"
         # )
         # Initializing step words with min_window_len if not acceptable match
         for start_words in range(
@@ -144,6 +157,7 @@ def tasmeea_sura(
                 out = _check_segment(
                     _best=best,
                     _aya=aya,
+                    _norm_text=norm_text,
                     _start=start_words,
                     _window=loop_window_len,
                     _istiaatha=False,
@@ -304,6 +318,7 @@ def tasmeea_sura_multi_part(
         include_bismillah=include_bismillah,
         include_sadaka=include_sadaka,
         window_words=window_words,
+        overlap_words=overlap_words,
         acceptance_ratio=acceptance_ratio,
         **kwargs,
     )

@@ -105,73 +105,72 @@ def tasmeea_sura(
         best = BestSegment(
             segment_scripts=None,
             ratio=0.0,
-            start=overlap_len,
+            start=-overlap_len,
             window=min_winodw_len,
             bisimillah=False,
         )
-        if len(norm_text) == 0:
-            continue
-
-        # istiaatha at the first
-        if idx == 0 and include_istiaatha:
-            out = _check_segment(
-                _best=best,
-                _aya=aya,
-                _norm_text=norm_text,
-                _start=0,
-                _window=5,
-                _istiaatha=True,
-                _bismillah=False,
-                _sadaka=False,
-            )
-            if out:
-                best = out
-        # sadaka only at the last aya
-        elif (idx + 1) == len(text_segments) and include_sadaka:
-            sadaka_start = (
-                len(last_aya.get().imlaey_words) - last_aya.get_start_imlaey_word_idx()
-            )
-            out = _check_segment(
-                _best=best,
-                _aya=last_aya,
-                _norm_text=norm_text,
-                _start=sadaka_start,
-                _window=3,
-                _istiaatha=False,
-                _bismillah=False,
-                _sadaka=True,
-            )
-            if out:
-                best = out
-
-        # print(
-        #     f"{idx} -> Start Span{aya.get().sura_idx, aya.get().aya_idx, aya.get_start_imlaey_word_idx()}, Text: {text_seg}, Min Window: {min_winodw_len}, Max Window: {max_windwo_len}, Overlap: {overlap_len + overlap_penalty}, Window Penlty: {window_penalty}"
-        # )
-        # Initializing step words with min_window_len if not acceptable match
-        for start_words in range(
-            -(overlap_len + overlap_penalty),
-            window_words + window_penalty - (overlap_len + overlap_penalty),
-        ):
-            # looping over all available windows
-            for loop_window_len in range(min_winodw_len, max_windwo_len + 1):
+        print(
+            f"{idx} -> Start Span{aya.get().sura_idx, aya.get().aya_idx, aya.get_start_imlaey_word_idx()}, Text: {text_seg}, Min Window: {min_winodw_len}, Max Window: {max_windwo_len}, Overlap: {overlap_len + overlap_penalty}, Window Penlty: {window_penalty}"
+        )
+        if len(norm_text) > 0:
+            # istiaatha at the first
+            if idx == 0 and include_istiaatha:
                 out = _check_segment(
                     _best=best,
                     _aya=aya,
                     _norm_text=norm_text,
-                    _start=start_words,
-                    _window=loop_window_len,
-                    _istiaatha=False,
-                    _bismillah=True
-                    if aya.get().sura_idx not in {1, 9}
-                    and include_bismillah
-                    and aya.get().aya_idx == 1
-                    else False,
+                    _start=0,
+                    _window=5,
+                    _istiaatha=True,
+                    _bismillah=False,
                     _sadaka=False,
                 )
-                window_penalty = 0
-                overlap_penalty = 0
                 if out:
                     best = out
+            # sadaka only at the last aya
+            elif (idx + 1) == len(text_segments) and include_sadaka:
+                sadaka_start = (
+                    len(last_aya.get().imlaey_words)
+                    - last_aya.get_start_imlaey_word_idx()
+                )
+                out = _check_segment(
+                    _best=best,
+                    _aya=last_aya,
+                    _norm_text=norm_text,
+                    _start=sadaka_start,
+                    _window=3,
+                    _istiaatha=False,
+                    _bismillah=False,
+                    _sadaka=True,
+                )
+                if out:
+                    best = out
+
+            # Initializing step words with min_window_len if not acceptable match
+            for start_words in range(
+                -(overlap_len + overlap_penalty),
+                window_words + window_penalty - (overlap_len + overlap_penalty),
+            ):
+                # looping over all available windows
+                for loop_window_len in range(min_winodw_len, max_windwo_len + 1):
+                    out = _check_segment(
+                        _best=best,
+                        _aya=aya,
+                        _norm_text=norm_text,
+                        _start=start_words,
+                        _window=loop_window_len,
+                        _istiaatha=False,
+                        _bismillah=True
+                        if aya.get().sura_idx not in {1, 9}
+                        and include_bismillah
+                        and aya.get().aya_idx == 1
+                        else False,
+                        _sadaka=False,
+                    )
+                    window_penalty = 0
+                    overlap_penalty = 0
+                    if out:
+                        best = out
 
         # move aya
         if best.segment_scripts is None:

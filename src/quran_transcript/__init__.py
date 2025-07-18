@@ -1,4 +1,4 @@
-from quran_transcript.utils import (
+from .utils import (
     Aya,
     AyaFormat,
     search,
@@ -6,9 +6,15 @@ from quran_transcript.utils import (
     SearchItem,
     WordSpan,
     normalize_aya,
+    EncodingOutput,
+    QuranWordIndex,
+    Imlaey2uthmaniOutput,
+    SegmentScripts,
 )
 
-import quran_transcript.alphabet as alphabet
+from .tasmeea import tasmeea_sura_multi_part, tasmeea_sura, check_sura_missing_parts
+
+from . import alphabet as alphabet
 
 
 __all__ = [
@@ -20,4 +26,11 @@ __all__ = [
     "WordSpan",
     "normalize_aya",
     "alphabet",
+    "EncodingOutput",
+    "QuranWordIndex",
+    "Imlaey2uthmaniOutput",
+    "SegmentScripts",
+    "tasmeea_sura",
+    "tasmeea_sura_multi_part",
+    "check_sura_missing_parts",
 ]

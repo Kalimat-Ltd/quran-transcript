@@ -4,6 +4,7 @@ from quran_transcript import Aya, normalize_aya, search, WordSpan
 
 
 if __name__ == "__main__":
+    # TODO: add these tests in pytest
     # -------------------------------------------------------------------
     # Test General Use
     # -------------------------------------------------------------------
@@ -129,10 +130,10 @@ if __name__ == "__main__":
     count = 0
     for item in results:
         print(item)
-        print('-' * 20)
+        print("-" * 20)
         count += 1
-    print('Total Results:', count)
-    print('Total Time:', end_time - start_time)
+    print("Total Results:", count)
+    print("Total Time:", end_time - start_time)
 
     # -------------------------------------------------------------------
     # Test _encode_imlaey_to_uthmani

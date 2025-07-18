@@ -349,6 +349,14 @@ def check_sura_missing_parts(
         _start: tuple[int, int, QuranWordIndex],
         _end: tuple[int, int, QuranWordIndex],
     ) -> list[SegmentScripts]:
+        assert _end[0] >= _start[0] and _end[1] >= _start[1], (
+            f"Start > End, start: {_start}, End: {_end}"
+        )
+        if _start[0] == _end[0] and _start[1] == _end[1]:
+            assert _end[2].imlaey >= _start[2].imlaey, (
+                f"Start > End, start: {_start}, End: {_end}"
+            )
+
         _missings = []
         _start_aya = _start_aya.set_new(
             sura_idx=_start[0],

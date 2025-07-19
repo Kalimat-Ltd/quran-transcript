@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 import math
 import logging
+from typing import Optional
 
 import Levenshtein as lv
 
@@ -36,6 +37,7 @@ def get_match_ratio(ref_text: str, other_text: str) -> float:
 def tasmeea_sura(
     text_segments: list[str],
     sura_idx: int,
+    pivot_list: Optional[list[str] | None] = None,
     overlap_words: int = 6,
     window_words=30,
     acceptance_ratio: float = 0.5,
@@ -46,9 +48,16 @@ def tasmeea_sura(
 ) -> list[tuple[SegmentScripts | None, float]]:
     """Returns the best matching quracic script for every text part
 
-    Note:
-        - We only support Istiaatha to be spearate segment not connected to other ayat or bismillah
-        - We only support Sadaka to be spearate segment not connected to other ayat or bismillah
+    Args:
+        pivot_list (list[str] | None): A list where each element is either "pivot" or an empty string "".
+            "pivot" indicates that the corresponding item is the first segment when the text is split into multiple parts.
+            An empty string ("") means the item is not the first segment.
+            This helps identify which segments are the starting points in a split text.
+
+
+        Note:
+            - We only support Istiaatha to be spearate segment not connected to other ayat or bismillah
+            - We only support Sadaka to be spearate segment not connected to other ayat or bismillah
     """
 
     def _check_segment(
@@ -88,6 +97,8 @@ def tasmeea_sura(
             return None
 
     assert overlap_words >= 0
+    if pivot_list is None:
+        pivot_list = ["pivot"] * len(text_segments)
 
     kwargs["remove_spaces"] = True
     kwargs["remove_tashkeel"] = True
@@ -183,7 +194,10 @@ def tasmeea_sura(
             window=best.window,
             include_bismillah=best.bisimillah,
         )
-        prev_norm_text = norm_text
+        # some text segments are spaned accorss multiple items
+        # the pivot is the fistt item may be the logest one
+        if pivot_list[idx] == "pivot":
+            prev_norm_text = norm_text
 
     return outputs
 
@@ -303,17 +317,24 @@ def tasmeea_sura_multi_part(
         return _segs
 
     to_process_segs = []
+    pivot_list: list[str] = []
     # (start_index, num_segments)
     multi_part_ids: dict[int, int] = {}
     for seg in text_segments:
         if len(seg) > 1:
+            pivot_list.append("pivot")
+            pivot_list += [""] * (len(seg) - 1)
             multi_part_ids[len(to_process_segs)] = len(seg)
             seg = _trim_multi_segs(seg, _truncation_words=multi_part_truncation_words)
+        else:
+            pivot_list.append("pivot")
+
         to_process_segs += seg
 
     outs_parted = tasmeea_sura(
         text_segments=to_process_segs,
         sura_idx=sura_idx,
+        pivot_list=pivot_list,
         include_istiaatha=include_istiaatha,
         include_bismillah=include_bismillah,
         include_sadaka=include_sadaka,

@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 import math
+import logging
 
 import Levenshtein as lv
 
@@ -109,7 +110,7 @@ def tasmeea_sura(
             window=min_winodw_len,
             bisimillah=False,
         )
-        print(
+        logging.debug(
             f"{idx} -> Start Span{aya.get().sura_idx, aya.get().aya_idx, aya.get_start_imlaey_word_idx()}, Text: {text_seg}, Min Window: {min_winodw_len}, Max Window: {max_windwo_len}, Overlap: {overlap_len + overlap_penalty}, Window Penlty: {window_penalty}"
         )
         if len(norm_text) > 0:
@@ -349,13 +350,16 @@ def check_sura_missing_parts(
         _start: tuple[int, int, QuranWordIndex],
         _end: tuple[int, int, QuranWordIndex],
     ) -> list[SegmentScripts]:
-        assert _end[0] >= _start[0] and _end[1] >= _start[1], (
-            f"Start > End, start: {_start}, End: {_end}"
-        )
-        if _start[0] == _end[0] and _start[1] == _end[1]:
-            assert _end[2].imlaey >= _start[2].imlaey, (
-                f"Start > End, start: {_start}, End: {_end}"
-            )
+        if _end[0] < _start[0]:
+            return []
+        elif _end[0] >= _start[0] and _end[1] < _start[1]:
+            return []
+        elif (
+            _start[0] == _end[0]
+            and _start[1] == _end[1]
+            and _end[2].imlaey < _start[2].imlaey
+        ):
+            return []
 
         _missings = []
         _start_aya = _start_aya.set_new(

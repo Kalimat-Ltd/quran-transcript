@@ -80,7 +80,7 @@ def tasmeea_sura(
             )
             aya_imalaey_str = normalize_aya(segment_scripts.imalaey, **kwargs)
             match_ratio = get_match_ratio(_norm_text, aya_imalaey_str)
-            if (match_ratio >= acceptance_ratio) and (match_ratio > _best.ratio):
+            if match_ratio > _best.ratio:
                 _best.segment_scripts = segment_scripts
                 _best.ratio = match_ratio
                 _best.bisimillah = _bismillah
@@ -179,21 +179,40 @@ def tasmeea_sura(
                         else False,
                         _sadaka=False,
                     )
-                    window_penalty = 0
-                    overlap_penalty = 0
                     if out:
                         best = out
 
-        # move aya
+            # reset penalities for the next loop
+            window_penalty = 0
+            overlap_penalty = 0
+
+        # Move aya
         if best.segment_scripts is None:
             window_penalty = max_windwo_len
             overlap_penalty = max_windwo_len
-        outputs.append((best.segment_scripts, best.ratio))
-        aya = aya.step_by_imlaey_words(
-            start=best.start,
-            window=best.window,
-            include_bismillah=best.bisimillah,
-        )
+            outputs.append((None, best.ratio))
+            aya = aya.step_by_imlaey_words(
+                start=-overlap_len,
+                window=min_winodw_len,
+                include_bismillah=False,
+            )
+        elif best.ratio < acceptance_ratio:
+            window_penalty = max_windwo_len
+            overlap_penalty = max_windwo_len
+            outputs.append((None, best.ratio))
+            aya = aya.step_by_imlaey_words(
+                start=-overlap_len,
+                window=min_winodw_len,
+                include_bismillah=False,
+            )
+        else:
+            outputs.append((best.segment_scripts, best.ratio))
+            aya = aya.step_by_imlaey_words(
+                start=best.start,
+                window=best.window,
+                include_bismillah=best.bisimillah,
+            )
+
         # some text segments are spaned accorss multiple items
         # the pivot is the fistt item may be the logest one
         if pivot_list[idx] == "pivot":

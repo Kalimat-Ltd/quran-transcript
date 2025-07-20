@@ -132,7 +132,7 @@ def tasmeea_sura(
             bisimillah=False,
         )
         logging.debug(
-            f"{idx} -> Start Span{aya.get().sura_idx, aya.get().aya_idx, aya.get_start_imlaey_word_idx()}, Text: {text_seg}, Start: {start_words}, End: {end_words}, Min Window: {min_winodw_len}, Max Window: {max_windwo_len}, Overlap: {overlap_len + overlap_penalty}, Window Penlty: {window_penalty}"
+            f"{idx} -> Start Span{aya.get().sura_idx, aya.get().aya_idx, aya.get_start_imlaey_word_idx()}, Text: {text_seg}, Start: {start_words}, End: {end_words}, Min Window: {min_winodw_len}, Max Window: {max_windwo_len}, Overlap: {overlap_len}, Ovelap Penlety: {overlap_penalty}, Window Penlty: {window_penalty}"
         )
         if len(norm_text) > 0:
             # istiaatha at the first
@@ -201,7 +201,7 @@ def tasmeea_sura(
             outputs.append((None, best.ratio))
             aya = aya.step_by_imlaey_words(
                 start=-overlap_len,
-                window=min_winodw_len,
+                window=int((min_winodw_len + max_windwo_len) / 2),
                 include_bismillah=False,
             )
         elif best.ratio < acceptance_ratio:
@@ -210,7 +210,7 @@ def tasmeea_sura(
             outputs.append((None, best.ratio))
             aya = aya.step_by_imlaey_words(
                 start=-overlap_len,
-                window=min_winodw_len,
+                window=int((min_winodw_len + max_windwo_len) / 2),
                 include_bismillah=False,
             )
         else:

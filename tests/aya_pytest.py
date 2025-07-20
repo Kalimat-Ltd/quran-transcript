@@ -1316,7 +1316,41 @@ def test_check_sura_missing_parts(sura_idx, fixed_segments, ex_missings):
             ],
             None,
         ),
-        # More than aya
+        # BUG: Infinit loop
+        (
+            [
+                SegmentScripts(
+                    imalaey="وَتِلْكَ الْجَنَّةُ الَّتِي أُورِثْتُمُوهَا بِمَا كُنتُمْ تَعْمَلُونَ لَكُمْ فِيهَا",
+                    uthmani="وَتِلْكَ ٱلْجَنَّةُ ٱلَّتِىٓ أُورِثْتُمُوهَا بِمَا كُنتُمْ تَعْمَلُونَ لَكُمْ فِيهَا",
+                    has_istiaatha=False,
+                    has_bismillah=False,
+                    has_sadaka=False,
+                    has_quran=True,
+                    start_span=(43, 72, QuranWordIndex(imlaey=0, uthmani=0)),
+                    end_span=(43, 73, QuranWordIndex(imlaey=2, uthmani=2)),
+                ),
+                SegmentScripts(
+                    imalaey="فَاكِهَةٌ كَثِيرَةٌ مِّنْهَا تَأْكُلُونَ",
+                    uthmani="فَـٰكِهَةٌۭ كَثِيرَةٌۭ مِّنْهَا تَأْكُلُونَ",
+                    has_istiaatha=False,
+                    has_bismillah=False,
+                    has_sadaka=False,
+                    has_quran=True,
+                    start_span=(43, 73, QuranWordIndex(imlaey=2, uthmani=2)),
+                    end_span=(43, 73, QuranWordIndex(imlaey=6, uthmani=6)),
+                ),
+            ],
+            SegmentScripts(
+                imalaey="وَتِلْكَ الْجَنَّةُ الَّتِي أُورِثْتُمُوهَا بِمَا كُنتُمْ تَعْمَلُونَ لَكُمْ فِيهَا فَاكِهَةٌ كَثِيرَةٌ مِّنْهَا تَأْكُلُونَ",
+                uthmani="وَتِلْكَ ٱلْجَنَّةُ ٱلَّتِىٓ أُورِثْتُمُوهَا بِمَا كُنتُمْ تَعْمَلُونَ لَكُمْ فِيهَا فَـٰكِهَةٌۭ كَثِيرَةٌۭ مِّنْهَا تَأْكُلُونَ",
+                has_istiaatha=False,
+                has_bismillah=False,
+                has_sadaka=False,
+                has_quran=True,
+                start_span=(43, 72, QuranWordIndex(imlaey=0, uthmani=0)),
+                end_span=(43, 73, QuranWordIndex(imlaey=6, uthmani=6)),
+            ),
+        ),
     ],
 )
 def test_merge_segscritps(

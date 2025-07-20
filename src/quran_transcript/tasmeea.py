@@ -17,7 +17,7 @@ def estimate_overlap(text: str, prev_text: str | None, max_overlap: int) -> int:
         return 0
 
     # suppose that the word has 2 characters
-    return min(int(len(prev_text) / 4), max_overlap)
+    return min(int(len(prev_text) / 3.5), max_overlap)
 
 
 @dataclass
@@ -304,7 +304,7 @@ def merge_segment_scritps(
                 len(loop_aya._encode_imlaey_to_uthmani().imlaey_words)
                 - loop_aya.get_start_imlaey_word_idx()
             )
-            loop_aya.step(1)
+            loop_aya = loop_aya.step(1)
 
     return start_aya.get_by_imlaey_words(start=0, window=window)
 

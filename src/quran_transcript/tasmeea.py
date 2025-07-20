@@ -80,7 +80,9 @@ def tasmeea_sura(
             )
             aya_imalaey_str = normalize_aya(segment_scripts.imalaey, **kwargs)
             match_ratio = get_match_ratio(_norm_text, aya_imalaey_str)
-            if match_ratio > _best.ratio:
+            if (match_ratio > _best.ratio) or (
+                match_ratio == _best.ratio and abs(_start) < abs(_best.start)
+            ):
                 _best.segment_scripts = segment_scripts
                 _best.ratio = match_ratio
                 _best.bisimillah = _bismillah

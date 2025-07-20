@@ -132,7 +132,7 @@ def tasmeea_sura(
             bisimillah=False,
         )
         logging.debug(
-            f"{idx} -> Start Span{aya.get().sura_idx, aya.get().aya_idx, aya.get_start_imlaey_word_idx()}, Text: {text_seg}, Min Window: {min_winodw_len}, Max Window: {max_windwo_len}, Overlap: {overlap_len + overlap_penalty}, Window Penlty: {window_penalty}"
+            f"{idx} -> Start Span{aya.get().sura_idx, aya.get().aya_idx, aya.get_start_imlaey_word_idx()}, Text: {text_seg}, Start: {start_words}, End: {end_words}, Min Window: {min_winodw_len}, Max Window: {max_windwo_len}, Overlap: {overlap_len + overlap_penalty}, Window Penlty: {window_penalty}"
         )
         if len(norm_text) > 0:
             # istiaatha at the first
@@ -171,6 +171,12 @@ def tasmeea_sura(
             # Initializing step words with min_window_len if not acceptable match
             for start_words in range(start_words, end_words):
                 # looping over all available windows
+                bismillah = (
+                    aya.get().sura_idx not in {1, 9}
+                    and include_bismillah
+                    and aya.get().aya_idx == 1
+                ) or (idx == 1 and outputs[0][0] is None)
+
                 for loop_window_len in range(min_winodw_len, max_windwo_len + 1):
                     out = _check_segment(
                         _best=best,
@@ -179,11 +185,7 @@ def tasmeea_sura(
                         _start=start_words,
                         _window=loop_window_len,
                         _istiaatha=False,
-                        _bismillah=True
-                        if aya.get().sura_idx not in {1, 9}
-                        and include_bismillah
-                        and aya.get().aya_idx == 1
-                        else False,
+                        _bismillah=bismillah,
                         _sadaka=False,
                     )
                     if out:
@@ -193,7 +195,6 @@ def tasmeea_sura(
             window_penalty = 0
             overlap_penalty = 0
 
-        # Move aya
         if best.segment_scripts is None:
             window_penalty = max_windwo_len
             overlap_penalty = max_windwo_len

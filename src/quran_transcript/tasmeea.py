@@ -116,6 +116,14 @@ def tasmeea_sura(
         norm_text = normalize_aya(text_seg, **kwargs)
         min_winodw_len, max_windwo_len = estimate_window_len(norm_text, window_words)
         overlap_len = estimate_overlap(norm_text, prev_norm_text, overlap_words)
+        # the case that the overloap is too big (16) and window is too small (6) end_words = -10
+        # so we can not check the true aya part instead end_words = 16 + 6 = 22
+        start_words = -(overlap_len + overlap_penalty)
+        if max_windwo_len < overlap_len:
+            end_words = window_words + window_penalty + (overlap_len + overlap_penalty)
+        else:
+            end_words = window_words + window_penalty - (overlap_len + overlap_penalty)
+
         best = BestSegment(
             segment_scripts=None,
             ratio=0.0,
@@ -161,10 +169,7 @@ def tasmeea_sura(
                     best = out
 
             # Initializing step words with min_window_len if not acceptable match
-            for start_words in range(
-                -(overlap_len + overlap_penalty),
-                window_words + window_penalty - (overlap_len + overlap_penalty),
-            ):
+            for start_words in range(start_words, end_words):
                 # looping over all available windows
                 for loop_window_len in range(min_winodw_len, max_windwo_len + 1):
                     out = _check_segment(

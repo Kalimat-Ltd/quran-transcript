@@ -169,7 +169,7 @@ def tasmeea_sura(
                     best = out
 
             # Initializing step words with min_window_len if not acceptable match
-            for start_words in range(start_words, end_words):
+            for loop_start in range(start_words, end_words):
                 # looping over all available windows
                 bismillah = (
                     aya.get().sura_idx not in {1, 9}
@@ -182,7 +182,7 @@ def tasmeea_sura(
                         _best=best,
                         _aya=aya,
                         _norm_text=norm_text,
-                        _start=start_words,
+                        _start=loop_start,
                         _window=loop_window_len,
                         _istiaatha=False,
                         _bismillah=bismillah,

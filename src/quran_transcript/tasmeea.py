@@ -110,19 +110,18 @@ def tasmeea_sura(
     last_aya = aya.step(aya.get().num_ayat_in_sura - 1)
     outputs = []
     prev_norm_text = None
-    window_penalty = 0
-    overlap_penalty = 0
+    penalty = 0
     for idx, text_seg in enumerate(text_segments):
         norm_text = normalize_aya(text_seg, **kwargs)
         min_winodw_len, max_windwo_len = estimate_window_len(norm_text, window_words)
-        overlap_len = estimate_overlap(norm_text, prev_norm_text, overlap_words)
+        # overlap_len = estimate_overlap(norm_text, prev_norm_text, overlap_words)
+        overlap_len = overlap_words
         # the case that the overloap is too big (16) and window is too small (6) end_words = -10
         # so we can not check the true aya part instead end_words = 16 + 6 = 22
-        start_words = -(overlap_len + overlap_penalty)
-        if max_windwo_len < overlap_len:
-            end_words = window_words + window_penalty + (overlap_len + overlap_penalty)
-        else:
-            end_words = window_words + window_penalty - (overlap_len + overlap_penalty)
+        start_words = -(overlap_len + penalty)
+        end_words = (
+            overlap_len + max(window_words - overlap_len, max_windwo_len) + penalty
+        )
 
         best = BestSegment(
             segment_scripts=None,
@@ -132,7 +131,7 @@ def tasmeea_sura(
             bisimillah=False,
         )
         logging.debug(
-            f"{idx} -> Start Span{aya.get().sura_idx, aya.get().aya_idx, aya.get_start_imlaey_word_idx()}, Text: {text_seg}, Start: {start_words}, End: {end_words}, Min Window: {min_winodw_len}, Max Window: {max_windwo_len}, Overlap: {overlap_len}, Ovelap Penlety: {overlap_penalty}, Window Penlty: {window_penalty}"
+            f"{idx} -> Start Span{aya.get().sura_idx, aya.get().aya_idx, aya.get_start_imlaey_word_idx()}, Text: {text_seg}, Start: {start_words}, End: {end_words}, Min Window: {min_winodw_len}, Max Window: {max_windwo_len}, Overlap: {overlap_len}, Penlety: {penalty}"
         )
         if len(norm_text) > 0:
             # istiaatha at the first
@@ -192,12 +191,10 @@ def tasmeea_sura(
                         best = out
 
             # reset penalities for the next loop
-            window_penalty = 0
-            overlap_penalty = 0
+            penalty = 0
 
         if best.segment_scripts is None:
-            window_penalty = max_windwo_len
-            overlap_penalty = max_windwo_len
+            penalty = max_windwo_len
             outputs.append((None, best.ratio))
             aya = aya.step_by_imlaey_words(
                 start=-overlap_len,
@@ -205,8 +202,7 @@ def tasmeea_sura(
                 include_bismillah=False,
             )
         elif best.ratio < acceptance_ratio:
-            window_penalty = max_windwo_len
-            overlap_penalty = max_windwo_len
+            penalty = max_windwo_len
             outputs.append((None, best.ratio))
             aya = aya.step_by_imlaey_words(
                 start=-overlap_len,

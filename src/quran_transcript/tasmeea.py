@@ -9,7 +9,7 @@ from .utils import normalize_aya, Aya, SegmentScripts, QuranWordIndex, PartOfUth
 
 
 def estimate_window_len(text: str, winodw_words: int) -> tuple[int, int]:
-    return (max(1, int(len(text) / 8)), math.ceil(len(text) / 2))
+    return (max(1, int(len(text) / 9)), math.ceil(len(text) / 2))
 
 
 def estimate_overlap(text: str, prev_text: str | None, max_overlap: int) -> int:

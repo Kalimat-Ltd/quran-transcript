@@ -863,11 +863,16 @@ class Aya(object):
         else:
             end = imlaey_wordspan.end
 
-        if end in imlaey2uthmani.keys():
+        # end is exclusive: the last index is `end -1`
+        if end in imlaey2uthmani:
             if imlaey2uthmani[end - 1] == imlaey2uthmani[end]:
                 raise PartOfUthmaniWord(
                     f"The Imlay Word is part of uthmani word, Sura: `{self.sura_idx + 1}`, Aya: `{self.aya_idx + 1}`, Imlaey Wordspan: ({start}, {end}), Uthmai Aya: {self.join_prefix.join(uthmani_words)}"
                 )
+        if (start > 0) and (imlaey2uthmani[start] == imlaey2uthmani[start - 1]):
+            raise PartOfUthmaniWord(
+                f"The Imlay Word is part of uthmani word, Sura: `{self.sura_idx + 1}`, Aya: `{self.aya_idx + 1}`, Imlaey Wordspan: ({start}, {end}), Uthmai Aya: {self.join_prefix.join(uthmani_words)}"
+            )
 
         out_script = ""
         prev_uth_idx = -1

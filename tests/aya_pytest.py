@@ -1,7 +1,7 @@
 import pytest
 
 from quran_transcript import Aya, WordSpan
-from quran_transcript.utils import SegmentScripts, QuranWordIndex
+from quran_transcript.utils import SegmentScripts, QuranWordIndex, PartOfUthmaniWord
 from quran_transcript.tasmeea import check_sura_missing_parts, merge_segment_scritps
 
 
@@ -183,6 +183,18 @@ def test_imlaey_to_uthmani(
     )
     print(out_uth_str)
     assert out_uth_str == exp_uth_text
+
+
+def test_exceptions_imlaey_to_uthmani_start():
+    aya = Aya(68, 31)
+    with pytest.raises(PartOfUthmaniWord):
+        aya.imlaey_to_uthmani(WordSpan(0, 2))
+
+
+def test_exceptions_imlaey_to_uthmani_end():
+    aya = Aya(68, 31)
+    with pytest.raises(PartOfUthmaniWord):
+        aya.imlaey_to_uthmani(WordSpan(2, 6))
 
 
 def test_imlaey_to_uthmai_with_caching():

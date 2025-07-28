@@ -37,8 +37,8 @@ class UthmaniAlphabet:
     sheen: str
     saad: str
     daad: str
-    taa_mofkhama: str
-    zaa_mofkhama: str
+    taa_mofakhama: str
+    zaa_mofakhama: str
     ayn: str
     ghyn: str
     faa: str
@@ -109,13 +109,64 @@ class UthmaniAlphabet:
             + self.qaf
             + self.seen
             + self.daal
-            + self.taa_mofkhama
+            + self.taa_mofakhama
             + self.zay
             + self.faa
             + self.taa_marboota
             + self.daad
-            + self.taa_mofkhama
+            + self.taa_mofakhama
         )
+
+
+@dataclass
+class QuranPhoneticScriptAlphabet:
+    hamza: str
+    baa: str
+    taa: str
+    thaa: str
+    jeem: str
+    haa_mohmala: str
+    khaa: str
+    daal: str
+    thaal: str
+    raa: str
+    zay: str
+    seen: str
+    sheen: str
+    saad: str
+    daad: str
+    taa_mofakhama: str
+    zaa_mofakhama: str
+    ayn: str
+    ghyn: str
+    faa: str
+    qaf: str
+    kaf: str
+    lam: str
+    meem: str
+    noon: str
+    haa: str
+    waw: str
+    yaa: str
+
+    # Madd group
+    alif: str
+    yaa_madd: str
+    waw_madd: str
+
+    # Harakat
+    fatha: str
+    dama: str
+    kasra: str
+
+    # special charcters
+    fatha_momala: str
+    alif_momala: str
+    hamza_mosahala: str
+    qlqla: str
+    noon_mokhfa: str
+    meem_mokhfa: str
+    sakt: str
 
 
 @dataclass
@@ -157,3 +208,46 @@ with open(alphabet_path, "r", encoding="utf8") as f:
     unique_rasm = UniqueRasmMap(**alphabet_dict["unique_rasm_map"])
     istiaatha = Istiaatha(**alphabet_dict["istiaatha"])
     sadaka = Sadaka(**alphabet_dict["sadaka"])
+    phonetics = QuranPhoneticScriptAlphabet(
+        hamza=uthmani.hamza,
+        baa=uthmani.baa,
+        taa=uthmani.taa_mabsoota,
+        thaa=uthmani.thaa,
+        jeem=uthmani.jeem,
+        haa_mohmala=uthmani.haa_mohmala,
+        khaa=uthmani.khaa,
+        daal=uthmani.daal,
+        thaal=uthmani.thaal,
+        raa=uthmani.raa,
+        zay=uthmani.zay,
+        seen=uthmani.seen,
+        sheen=uthmani.sheen,
+        saad=uthmani.saad,
+        daad=uthmani.daad,
+        taa_mofakhama=uthmani.taa_mofakhama,
+        zaa_mofakhama=uthmani.zaa_mofakhama,
+        ayn=uthmani.ayn,
+        ghyn=uthmani.ghyn,
+        faa=uthmani.faa,
+        qaf=uthmani.qaf,
+        kaf=uthmani.kaf,
+        lam=uthmani.lam,
+        meem=uthmani.meem,
+        noon=uthmani.noon,
+        haa=uthmani.haa,
+        waw=uthmani.waw,
+        yaa=uthmani.yaa,
+        alif=uthmani.alif,
+        yaa_madd=uthmani.small_yaa_sila,
+        waw_madd=uthmani.small_waw,
+        fatha=uthmani.fatha,
+        dama=uthmani.dama,
+        kasra=uthmani.kasra,
+        fatha_momala=uthmani.imala_sign,
+        alif_momala=uthmani.kasheeda,
+        hamza_mosahala=uthmani.tasheel_sign,
+        qlqla="\u066f",  # dotless qaf "ٯ"
+        noon_mokhfa=uthmani.small_noon,
+        meem_mokhfa=uthmani.meem_iqlab,
+        sakt=uthmani.small_seen_above,
+    )

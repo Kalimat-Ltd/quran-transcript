@@ -419,10 +419,6 @@ class MoshafAttributes(BaseModel):
         return self
 
     def model_post_init(self, *args, **kwargs):
-        self.is_downloaded = set(self.downloaded_sources) == (
-            set(self.sources) | set(self.specific_sources.values())
-        )
-
         if self.madd_alleen_len is None:
             self.madd_alleen_len = self.madd_aared_len
 

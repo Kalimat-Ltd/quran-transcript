@@ -95,10 +95,20 @@ class UthmaniAlphabet:
     kasheeda: str  # 26
     space: str
 
+    # تنوين مظهر وتنوين مدغم
+    tanween_fath_mothhar: str = ""
+    tanween_dam_mothhar: str = ""
+    tanween_kasr_mothhar: str = ""
+    tanween_fath_modgham: str = ""
+    tanween_dam_modgham: str = ""
+    tanween_kasr_modgham: str = ""
+
     # letters groups
     noon_ikhfaa_group: str = ""
+    harakat_group: str = ""  # حركات
 
     def __post_init__(self):
+        # Groups
         self.noon_ikhfaa_group = (
             self.saad
             + self.thaal
@@ -116,6 +126,16 @@ class UthmaniAlphabet:
             + self.daad
             + self.taa_mofakhama
         )
+        self.harakat_group = self.fatha + self.dama + self.kasra
+
+        # تنوين مظهر وتنوين مدغم
+        self.tanween_fath_mothhar = self.tanween_fath
+        self.tanween_dam_mothhar = self.tanween_dam
+        self.tanween_kasr_mothhar = self.tanween_kasr
+
+        self.tanween_fath_modgham = self.tanween_fath + self.tanween_idhaam_dterminer
+        self.tanween_dam_modgham = self.tanween_dam + self.tanween_idhaam_dterminer
+        self.tanween_kasr_modgham = self.tanween_kasr + self.tanween_idhaam_dterminer
 
 
 @dataclass

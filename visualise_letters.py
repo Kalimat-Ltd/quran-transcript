@@ -51,7 +51,7 @@ if __name__ == "__main__":
             f"{alph.uthmani.fatha}{alph.uthmani.alif_maksora}({alph.uthmani.space}|$)",
             f"{alph.uthmani.alif_maksora}{alph.uthmani.alif_khnjaria}",
             f"{alph.uthmani.kasra}{alph.uthmani.alif_maksora}",
-            f"{alph.uthmani.alif_maksora}[{alph.uthmani.harakat_group}{alph.uthmani.madd}{alph.uthmani.ras_haaa}{alph.uthmani.shadda}{alph.uthmani.tanween_dam}]",
+            f"{alph.uthmani.alif_maksora}([{alph.uthmani.harakat_group}{alph.uthmani.ras_haaa}{alph.uthmani.shadda}{alph.uthmani.tanween_dam}{alph.uthmani.madd}])",
             f"({alph.uthmani.tanween_fath_mothhar}|{alph.uthmani.tanween_fath_modgham}){alph.uthmani.alif_maksora}",
         ],
     )

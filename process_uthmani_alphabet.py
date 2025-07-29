@@ -41,8 +41,8 @@ if __name__ == "__main__":
         sheen=uth_alph[19],
         saad=uth_alph[20],
         daad=uth_alph[21],
-        taa_mofkhama=uth_alph[22],
-        zaa_mofkhama=uth_alph[23],
+        taa_mofakhama=uth_alph[22],
+        zaa_mofakhama=uth_alph[23],
         ayn=uth_alph[24],
         ghyn=uth_alph[25],
         kasheeda=uth_alph[26],
@@ -83,7 +83,9 @@ if __name__ == "__main__":
         tanween_idhaam_dterminer=uth_alph[61],
     )
 
-    assert set(uth_alph) == set(asdict(uthmani_alphabet).values())
+    assert set(uth_alph) == set(asdict(uthmani_alphabet).values()), (
+        f"{set(uth_alph) - set(asdict(uthmani_alphabet).values())}"
+    )
 
     with open(alphabet_path, "r", encoding="utf-8") as f:
         alphabet = json.load(f)

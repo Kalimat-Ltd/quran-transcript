@@ -106,6 +106,7 @@ class UthmaniAlphabet:
     # letters groups
     noon_ikhfaa_group: str = ""
     harakat_group: str = ""  # حركات
+    hamazat_group: str = ""
 
     def __post_init__(self):
         # Groups
@@ -127,6 +128,14 @@ class UthmaniAlphabet:
             + self.taa_mofakhama
         )
         self.harakat_group = self.fatha + self.dama + self.kasra
+        self.hamazat_group = (
+            self.hamza
+            + self.hamza_above_alif
+            + self.hamza_below_alif
+            + self.hamza_above_waw
+            + self.hamza_above_yaa
+            + self.hamza_mamdoda
+        )
 
         # تنوين مظهر وتنوين مدغم
         self.tanween_fath_mothhar = self.tanween_fath

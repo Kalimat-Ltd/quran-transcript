@@ -125,6 +125,15 @@ class MaddAlewad(ConversionOperation):
     )
 
 
+@dataclass
+class WawAlsalah(ConversionOperation):
+    arabic_name: str = "إبدال واو الصلاة ومثيلاتها ألفا"
+    regs: tuple[str, str] = (
+        f"{uth.waw}{uth.alif_khnjaria}",
+        f"{uth.alif}",
+    )
+
+
 OPERATION_ORDER = [
     ConvertAlifMaksora(),
     NormalizeHmazat(),
@@ -134,4 +143,5 @@ OPERATION_ORDER = [
     RemoveSkoonMostadeer(),
     SkoonMostateel(),
     MaddAlewad(),
+    WawAlsalah(),
 ]

@@ -78,9 +78,40 @@ class RemoveHmzatWaslMiddle(ConversionOperation):
     )
 
 
+@dataclass
+class RemoveSkoonMostadeer(ConversionOperation):
+    arabic_name: str = "حذف الحرف أعلاه سكون مستدير"
+    regs: tuple[str, str] = (
+        f"(.){uth.skoon_mostadeer}",
+        r"",
+    )
+
+
+@dataclass
+class SkoonMostateel(ConversionOperation):
+    arabic_name: str = "ضبط السكون المستطيل"
+    regs: list[tuple[str, str]] = field(
+        default_factory=lambda: [
+            # remove from the middle
+            (
+                f"{uth.alif}{uth.skoon_mostateel}{uth.space}",
+                f"{uth.space}",
+            ),
+            # convert to alif at the end
+            (
+                f"{uth.alif}{uth.skoon_mostateel}$",
+                f"{uth.alif}",
+            ),
+        ]
+    )
+
+
 OPERATION_ORDER = [
     ConvertAlifMaksora(),
     NormalizeHmazat(),
     IthbatYaaYohie(),
     RemoveKasheeda(),
+    RemoveHmzatWaslMiddle(),
+    RemoveSkoonMostadeer(),
+    SkoonMostateel(),
 ]

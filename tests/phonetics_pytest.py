@@ -8,6 +8,8 @@ from quran_transcript.phonetics.operations import (
     IthbatYaaYohie,
     RemoveKasheeda,
     RemoveHmzatWaslMiddle,
+    RemoveSkoonMostadeer,
+    SkoonMostateel,
 )
 from quran_transcript import Aya
 from quran_transcript import alphabet as alph
@@ -328,3 +330,97 @@ def test_remove_kasheeda(in_text: str, target_text: str, moshaf: MoshafAttribute
     out_text = op.apply(in_text, moshaf, mode="test")
     print(out_text)
     assert out_text == target_text
+
+
+@pytest.mark.parametrize(
+    "in_text, target_text, moshaf",
+    [
+        (
+            "وَجِا۟ىٓءَ يَوْمَئِذٍۭ بِجَهَنَّمَ يَوْمَئِذٍۢ يَتَذَكَّرُ ٱلْإِنسَـٰنُ وَأَنَّىٰ لَهُ ٱلذِّكْرَىٰ",
+            "وَجِىٓءَ يَوْمَئِذٍۭ بِجَهَنَّمَ يَوْمَئِذٍۢ يَتَذَكَّرُ ٱلْإِنسَـٰنُ وَأَنَّىٰ لَهُ ٱلذِّكْرَىٰ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "وَٱنطَلَقَ ٱلْمَلَأُ مِنْهُمْ أَنِ ٱمْشُوا۟ وَٱصْبِرُوا۟ عَلَىٰٓ ءَالِهَتِكُمْ إِنَّ هَـٰذَا لَشَىْءٌۭ يُرَادُ",
+            "وَٱنطَلَقَ ٱلْمَلَأُ مِنْهُمْ أَنِ ٱمْشُو وَٱصْبِرُو عَلَىٰٓ ءَالِهَتِكُمْ إِنَّ هَـٰذَا لَشَىْءٌۭ يُرَادُ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+    ],
+)
+def test_remove_skoon_mostadeer(
+    in_text: str, target_text: str, moshaf: MoshafAttributes
+):
+    op = RemoveSkoonMostadeer()
+    for b_op in op.ops_before:
+        target_text = b_op.apply(target_text, moshaf)
+    out_text = op.apply(in_text, moshaf, mode="test")
+    print(out_text)
+    assert out_text == target_text
+
+
+@pytest.mark.parametrize(
+    "in_text, target_text, moshaf",
+    [
+        (
+            "فَقَالَ أَنَا۠ رَبُّكُمُ ٱلْأَعْلَىٰ",
+            "فَقَالَ أَنَ رَبُّكُمُ ٱلْأَعْلَىٰ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "وَيُطَافُ عَلَيْهِم بِـَٔانِيَةٍۢ مِّن فِضَّةٍۢ وَأَكْوَابٍۢ كَانَتْ قَوَارِيرَا۠",
+            "وَيُطَافُ عَلَيْهِم بِـَٔانِيَةٍۢ مِّن فِضَّةٍۢ وَأَكْوَابٍۢ كَانَتْ قَوَارِيرَا",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+    ],
+)
+def test_skoon_mostateel(in_text: str, target_text: str, moshaf: MoshafAttributes):
+    op = SkoonMostateel()
+    for b_op in op.ops_before:
+        target_text = b_op.apply(target_text, moshaf)
+    out_text = op.apply(in_text, moshaf, mode="test")
+    print(out_text)
+    assert out_text == target_text
+
+
+def test_skoon_mostateel_stree_test():
+    start_aya = Aya()
+    op = SkoonMostateel()
+    moshaf = MoshafAttributes(
+        rewaya="hafs",
+        madd_monfasel_len=4,
+        madd_mottasel_len=4,
+        madd_mottasel_waqf=4,
+        madd_aared_len=4,
+    )
+
+    for aya in start_aya.get_ayat_after(114):
+        txt = aya.get().uthmani
+        out_text = op.apply(txt, moshaf, mode="test")
+        if alph.uthmani.skoon_mostateel in out_text:
+            print(aya)
+            print(out_text)
+            raise ValueError()

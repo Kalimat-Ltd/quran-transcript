@@ -134,6 +134,47 @@ class WawAlsalah(ConversionOperation):
     )
 
 
+@dataclass
+class EnlargeSmallLetters(ConversionOperation):
+    arabic_name: str = "تكبير الألف والياء والاو والنون الصغار"
+    regs: list[tuple[str, str]] = field(
+        default_factory=lambda: [
+            # small alif
+            (
+                uth.alif_khnjaria,
+                uth.alif,
+            ),
+            # small noon
+            (
+                uth.small_noon,
+                uth.noon,
+            ),
+            # small waw
+            (
+                f"{uth.haa}{uth.dama}{uth.small_waw}{uth.madd}?$",
+                f"{uth.haa}{uth.dama}",
+            ),
+            (
+                uth.small_waw,
+                uth.waw,
+            ),
+            # Small yaa
+            (
+                uth.small_yaa,
+                uth.small_yaa_sila,
+            ),
+            (
+                f"{uth.haa}{uth.kasra}{uth.small_yaa_sila}{uth.madd}?$",
+                f"{uth.haa}{uth.kasra}",
+            ),
+            (
+                uth.small_yaa_sila,
+                uth.yaa,
+            ),
+        ]
+    )
+
+
 OPERATION_ORDER = [
     ConvertAlifMaksora(),
     NormalizeHmazat(),
@@ -144,4 +185,5 @@ OPERATION_ORDER = [
     SkoonMostateel(),
     MaddAlewad(),
     WawAlsalah(),
+    EnlargeSmallLetters(),
 ]

@@ -12,6 +12,7 @@ from quran_transcript.phonetics.operations import (
     SkoonMostateel,
     MaddAlewad,
     WawAlsalah,
+    EnlargeSmallLetters,
 )
 from quran_transcript import Aya
 from quran_transcript import alphabet as alph
@@ -515,6 +516,77 @@ def test_madd_alewad(in_text: str, target_text: str, moshaf: MoshafAttributes):
 )
 def test_waw_alslah(in_text: str, target_text: str, moshaf: MoshafAttributes):
     op = WawAlsalah()
+    for b_op in op.ops_before:
+        target_text = b_op.apply(target_text, moshaf)
+    out_text = op.apply(in_text, moshaf, mode="test")
+    print(out_text)
+    assert out_text == target_text
+
+
+@pytest.mark.parametrize(
+    "in_text, target_text, moshaf",
+    [
+        (
+            "ذَٰلِكَ ٱلْكِتَـٰبُ لَا رَيْبَ فِيهِ هُدًۭى لِّلْمُتَّقِينَ",
+            "ذَالِكَ ٱلْكِتَـابُ لَا رَيْبَ فِيهِ هُدًۭى لِّلْمُتَّقِينَ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "فَٱسْتَجَبْنَا لَهُۥ وَنَجَّيْنَـٰهُ مِنَ ٱلْغَمِّ وَكَذَٰلِكَ نُـۨجِى ٱلْمُؤْمِنِينَ",
+            "فَٱسْتَجَبْنَا لَهُو وَنَجَّيْنَـاهُ مِنَ ٱلْغَمِّ وَكَذَالِكَ نُـنجِى ٱلْمُؤْمِنِينَ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "وَيَخْلُدْ فِيهِۦ",
+            "وَيَخْلُدْ فِيهِ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "يَحْسَبُ أَنَّ مَالَهُۥٓ",
+            "يَحْسَبُ أَنَّ مَالَهُ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "فَلْيَنظُرِ ٱلْإِنسَـٰنُ إِلَىٰ طَعَامِهِۦٓ",
+            "فَلْيَنظُرِ ٱلْإِنسَـانُ إِلَىا طَعَامِهِ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+    ],
+)
+def test_enlarge_small_letters(
+    in_text: str, target_text: str, moshaf: MoshafAttributes
+):
+    op = EnlargeSmallLetters()
     for b_op in op.ops_before:
         target_text = b_op.apply(target_text, moshaf)
     out_text = op.apply(in_text, moshaf, mode="test")

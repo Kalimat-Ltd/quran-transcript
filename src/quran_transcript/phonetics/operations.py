@@ -60,8 +60,27 @@ class IthbatYaaYohie(ConversionOperation):
     )
 
 
+@dataclass
+class RemoveKasheeda(ConversionOperation):
+    arabic_name: str = "حذف الكشيدة"
+    regs: tuple[str, str] = (
+        f"{uth.kasheeda}",
+        "",
+    )
+
+
+@dataclass
+class RemoveHmzatWaslMiddle(ConversionOperation):
+    arabic_name: str = "حذف همزة الوصل وصلا"
+    regs: tuple[str, str] = (
+        f"({uth.space}){uth.hamzat_wasl}",
+        r"\1",
+    )
+
+
 OPERATION_ORDER = [
     ConvertAlifMaksora(),
     NormalizeHmazat(),
     IthbatYaaYohie(),
+    RemoveKasheeda(),
 ]

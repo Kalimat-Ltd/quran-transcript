@@ -1,7 +1,8 @@
 import pytest
+import re
 
 from quran_transcript.phonetics.moshaf_attributes import MoshafAttributes
-from quran_transcript.phonetics.operations import ConvertAlifMaksora
+from quran_transcript.phonetics.operations import ConvertAlifMaksora, NormalizeHmazat
 from quran_transcript import Aya
 from quran_transcript import alphabet as alph
 
@@ -188,6 +189,50 @@ def test_convert_alif_maksora_stress_test():
         txt = aya.get().uthmani
         out_text = op.apply(txt, moshaf, mode="test")
         if alph.uthmani.alif_maksora in out_text:
+            print(aya)
+            print(out_text)
+            raise ValueError()
+
+
+@pytest.mark.parametrize(
+    "in_text, target_text, moshaf",
+    [
+        (
+            "وَمَن يَرْغَبُ عَن مِّلَّةِ إِبْرَٰهِـۧمَ إِلَّا مَن سَفِهَ نَفْسَهُۥ وَلَقَدِ ٱصْطَفَيْنَـٰهُ فِى ٱلدُّنْيَا وَإِنَّهُۥ فِى ٱلْـَٔاخِرَةِ لَمِنَ ٱلصَّـٰلِحِينَ",
+            "وَمَن يَرْغَبُ عَن مِّلَّةِ ءِبْرَٰهِـۧمَ ءِلَّا مَن سَفِهَ نَفْسَهُۥ وَلَقَدِ ٱصْطَفَيْنَـٰهُ فِى ٱلدُّنْيَا وَءِنَّهُۥ فِى ٱلْـءَاخِرَةِ لَمِنَ ٱلصَّـٰلِحِينَ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+    ],
+)
+def test_normalize_hamazat(in_text: str, target_text: str, moshaf: MoshafAttributes):
+    op = NormalizeHmazat()
+    out_text = op.apply(in_text, moshaf, mode="test")
+    print(out_text)
+    assert out_text == target_text
+
+
+def test_normalize_hamazat_stress_test():
+    start_aya = Aya()
+    op = NormalizeHmazat()
+    moshaf = MoshafAttributes(
+        rewaya="hafs",
+        madd_monfasel_len=4,
+        madd_mottasel_len=4,
+        madd_mottasel_waqf=4,
+        madd_aared_len=4,
+    )
+
+    hamazat = re.sub(alph.uthmani.hamza, "", alph.uthmani.hamazat_group)
+    for aya in start_aya.get_ayat_after(114):
+        txt = aya.get().uthmani
+        out_text = op.apply(txt, moshaf, mode="test")
+        if re.search(f"[{hamazat}]", out_text):
             print(aya)
             print(out_text)
             raise ValueError()

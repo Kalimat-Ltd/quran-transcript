@@ -37,3 +37,18 @@ class ConvertAlifMaksora(ConversionOperation):
             ),
         ]
     )
+
+
+@dataclass
+class NormalizeHmazat(ConversionOperation):
+    arabic_name: str = "توحيد الهمزات"
+    regs: tuple[str, str] = (
+        f"[{uth.hamazat_group}]",
+        f"{ph.hamza}",
+    )
+
+
+OPERATION_ORDER = [
+    ConvertAlifMaksora(),
+    NormalizeHmazat(),
+]

@@ -44,11 +44,24 @@ class NormalizeHmazat(ConversionOperation):
     arabic_name: str = "توحيد الهمزات"
     regs: tuple[str, str] = (
         f"[{uth.hamazat_group}]",
-        f"{ph.hamza}",
+        f"{uth.hamza}",
+    )
+
+
+@dataclass
+class IthbatYaaYohie(ConversionOperation):
+    arabic_name: str = "إثبات الياء في أفعال المضارعة: نحي"
+    ops_before: list[ConversionOperation] = field(
+        default_factory=lambda: [ConvertAlifMaksora(), NormalizeHmazat()]
+    )
+    regs: tuple[str, str] = (
+        f"([{uth.hamza}{uth.noon}{uth.yaa}{uth.taa_mabsoota}]{uth.dama}{uth.haa_mohmala}{uth.ras_haaa}{uth.yaa}{uth.kasra})({uth.space}|$)",
+        f"\\1{uth.yaa}\\2",
     )
 
 
 OPERATION_ORDER = [
     ConvertAlifMaksora(),
     NormalizeHmazat(),
+    IthbatYaaYohie(),
 ]

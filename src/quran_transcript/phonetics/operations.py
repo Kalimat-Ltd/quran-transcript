@@ -106,6 +106,25 @@ class SkoonMostateel(ConversionOperation):
     )
 
 
+@dataclass
+class MaddAlewad(ConversionOperation):
+    arabic_name: str = "ضبط مد العوض وسطا ووقفا"
+    regs: list[tuple[str, str]] = field(
+        default_factory=lambda: [
+            # remove from the middle
+            (
+                f"({uth.tanween_fath_modgham}|{uth.tanween_fath_mothhar}){uth.alif}({uth.space}|$)",
+                r"\1\2",
+            ),
+            # convert to alif at the end
+            (
+                f"({uth.tanween_fath_modgham}|{uth.tanween_fath_mothhar})$",
+                f"{uth.fatha}{uth.alif}",
+            ),
+        ]
+    )
+
+
 OPERATION_ORDER = [
     ConvertAlifMaksora(),
     NormalizeHmazat(),
@@ -114,4 +133,5 @@ OPERATION_ORDER = [
     RemoveHmzatWaslMiddle(),
     RemoveSkoonMostadeer(),
     SkoonMostateel(),
+    MaddAlewad(),
 ]

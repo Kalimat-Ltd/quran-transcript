@@ -12,7 +12,7 @@ class ConvertAlifMaksora(ConversionOperation):
         default_factory=lambda: [
             # حذف الأف المقصورة من الاسم المقصور النكرة
             (
-                f"({uth.tanween_fath_mothhar}|{uth.tanween_fath_modgham}){uth.alif_maksora}",
+                f"({uth.tanween_fath_mothhar}|{uth.tanween_fath_modgham}|{uth.tanween_fath_iqlab}){uth.alif_maksora}",
                 r"\1",
             ),
             # تحويلا الألف المقصورة المحضوفة وصلا إلى ألف
@@ -199,6 +199,22 @@ class CleanEnd(ConversionOperation):
     )
 
 
+@dataclass
+class NormalizeTaa(ConversionOperation):
+    ops_before: list[ConversionOperation] = field(
+        default_factory=lambda: [
+            CleanEnd(),
+        ]
+    )
+    arabic_name: str = "تحويب التاء المربطة في الوسط لتاء وفي الآخر لهاء"
+    regs: tuple[str, str] = field(
+        default_factory=lambda: [
+            (f"{uth.taa_marboota}$", f"{uth.haa}"),
+            (f"{uth.taa_marboota}", f"{uth.taa_mabsoota}"),
+        ]
+    )
+
+
 OPERATION_ORDER = [
     ConvertAlifMaksora(),
     NormalizeHmazat(),
@@ -211,4 +227,5 @@ OPERATION_ORDER = [
     WawAlsalah(),
     EnlargeSmallLetters(),
     CleanEnd(),
+    NormalizeTaa(),
 ]

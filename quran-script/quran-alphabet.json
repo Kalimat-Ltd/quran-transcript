@@ -74,7 +74,36 @@
     "tasheel_sign": "۬",
     "tanween_idhaam_dterminer": "ۭ",
     "kasheeda": "ـ",
-    "space": " "
+    "space": " ",
+    "hrof_moqtaa_disassemble": {
+      "الٓمٓ": "أَلِفْ لَآم مِّيٓمْ",
+      "الٓمٓصٓ": "أَلِفْ لَآم مِّيٓمْ صَآدْ",
+      "الٓر": "أَلِفْ لَآمْ رَا",
+      "الٓمٓر": "أَلِفْ لَآم مِّيٓمْ رَا",
+      "كٓهيعٓصٓ": "كَآفْ هَا يَا عَيٓن صَآدْ",
+      "طه": "طَا هَا",
+      "طسٓمٓ": "طَا سِيٓن مِّيٓمْ",
+      "طسٓ": "طَا سِيٓنْ",
+      "حمٓ": "حَا مِيٓمْ",
+      "عٓسٓقٓ": "عَيٓن سِيٓن قَآفْ",
+      "يسٓ": "يَا سِيٓنْ",
+      "صٓ": "صَآدْ",
+      "قٓ": "قَآفْ",
+      "نٓ": "نُوٓنْ"
+    },
+    "tanween_fath_mothhar": "ً",
+    "tanween_dam_mothhar": "ٌ",
+    "tanween_kasr_mothhar": "ٍ",
+    "tanween_fath_modgham": "ًۭ",
+    "tanween_dam_modgham": "ٌۭ",
+    "tanween_kasr_modgham": "ٍۭ",
+    "tanween_fath_iqlab": "ًۢ",
+    "tanween_dam_iqlab": "ٌۢ",
+    "tanween_kasr_iqlab": "ٍۢ",
+    "noon_ikhfaa_group": "صذثكجشقسدطزفةضط",
+    "harakat_group": "َُِ",
+    "hamazat_group": "ءأإؤئٔ",
+    "letters_group": "اىبتةثجحخدذرزسشصضطظعغفقكلمنهويء"
   },
   "unique_rasm_map": {
     "rasm_map": [

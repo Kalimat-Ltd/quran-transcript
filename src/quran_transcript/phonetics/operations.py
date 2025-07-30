@@ -1,8 +1,20 @@
 from dataclasses import dataclass, field
+import re
 
 from .conv_base_operation import ConversionOperation
 from ..alphabet import uthmani as uth
 from ..alphabet import phonetics as ph
+
+
+@dataclass
+class DisassembleHrofMoqatta(ConversionOperation):
+    arabic_name: str = "فك الحروف المقطعة"
+    regs: tuple[str, str] = ("", "")
+
+    def forward(self, text, moshaf):
+        for word, rep in uth.hrof_moqtaa_disassemble.items():
+            text = re.sub(f"(^|{uth.space}){word}({uth.space}|$)", f"\\1{rep}\\2", text)
+        return text
 
 
 @dataclass
@@ -216,6 +228,7 @@ class NormalizeTaa(ConversionOperation):
 
 
 OPERATION_ORDER = [
+    DisassembleHrofMoqatta(),
     ConvertAlifMaksora(),
     NormalizeHmazat(),
     IthbatYaaYohie(),

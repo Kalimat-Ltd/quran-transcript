@@ -95,6 +95,8 @@ class UthmaniAlphabet:
     kasheeda: str  # 26
     space: str
 
+    hrof_moqtaa_disassemble: dict[str, str]
+
     # تنوين مظهر وتنوين مدغم
     tanween_fath_mothhar: str = ""
     tanween_dam_mothhar: str = ""
@@ -273,10 +275,10 @@ alphabet_path = BASE_PATH / "quran-script/quran-alphabet.json"
 with open(alphabet_path, "r", encoding="utf8") as f:
     alphabet_dict = json.load(f)
     imlaey = ImlaeyAlphabet(**alphabet_dict["imlaey"])
-    uthmani = UthmaniAlphabet(**alphabet_dict["uthmani"])
     unique_rasm = UniqueRasmMap(**alphabet_dict["unique_rasm_map"])
     istiaatha = Istiaatha(**alphabet_dict["istiaatha"])
     sadaka = Sadaka(**alphabet_dict["sadaka"])
+    uthmani = UthmaniAlphabet(**alphabet_dict["uthmani"])
     phonetics = QuranPhoneticScriptAlphabet(
         hamza=uthmani.hamza,
         baa=uthmani.baa,

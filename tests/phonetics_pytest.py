@@ -3,6 +3,7 @@ import re
 
 from quran_transcript.phonetics.moshaf_attributes import MoshafAttributes
 from quran_transcript.phonetics.operations import (
+    DisassembleHrofMoqatta,
     ConvertAlifMaksora,
     NormalizeHmazat,
     IthbatYaaYohie,
@@ -775,6 +776,77 @@ def test_clean_end_stree_test():
 )
 def test_normalize_taa(in_text: str, target_text: str, moshaf: MoshafAttributes):
     op = NormalizeTaa()
+    for b_op in op.ops_before:
+        target_text = b_op.apply(target_text, moshaf)
+    out_text = op.apply(in_text, moshaf, mode="test")
+    print(out_text)
+    assert out_text == target_text
+
+
+@pytest.mark.parametrize(
+    "in_text, target_text, moshaf",
+    [
+        (
+            "الٓمٓ",
+            "أَلِفْ لَآم مِّيٓمْ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "الٓمٓ ذَٰلِكَ ٱلْكِتَـٰبُ لَا",
+            "أَلِفْ لَآم مِّيٓمْ ذَٰلِكَ ٱلْكِتَـٰبُ لَا",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ الٓمٓ ذَٰلِكَ ٱلْكِتَـٰبُ لَا",
+            "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ أَلِفْ لَآم مِّيٓمْ ذَٰلِكَ ٱلْكِتَـٰبُ لَا",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "وَبَشِّرِ ٱلَّذِينَ ءَامَنُوا۟ وَعَمِلُوا۟ ٱلصَّـٰلِحَـٰتِ أَنَّ لَهُمْ جَنَّـٰتٍۢ تَجْرِى مِن تَحْتِهَا ٱلْأَنْهَـٰرُ كُلَّمَا رُزِقُوا۟ مِنْهَا مِن ثَمَرَةٍۢ رِّزْقًۭا قَالُوا۟ هَـٰذَا ٱلَّذِى رُزِقْنَا مِن قَبْلُ وَأُتُوا۟ بِهِۦ مُتَشَـٰبِهًۭا وَلَهُمْ فِيهَآ أَزْوَٰجٌۭ مُّطَهَّرَةٌۭ وَهُمْ فِيهَا خَـٰلِدُونَ",
+            "وَبَشِّرِ ٱلَّذِينَ ءَامَنُوا۟ وَعَمِلُوا۟ ٱلصَّـٰلِحَـٰتِ أَنَّ لَهُمْ جَنَّـٰتٍۢ تَجْرِى مِن تَحْتِهَا ٱلْأَنْهَـٰرُ كُلَّمَا رُزِقُوا۟ مِنْهَا مِن ثَمَرَةٍۢ رِّزْقًۭا قَالُوا۟ هَـٰذَا ٱلَّذِى رُزِقْنَا مِن قَبْلُ وَأُتُوا۟ بِهِۦ مُتَشَـٰبِهًۭا وَلَهُمْ فِيهَآ أَزْوَٰجٌۭ مُّطَهَّرَةٌۭ وَهُمْ فِيهَا خَـٰلِدُونَ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ حمٓ عٓسٓقٓ كَذَٰلِكَ يُوحِىٓ",
+            "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ حَا مِيٓمْ عَيٓن سِيٓن قَآفْ كَذَٰلِكَ يُوحِىٓ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+    ],
+)
+def test_disassemble_hrof_moqatta(
+    in_text: str, target_text: str, moshaf: MoshafAttributes
+):
+    op = DisassembleHrofMoqatta()
     for b_op in op.ops_before:
         target_text = b_op.apply(target_text, moshaf)
     out_text = op.apply(in_text, moshaf, mode="test")

@@ -13,6 +13,7 @@ from quran_transcript.phonetics.operations import (
     MaddAlewad,
     WawAlsalah,
     EnlargeSmallLetters,
+    CleanEnd,
 )
 from quran_transcript import Aya
 from quran_transcript import alphabet as alph
@@ -465,6 +466,28 @@ def test_skoon_mostateel_stree_test():
                 madd_aared_len=4,
             ),
         ),
+        (
+            "وَٱلسَّارِقُ وَٱلسَّارِقَةُ فَٱقْطَعُوٓا۟ أَيْدِيَهُمَا جَزَآءًۢ بِمَا كَسَبَا نَكَـٰلًۭا مِّنَ ٱللَّهِ وَٱللَّهُ عَزِيزٌ حَكِيمٌۭ",
+            "وَٱلسَّارِقُ وَٱلسَّارِقَةُ فَٱقْطَعُوٓا۟ أَيْدِيَهُمَا جَزَآءًۢ بِمَا كَسَبَا نَكَـٰلًۭ مِّنَ ٱللَّهِ وَٱللَّهُ عَزِيزٌ حَكِيمٌۭ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "وَٱلسَّارِقُ وَٱلسَّارِقَةُ فَٱقْطَعُوٓا۟ أَيْدِيَهُمَا جَزَآءًۢ",
+            "وَٱلسَّارِقُ وَٱلسَّارِقَةُ فَٱقْطَعُوٓا۟ أَيْدِيَهُمَا جَزَآءَا",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
     ],
 )
 def test_madd_alewad(in_text: str, target_text: str, moshaf: MoshafAttributes):
@@ -592,3 +615,142 @@ def test_enlarge_small_letters(
     out_text = op.apply(in_text, moshaf, mode="test")
     print(out_text)
     assert out_text == target_text
+
+
+@pytest.mark.parametrize(
+    "in_text, target_text, moshaf",
+    [
+        (
+            "ذَٰلِكَ ٱلْكِتَـٰبُ لَا رَيْبَ فِيهِ هُدًۭى لِّلْمُتَّقِينَ",
+            "ذَٰلِكَ ٱلْكِتَـٰبُ لَا رَيْبَ فِيهِ هُدًۭى لِّلْمُتَّقِين",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "لَّهُۥ مَا فِى ٱلسَّمَـٰوَٰتِ وَمَا فِى ٱلْأَرْضِ وَإِنَّ ٱللَّهَ لَهُوَ ٱلْغَنِىُّ ٱلْحَمِيدُ",
+            "لَّهُۥ مَا فِى ٱلسَّمَـٰوَٰتِ وَمَا فِى ٱلْأَرْضِ وَإِنَّ ٱللَّهَ لَهُوَ ٱلْغَنِىُّ ٱلْحَمِيد",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "لَّهُۥ مَا فِى ٱلسَّمَـٰوَٰتِ وَمَا فِى ٱلْأَرْضِ وَإِنَّ ٱللَّهَ لَهُوَ ٱلْغَنِىُّ",
+            "لَّهُۥ مَا فِى ٱلسَّمَـٰوَٰتِ وَمَا فِى ٱلْأَرْضِ وَإِنَّ ٱللَّهَ لَهُوَ ٱلْغَنِىّ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "وَٱلَّذِينَ يُؤْمِنُونَ بِمَآ أُنزِلَ إِلَيْكَ وَمَآ",
+            "وَٱلَّذِينَ يُؤْمِنُونَ بِمَآ أُنزِلَ إِلَيْكَ وَمَا",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "لِيُوَفِّيَهُمْ أُجُورَهُمْ وَيَزِيدَهُم مِّن فَضْلِهِۦٓ إِنَّهُۥ غَفُورٌۭ شَكُورٌۭ",
+            "لِيُوَفِّيَهُمْ أُجُورَهُمْ وَيَزِيدَهُم مِّن فَضْلِهِۦٓ إِنَّهُۥ غَفُورٌۭ شَكُور",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "إِنَّ ٱلَّذِينَ كَفَرُوا۟ سَوَآءٌ",
+            "إِنَّ ٱلَّذِينَ كَفَرُوا۟ سَوَآء",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "يَمْحَقُ ٱللَّهُ ٱلرِّبَوٰا۟ وَيُرْبِى ٱلصَّدَقَـٰتِ وَٱللَّهُ لَا يُحِبُّ كُلَّ كَفَّارٍ",
+            "يَمْحَقُ ٱللَّهُ ٱلرِّبَوٰا۟ وَيُرْبِى ٱلصَّدَقَـٰتِ وَٱللَّهُ لَا يُحِبُّ كُلَّ كَفَّار",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "فَتَوَلَّ عَنْهُمْ يَوْمَ يَدْعُ ٱلدَّاعِ إِلَىٰ شَىْءٍۢ نُّكُرٍ",
+            "فَتَوَلَّ عَنْهُمْ يَوْمَ يَدْعُ ٱلدَّاعِ إِلَىٰ شَىْءٍۢ نُّكُر",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "وَلَمْ يَكُن لَّهُۥ كُفُوًا أَحَدٌۢ",
+            "وَلَمْ يَكُن لَّهُۥ كُفُوًا أَحَد",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+    ],
+)
+def test_clean_end(in_text: str, target_text: str, moshaf: MoshafAttributes):
+    op = CleanEnd()
+    for b_op in op.ops_before:
+        target_text = b_op.apply(target_text, moshaf)
+    out_text = op.apply(in_text, moshaf, mode="test")
+    print(out_text)
+    assert out_text == target_text
+
+
+def test_clean_end_stree_test():
+    start_aya = Aya()
+    op = CleanEnd()
+    moshaf = MoshafAttributes(
+        rewaya="hafs",
+        madd_monfasel_len=4,
+        madd_mottasel_len=4,
+        madd_mottasel_waqf=4,
+        madd_aared_len=4,
+    )
+
+    is_error = False
+    for aya in start_aya.get_ayat_after(114):
+        txt = aya.get().uthmani
+        out_text = op.apply(txt, moshaf, mode="test")
+        if out_text[-1] not in (
+            alph.uthmani.letters_group + alph.uthmani.ras_haaa + alph.uthmani.shadda
+        ):
+            is_error = True
+            print(aya)
+            print(out_text)
+            print("\n" * 2)
+    if is_error:
+        raise ValueError()

@@ -113,12 +113,12 @@ class MaddAlewad(ConversionOperation):
         default_factory=lambda: [
             # remove from the middle
             (
-                f"({uth.tanween_fath_modgham}|{uth.tanween_fath_mothhar}){uth.alif}({uth.space}|$)",
+                f"({uth.tanween_fath_modgham}|{uth.tanween_fath_mothhar}|{uth.tanween_fath_iqlab}){uth.alif}({uth.space}|$)",
                 r"\1\2",
             ),
             # convert to alif at the end
             (
-                f"({uth.tanween_fath_modgham}|{uth.tanween_fath_mothhar})$",
+                f"({uth.tanween_fath_modgham}|{uth.tanween_fath_mothhar}|{uth.tanween_fath_iqlab})$",
                 f"{uth.fatha}{uth.alif}",
             ),
         ]
@@ -136,7 +136,9 @@ class WawAlsalah(ConversionOperation):
 
 @dataclass
 class EnlargeSmallLetters(ConversionOperation):
-    arabic_name: str = "تكبير الألف والياء والاو والنون الصغار"
+    arabic_name: str = (
+        "تكبير الألف والياء والاو والنون الصغار مع حذف مد الصلة عند الوقف"
+    )
     regs: list[tuple[str, str]] = field(
         default_factory=lambda: [
             # small alif
@@ -175,6 +177,28 @@ class EnlargeSmallLetters(ConversionOperation):
     )
 
 
+@dataclass
+class CleanEnd(ConversionOperation):
+    ops_before: list[ConversionOperation] = field(
+        default_factory=lambda: [
+            ConvertAlifMaksora(),
+            NormalizeHmazat(),
+            IthbatYaaYohie(),
+            RemoveKasheeda(),
+            RemoveSkoonMostadeer(),
+            SkoonMostateel(),
+            MaddAlewad(),
+            WawAlsalah(),
+            EnlargeSmallLetters(),
+        ]
+    )
+    arabic_name: str = "تسكين حرف الوقف"
+    regs: tuple[str, str] = (
+        f"({'|'.join([uth.fatha, uth.dama, uth.kasra, uth.tanween_dam_mothhar, uth.tanween_dam_modgham, uth.tanween_dam_iqlab, uth.tanween_kasr_mothhar, uth.tanween_kasr_modgham, uth.tanween_kasr_iqlab, uth.madd])})$",
+        r"",
+    )
+
+
 OPERATION_ORDER = [
     ConvertAlifMaksora(),
     NormalizeHmazat(),
@@ -186,4 +210,5 @@ OPERATION_ORDER = [
     MaddAlewad(),
     WawAlsalah(),
     EnlargeSmallLetters(),
+    CleanEnd(),
 ]

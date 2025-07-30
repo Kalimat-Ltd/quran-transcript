@@ -102,11 +102,15 @@ class UthmaniAlphabet:
     tanween_fath_modgham: str = ""
     tanween_dam_modgham: str = ""
     tanween_kasr_modgham: str = ""
+    tanween_fath_iqlab: str = ""
+    tanween_dam_iqlab: str = ""
+    tanween_kasr_iqlab: str = ""
 
     # letters groups
     noon_ikhfaa_group: str = ""
     harakat_group: str = ""  # حركات
     hamazat_group: str = ""
+    letters_group: str = ""
 
     def __post_init__(self):
         # Groups
@@ -136,7 +140,39 @@ class UthmaniAlphabet:
             + self.hamza_above_yaa
             + self.hamza_mamdoda
         )
-
+        self.letters_group = (
+            self.alif
+            + self.alif_maksora
+            + self.baa
+            + self.taa_mabsoota
+            + self.taa_marboota
+            + self.thaa
+            + self.jeem
+            + self.haa_mohmala
+            + self.khaa
+            + self.daal
+            + self.thaal
+            + self.raa
+            + self.zay
+            + self.seen
+            + self.sheen
+            + self.saad
+            + self.daad
+            + self.taa_mofakhama
+            + self.zaa_mofakhama
+            + self.ayn
+            + self.ghyn
+            + self.faa
+            + self.qaf
+            + self.kaf
+            + self.lam
+            + self.meem
+            + self.noon
+            + self.haa
+            + self.waw
+            + self.yaa
+            + self.hamza
+        )
         # تنوين مظهر وتنوين مدغم
         self.tanween_fath_mothhar = self.tanween_fath
         self.tanween_dam_mothhar = self.tanween_dam
@@ -145,6 +181,10 @@ class UthmaniAlphabet:
         self.tanween_fath_modgham = self.tanween_fath + self.tanween_idhaam_dterminer
         self.tanween_dam_modgham = self.tanween_dam + self.tanween_idhaam_dterminer
         self.tanween_kasr_modgham = self.tanween_kasr + self.tanween_idhaam_dterminer
+
+        self.tanween_fath_iqlab = self.tanween_fath + self.meem_iqlab
+        self.tanween_dam_iqlab = self.tanween_dam + self.meem_iqlab
+        self.tanween_kasr_iqlab = self.tanween_kasr + self.meem_iqlab
 
 
 @dataclass

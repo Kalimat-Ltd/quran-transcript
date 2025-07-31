@@ -35,7 +35,7 @@ class ConvertAlifMaksora(ConversionOperation):
         default_factory=lambda: [
             # حذف الأف المقصورة من الاسم المقصور النكرة
             (
-                f"({uth.tanween_fath_mothhar}|{uth.tanween_fath_modgham}|{uth.tanween_fath_iqlab}){uth.alif_maksora}",
+                f"({uth.tanween_fath_modgham}|{uth.tanween_fath_iqlab}|{uth.tanween_fath_mothhar}){uth.alif_maksora}",
                 r"\1",
             ),
             # تحويلا الألف المقصورة المحضوفة وصلا إلى ألف
@@ -136,12 +136,12 @@ class MaddAlewad(ConversionOperation):
         default_factory=lambda: [
             # remove from the middle
             (
-                f"({uth.tanween_fath_modgham}|{uth.tanween_fath_mothhar}|{uth.tanween_fath_iqlab}){uth.alif}({uth.space}|$)",
+                f"({uth.tanween_fath_modgham}|{uth.tanween_fath_iqlab}|{uth.tanween_fath_mothhar}){uth.alif}({uth.space}|$)",
                 r"\1\2",
             ),
             # convert to alif at the end
             (
-                f"({uth.tanween_fath_modgham}|{uth.tanween_fath_mothhar}|{uth.tanween_fath_iqlab})$",
+                f"({uth.tanween_fath_modgham}|{uth.tanween_fath_iqlab}|{uth.tanween_fath_mothhar})$",
                 f"{uth.fatha}{uth.alif}",
             ),
         ]
@@ -217,7 +217,7 @@ class CleanEnd(ConversionOperation):
     )
     arabic_name: str = "تسكين حرف الوقف"
     regs: tuple[str, str] = (
-        f"({'|'.join([uth.fatha, uth.dama, uth.kasra, uth.tanween_dam_mothhar, uth.tanween_dam_modgham, uth.tanween_dam_iqlab, uth.tanween_kasr_mothhar, uth.tanween_kasr_modgham, uth.tanween_kasr_iqlab, uth.madd])})$",
+        f"({'|'.join([uth.fatha, uth.dama, uth.kasra, uth.tanween_dam_modgham, uth.tanween_dam_iqlab, uth.tanween_dam_mothhar, uth.tanween_kasr_modgham, uth.tanween_kasr_iqlab, uth.tanween_kasr_mothhar, uth.madd])})$",
         r"",
     )
 

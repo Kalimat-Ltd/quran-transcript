@@ -269,6 +269,15 @@ class NormalizeTaa(ConversionOperation):
     )
 
 
+@dataclass
+class AddAlifIsmAllah(ConversionOperation):
+    arabic_name: str = "إضافة ألف مد الطبيعي في اسم الله عز وجل"
+    regs: tuple[str, str] = (
+        f"{uth.lam}({uth.kasra})?{uth.lam}{uth.shadda}{uth.fatha}{uth.haa}",
+        f"{uth.lam}\\1{uth.lam}{uth.shadda}{uth.fatha}{uth.alif}{uth.haa}",
+    )
+
+
 OPERATION_ORDER = [
     DisassembleHrofMoqatta(),
     SpecialCases(),
@@ -284,4 +293,5 @@ OPERATION_ORDER = [
     EnlargeSmallLetters(),
     CleanEnd(),
     NormalizeTaa(),
+    AddAlifIsmAllah(),
 ]

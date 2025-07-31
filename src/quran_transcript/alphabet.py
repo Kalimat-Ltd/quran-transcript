@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 import json
 from pathlib import Path
+from typing import Literal
 
 
 @dataclass
@@ -16,6 +17,14 @@ class ImlaeyAlphabet:
     small_alef: str
     tashkeel: str  # including skoon
     skoon: str
+
+
+@dataclass
+class SpecialPattern:
+    pattern: str
+    attr_name: str
+    opts: dict[str, str]
+    pos: Literal["start", "middle", "end"] = "middle"
 
 
 @dataclass
@@ -96,6 +105,7 @@ class UthmaniAlphabet:
     space: str
 
     hrof_moqtaa_disassemble: dict[str, str]
+    special_patterns: list[SpecialPattern]
 
     # تنوين مظهر وتنوين مدغم
     tanween_fath_mothhar: str = ""
@@ -115,6 +125,7 @@ class UthmaniAlphabet:
     letters_group: str = ""
 
     def __post_init__(self):
+        self.special_patterns = [SpecialPattern(**p) for p in self.special_patterns]
         # Groups
         self.noon_ikhfaa_group = (
             self.saad
@@ -238,6 +249,7 @@ class QuranPhoneticScriptAlphabet:
     noon_mokhfa: str
     meem_mokhfa: str
     sakt: str
+    dama_mokhtalasa: str
 
 
 @dataclass
@@ -321,4 +333,5 @@ with open(alphabet_path, "r", encoding="utf8") as f:
         noon_mokhfa=uthmani.small_noon,
         meem_mokhfa=uthmani.meem_iqlab,
         sakt=uthmani.small_seen_above,
+        dama_mokhtalasa="\u0619",
     )

@@ -18,6 +18,17 @@ class DisassembleHrofMoqatta(ConversionOperation):
 
 
 @dataclass
+class SpecialWays(ConversionOperation):
+    arabic_name: str = "الأوجه الخاصة لحفص"
+    regs: tuple[str, str] = ("", "")
+
+    def forward(self, text, moshaf):
+        for word, rep in uth.hrof_moqtaa_disassemble.items():
+            text = re.sub(f"(^|{uth.space}){word}({uth.space}|$)", f"\\1{rep}\\2", text)
+        return text
+
+
+@dataclass
 class ConvertAlifMaksora(ConversionOperation):
     arabic_name: str = "تحويل الأف المقصورة إله: حضف أو ألف أو ياء"
     regs: list[tuple[str, str]] = field(

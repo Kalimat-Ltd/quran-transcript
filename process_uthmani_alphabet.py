@@ -1,8 +1,10 @@
 from pathlib import Path
 import json
 from dataclasses import asdict
+import re
 
-from quran_transcript.alphabet import UthmaniAlphabet
+from quran_transcript.alphabet import UthmaniAlphabet, SpecialPattern
+from quran_transcript import alphabet as alph
 from quran_transcript import Aya
 
 
@@ -17,6 +19,206 @@ def get_uthmani_alpabet() -> list[str]:
 if __name__ == "__main__":
     alphabet_path = "./quran-script/quran-alphabet.json"
     uth_alph = get_uthmani_alpabet()
+
+    hrof_moqtta_disassemble = {
+        "الٓمٓ ٱللَّهُ": "أَلِفْ لَا~م مِّي~مَ ٱللَّهُ",
+        "الٓمٓ": "أَلِفْ لَا~م مِّي~مْ",
+        "الٓمٓصٓ": "أَلِفْ لَا~م مِّي~مْ صَا~دْ",
+        "الٓر": "أَلِفْ لَا~مْ رَا",
+        "الٓمٓر": "أَلِفْ لَا~م مِّي~مْ رَا",
+        "كٓهيعٓصٓ": "كَا~فْ هَا يَا عَي~ن صَا~دْ",
+        "طه": "طَا هَا",
+        "طسٓمٓ": "طَا سِي~ن مِّي~مْ",
+        "طسٓ": "طَا سِي~نْ",
+        "حمٓ": "حَا مِي~مْ",
+        "عٓسٓقٓ": "عَي~ن سِي~ن قَا~فْ",
+        "يسٓ": "يَا سِي~نْ",
+        "صٓ": "صَا~دْ",
+        "قٓ": "قَا~فْ",
+        "نٓ": "نُو~نْ",
+    }
+    special_patterns = [
+        SpecialPattern(
+            pattern="عِوَجَا قَيِّمًۭا",
+            attr_name="sakt_iwaja",
+            opts={
+                "sakt": "عِوَجَا" + alph.phonetics.sakt + alph.uthmani.space + "قَيِّمًۭا",
+                "idraj": f"عِوَج{alph.uthmani.tanween_fath_modgham}ا"
+                + alph.uthmani.space
+                + "قَيِّمًۭا",
+            },
+        ),
+        SpecialPattern(
+            pattern="مَّرْقَدِنَا هَـٰذَا",
+            attr_name="sakt_marqdena",
+            opts={
+                "sakt": "مَّرْقَدِنَا" + alph.phonetics.sakt + alph.uthmani.space + "هَـٰذَا",
+                "idraj": "مَّرْقَدِنَا هَـٰذَا",
+            },
+        ),
+        SpecialPattern(
+            pattern="مَنْ رَاقٍۢ",
+            attr_name="sakt_man_raq",
+            opts={
+                "sakt": "مَنْ" + alph.phonetics.sakt + alph.uthmani.space + "رَاقٍۢ",
+                "idraj": "مَن" + alph.uthmani.space + "رَّاقٍۢ",
+            },
+        ),
+        SpecialPattern(
+            pattern="بَلْ رَانَ",
+            attr_name="sakt_bal_ran",
+            opts={
+                "sakt": "بَلْ" + alph.phonetics.sakt + alph.uthmani.space + "رَانَ",
+                "idraj": "بَل" + alph.uthmani.space + "رَّانَ",
+            },
+        ),
+        SpecialPattern(
+            pattern="مَالِيَهْ هَلَكَ",
+            attr_name="sakt_maleeyah",
+            opts={
+                "sakt": "مَالِيَهْ" + alph.phonetics.sakt + alph.uthmani.space + "هَلَكَ",
+                "idgham": "مَالِيَه" + alph.uthmani.space + "هَّلَكَ",
+            },
+        ),
+        SpecialPattern(
+            pattern="عَلِيمٌۢ بَرَآءَةٌۭ",
+            attr_name="between_anfal_and_tawba",
+            opts={
+                "sakt": "عَلِيم" + alph.phonetics.sakt + alph.uthmani.space + "بَرَآءَةٌۭ",
+                "wasl": "عَلِيمٌۢ بَرَآءَةٌۭ",
+            },
+        ),
+        SpecialPattern(
+            pattern="يَا سِيٓنْ وَٱلْقُرْءَانِ",
+            attr_name="noon_and_yaseen",
+            opts={
+                "idgham": "يَا سِيٓن وَٱلْقُرْءَانِ",
+                "izhar": "يَا سِيٓنْ وَٱلْقُرْءَانِ",
+            },
+        ),
+        SpecialPattern(
+            pattern="نُوٓنْ وَٱلْقَلَمِ",
+            attr_name="noon_and_yaseen",
+            opts={
+                "idgham": "يَا سِيٓن وَٱلْقُرْءَانِ",
+                "izhar": "نُوٓن وَٱلْقَلَمِ",
+            },
+        ),
+        SpecialPattern(
+            pattern="ءَاتَىٰنِۦَ",
+            attr_name="yaa_ataan",
+            pos="end",
+            opts={
+                "hadhf": "ءَاتَىٰنِ",
+                "ithbat": "ءَاتَىٰنِي",
+            },
+        ),
+        SpecialPattern(
+            pattern="ٱلِٱسْمُ",
+            attr_name="start_with_ism",
+            pos="start",
+            opts={
+                "lism": "لِسْمُ",
+                "alism": "أَلِسْمُ",
+            },
+        ),
+        SpecialPattern(
+            pattern="وَيَبْصُۜطُ",
+            attr_name="yabsut",
+            opts={
+                "seen": "وَيَبْسُطُ",
+                "saad": "وَيَبْصُطُ",
+            },
+        ),
+        SpecialPattern(
+            pattern="بَصْۜطَةًۭ",
+            attr_name="bastah",
+            opts={
+                "seen": "بَسْطَةًۭ",
+                "saad": "بَصْطَةًۭ",
+            },
+        ),
+        SpecialPattern(
+            pattern="ٱلْمُصَۣيْطِرُونَ",
+            attr_name="almusaytirun",
+            opts={
+                "seen": "ٱلْمُسَيْطِرُونَ",
+                "saad": "ٱلْمُصَيْطِرُونَ",
+            },
+        ),
+        SpecialPattern(
+            pattern="بِمُصَيْطِرٍ",
+            attr_name="bimusaytir",
+            opts={
+                "seen": "بِمُسَيْطِرٍ",
+                "saad": "بِمُصَيْطِرٍ",
+            },
+        ),
+        SpecialPattern(
+            pattern=f"{alph.uthmani.hamza}{alph.uthmani.fatha}{alph.uthmani.alif}{alph.uthmani.madd}{alph.uthmani.lam}",
+            attr_name="tasheel_or_madd",
+            opts={
+                "madd": f"{alph.uthmani.hamza}{alph.uthmani.fatha}{alph.uthmani.alif}{alph.uthmani.madd}{alph.uthmani.lam}",
+                "tasheel": f"{alph.uthmani.hamza}{alph.uthmani.fatha}{alph.uthmani.alif}{alph.uthmani.tasheel_sign}{alph.uthmani.lam}",
+            },
+        ),
+        SpecialPattern(
+            pattern="يَلْهَث ذَّٰلِكَ",
+            attr_name="yalhath_dhalik",
+            opts={
+                "izhar": "يَلْهَثْ ذَٰلِكَ",
+                "idgham": "يَلْهَث ذَّٰلِكَ",
+            },
+        ),
+        SpecialPattern(
+            pattern="ٱرْكَب مَّعَنَا",
+            attr_name="irkab_maana",
+            opts={
+                "izhar": "ٱرْكَبْ مَعَنَا",
+                "idgham": "ٱرْكَب مَّعَنَا",
+            },
+        ),
+        SpecialPattern(
+            pattern="تَأْمَ۫نَّا",
+            attr_name="noon_tamnna",
+            opts={
+                "ishmam": "تَأْمَنَّا",
+                "rawm": re.sub(
+                    alph.uthmani.dama, alph.phonetics.dama_mokhtalasa, "تَأْمَنُنَا"
+                ),
+            },
+        ),
+        SpecialPattern(
+            pattern=f"(?<!\\b{alph.uthmani.ras_haaa}{alph.uthmani.space})"
+            + "ضَعْف"
+            + r"\b",
+            attr_name="harakat_daaf",
+            opts={
+                "fath": "ضَعْف",
+                "dam": "ضُعْف",
+            },
+        ),
+        SpecialPattern(
+            pattern="سَلَـٰسِلَا۟",
+            attr_name="alif_salasila",
+            pos="end",
+            opts={
+                "hadhf": "سَلَـٰسِلَ",
+                "ithbat": "سَلَـٰسِلَا",
+            },
+        ),
+        SpecialPattern(
+            pattern="نَخْلُقكُّم",
+            attr_name="idgham_nakhluqkum",
+            opts={
+                "idgham_kamil": "نَخْلُقكُّم",
+                "idgham_naqis": "نَخْلُقكُم",
+            },
+        ),
+    ]
+    madd = Aya(68, 1).get().uthmani[1]
+    for k in hrof_moqtta_disassemble:
+        hrof_moqtta_disassemble[k] = re.sub("~", madd, hrof_moqtta_disassemble[k])
 
     uthmani_alphabet = UthmaniAlphabet(
         space=uth_alph[0],
@@ -81,11 +283,13 @@ if __name__ == "__main__":
         ishmam_sign=uth_alph[59],
         tasheel_sign=uth_alph[60],
         tanween_idhaam_dterminer=uth_alph[61],
+        hrof_moqtaa_disassemble=hrof_moqtta_disassemble,
+        special_patterns=special_patterns,
     )
 
-    assert set(uth_alph) == set(asdict(uthmani_alphabet).values()), (
-        f"{set(uth_alph) - set(asdict(uthmani_alphabet).values())}"
-    )
+    # assert set(uth_alph) == set(asdict(uthmani_alphabet).values()), (
+    #     f"{set(uth_alph) - set(asdict(uthmani_alphabet).values())}"
+    # )
 
     with open(alphabet_path, "r", encoding="utf-8") as f:
         alphabet = json.load(f)

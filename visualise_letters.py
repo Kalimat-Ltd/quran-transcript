@@ -6,6 +6,7 @@ from quran_transcript.phonetics.operations import (
     ConvertAlifMaksora,
     ConversionOperation,
     NormalizeHmazat,
+    CleanEnd,
 )
 from quran_transcript.phonetics.moshaf_attributes import MoshafAttributes
 
@@ -24,7 +25,7 @@ def get_occurance(char: str, operations: list[ConversionOperation] = [], context
     for aya in start_aya.get_ayat_after(114):
         txt = aya.get().uthmani
         for op in operations:
-            txt = op.apply(txt, moshaf)
+            txt = op.apply(txt, moshaf, mode="test")
         outs = re.finditer(char, txt)
         first = True
         for out in outs:
@@ -96,8 +97,53 @@ if __name__ == "__main__":
     # )
 
     # يحي
+    # get_occurance(
+    #     f"[{alph.uthmani.hamza}{alph.uthmani.noon}{alph.uthmani.yaa}{alph.uthmani.taa_mabsoota}]{alph.uthmani.dama}{alph.uthmani.haa_mohmala}{alph.uthmani.ras_haaa}{alph.uthmani.yaa}{alph.uthmani.kasra}({alph.uthmani.space}|$)",
+    #     operations=[ConvertAlifMaksora(), NormalizeHmazat()],
+    #     context=10,
+    # )
+
+    # # واو الصلاة
+    # get_occurance(
+    #     f"{alph.uthmani.waw}{alph.uthmani.alif_khnjaria}",
+    #     operations=[ConvertAlifMaksora()],
+    #     context=10,
+    # )
+
+    # ياء الصلة
+    # get_occurance(
+    #     alph.uthmani.small_yaa_sila,
+    #     context=10,
+    # )
+    # ياء الصلة
+    # get_occurance(
+    #     f"({alph.uthmani.tanween_fath_modgham}|{alph.uthmani.tanween_fath_mothhar})",
+    #     context=10,
+    # )
+
+    # ت
+    # get_occurance(
+    #     # f"{alph.uthmani.taa_marboota}({alph.uthmani.shadda}|{alph.uthmani.ras_haaa})?$",
+    #     f"{alph.uthmani.taa_marboota}$",
+    #     context=10,
+    #     operations=[CleanEnd()],
+    # )
+
+    # # مد الفرق
+    # get_occurance(
+    #     f"{alph.uthmani.hamza}{alph.uthmani.fatha}{alph.uthmani.alif}{alph.uthmani.madd}{alph.uthmani.lam}",
+    #     context=10,
+    #     operations=[CleanEnd()],
+    # )
+
+    # # ضعف
+    # get_occurance(
+    #     f"(?<!\\b{alph.uthmani.ras_haaa}{alph.uthmani.space})" + "ضَعْف" + r"\b",
+    #     context=10,
+    # )
+
+    # سلاسلا
     get_occurance(
-        f"[{alph.uthmani.hamza}{alph.uthmani.noon}{alph.uthmani.yaa}{alph.uthmani.taa_mabsoota}]{alph.uthmani.dama}{alph.uthmani.haa_mohmala}{alph.uthmani.ras_haaa}{alph.uthmani.yaa}{alph.uthmani.kasra}({alph.uthmani.space}|$)",
-        operations=[ConvertAlifMaksora(), NormalizeHmazat()],
+        "سَلَـٰسِلَا۟",
         context=10,
     )

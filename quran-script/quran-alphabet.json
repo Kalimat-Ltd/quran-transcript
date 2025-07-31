@@ -94,12 +94,20 @@
     },
     "special_patterns": [
       {
+        "pattern": "لْـَٔيْكَةِ",
+        "attr_name": null,
+        "opts": null,
+        "target_pattern": "ٱلْأَيْكَةِ",
+        "pos": "start"
+      },
+      {
         "pattern": "عِوَجَا قَيِّمًۭا",
         "attr_name": "sakt_iwaja",
         "opts": {
           "sakt": "عِوَجَاۜ قَيِّمًۭا",
           "idraj": "عِوَجًۭا قَيِّمًۭا"
         },
+        "target_pattern": null,
         "pos": "middle"
       },
       {
@@ -109,6 +117,7 @@
           "sakt": "مَّرْقَدِنَاۜ هَـٰذَا",
           "idraj": "مَّرْقَدِنَا هَـٰذَا"
         },
+        "target_pattern": null,
         "pos": "middle"
       },
       {
@@ -118,6 +127,7 @@
           "sakt": "مَنْۜ رَاقٍۢ",
           "idraj": "مَن رَّاقٍۢ"
         },
+        "target_pattern": null,
         "pos": "middle"
       },
       {
@@ -127,6 +137,7 @@
           "sakt": "بَلْۜ رَانَ",
           "idraj": "بَل رَّانَ"
         },
+        "target_pattern": null,
         "pos": "middle"
       },
       {
@@ -136,6 +147,7 @@
           "sakt": "مَالِيَهْۜ هَلَكَ",
           "idgham": "مَالِيَه هَّلَكَ"
         },
+        "target_pattern": null,
         "pos": "middle"
       },
       {
@@ -145,6 +157,7 @@
           "sakt": "عَلِيمۜ بَرَآءَةٌۭ",
           "wasl": "عَلِيمٌۢ بَرَآءَةٌۭ"
         },
+        "target_pattern": null,
         "pos": "middle"
       },
       {
@@ -154,6 +167,7 @@
           "idgham": "يَا سِيٓن وَٱلْقُرْءَانِ",
           "izhar": "يَا سِيٓنْ وَٱلْقُرْءَانِ"
         },
+        "target_pattern": null,
         "pos": "middle"
       },
       {
@@ -163,6 +177,7 @@
           "idgham": "نُوٓن وَٱلْقَلَمِ",
           "izhar": "نُوٓنْ وَٱلْقَلَمِ"
         },
+        "target_pattern": null,
         "pos": "middle"
       },
       {
@@ -172,6 +187,7 @@
           "hadhf": "ءَاتَىٰنِ",
           "ithbat": "ءَاتَىٰنِي"
         },
+        "target_pattern": null,
         "pos": "end"
       },
       {
@@ -181,6 +197,7 @@
           "lism": "لِسْمُ",
           "alism": "أَلِسْمُ"
         },
+        "target_pattern": null,
         "pos": "start"
       },
       {
@@ -190,6 +207,7 @@
           "seen": "وَيَبْسُطُ",
           "saad": "وَيَبْصُطُ"
         },
+        "target_pattern": null,
         "pos": "middle"
       },
       {
@@ -199,6 +217,7 @@
           "seen": "بَسْطَةًۭ",
           "saad": "بَصْطَةًۭ"
         },
+        "target_pattern": null,
         "pos": "middle"
       },
       {
@@ -208,6 +227,7 @@
           "seen": "ٱلْمُسَيْطِرُونَ",
           "saad": "ٱلْمُصَيْطِرُونَ"
         },
+        "target_pattern": null,
         "pos": "middle"
       },
       {
@@ -217,6 +237,7 @@
           "seen": "بِمُسَيْطِرٍ",
           "saad": "بِمُصَيْطِرٍ"
         },
+        "target_pattern": null,
         "pos": "middle"
       },
       {
@@ -226,6 +247,7 @@
           "madd": "ءَآل",
           "tasheel": "ءَا۬ل"
         },
+        "target_pattern": null,
         "pos": "middle"
       },
       {
@@ -235,6 +257,7 @@
           "izhar": "يَلْهَثْ ذَٰلِكَ",
           "idgham": "يَلْهَث ذَّٰلِكَ"
         },
+        "target_pattern": null,
         "pos": "middle"
       },
       {
@@ -244,6 +267,7 @@
           "izhar": "ٱرْكَبْ مَعَنَا",
           "idgham": "ٱرْكَب مَّعَنَا"
         },
+        "target_pattern": null,
         "pos": "middle"
       },
       {
@@ -253,6 +277,7 @@
           "ishmam": "تَأْمَنَّا",
           "rawm": "تَأْمَنؙنَا"
         },
+        "target_pattern": null,
         "pos": "middle"
       },
       {
@@ -262,6 +287,7 @@
           "fath": "ضَعْف",
           "dam": "ضُعْف"
         },
+        "target_pattern": null,
         "pos": "middle"
       },
       {
@@ -271,6 +297,7 @@
           "hadhf": "سَلَـٰسِلَ",
           "ithbat": "سَلَـٰسِلَا"
         },
+        "target_pattern": null,
         "pos": "end"
       },
       {
@@ -280,6 +307,7 @@
           "idgham_kamil": "نَخْلُقكُّم",
           "idgham_naqis": "نَخْلُقكُم"
         },
+        "target_pattern": null,
         "pos": "middle"
       }
     ],

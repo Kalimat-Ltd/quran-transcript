@@ -22,8 +22,9 @@ class ImlaeyAlphabet:
 @dataclass
 class SpecialPattern:
     pattern: str
-    attr_name: str
-    opts: dict[str, str]
+    attr_name: str | None = None
+    opts: dict[str, str] | None = None
+    target_pattern: str | None = None
     pos: Literal["start", "middle", "end"] = "middle"
 
 

@@ -38,6 +38,11 @@ if __name__ == "__main__":
         "نٓ": "نُو~نْ",
     }
     special_patterns = [
+        # SpecialPattern(
+        #     pattern=f"{alph.uthmani.lam}({alph.uthmani.kasra})?{alph.uthmani.lam}{alph.uthmani.shadda}{alph.uthmani.fatha}{alph.uthmani.haa}",
+        #     target_pattern=f"{alph.uthmani.lam}\\1{alph.uthmani.lam}{alph.uthmani.shadda}{alph.uthmani.fatha}{alph.uthmani.alif}{alph.uthmani.haa}",
+        # ),
+        SpecialPattern(pattern="لْـَٔيْكَةِ", target_pattern="ٱلْأَيْكَةِ", pos="start"),
         SpecialPattern(
             pattern="عِوَجَا قَيِّمًۭا",
             attr_name="sakt_iwaja",
@@ -100,8 +105,8 @@ if __name__ == "__main__":
             pattern="نُوٓنْ وَٱلْقَلَمِ",
             attr_name="noon_and_yaseen",
             opts={
-                "idgham": "يَا سِيٓن وَٱلْقُرْءَانِ",
-                "izhar": "نُوٓن وَٱلْقَلَمِ",
+                "idgham": "نُوٓن وَٱلْقَلَمِ",
+                "izhar": "نُوٓنْ وَٱلْقَلَمِ",
             },
         ),
         SpecialPattern(

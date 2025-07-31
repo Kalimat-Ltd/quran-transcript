@@ -34,11 +34,14 @@ class SpecialCases(ConversionOperation):
             elif case.pos == "end":
                 pattern = pattern + r"$"
 
-            moshaf_attr = getattr(moshaf, case.attr_name)
-            if moshaf_attr in case.opts:
-                rep_pattern = case.opts[moshaf_attr]
-            else:
-                rep_pattern = pattern
+            if case.attr_name is not None:
+                moshaf_attr = getattr(moshaf, case.attr_name)
+                if moshaf_attr in case.opts:
+                    rep_pattern = case.opts[moshaf_attr]
+                else:
+                    rep_pattern = pattern
+            elif case.target_pattern is not None:
+                rep_pattern = case.target_pattern
 
             text = re.sub(pattern, rep_pattern, text)
 

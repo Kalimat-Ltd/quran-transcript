@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 import re
 
 from .conv_base_operation import ConversionOperation
+from .moshaf_attributes import MoshafAttributes
 from ..alphabet import uthmani as uth
 from ..alphabet import phonetics as ph
 
@@ -14,6 +15,33 @@ class DisassembleHrofMoqatta(ConversionOperation):
     def forward(self, text, moshaf):
         for word, rep in uth.hrof_moqtaa_disassemble.items():
             text = re.sub(f"(^|{uth.space}){word}({uth.space}|$)", f"\\1{rep}\\2", text)
+        return text
+
+
+@dataclass
+class SpecialCases(ConversionOperation):
+    arabic_name: str = "فك الحالات الخاصة"
+    ops_before: list[ConversionOperation] = field(
+        default_factory=lambda: [DisassembleHrofMoqatta()]
+    )
+    regs: tuple[str, str] = ("", "")
+
+    def forward(self, text, moshaf: MoshafAttributes):
+        for case in uth.special_patterns:
+            pattern = case.pattern
+            if case.pos == "start":
+                pattern = r"^" + pattern
+            elif case.pos == "end":
+                pattern = pattern + r"$"
+
+            moshaf_attr = getattr(moshaf, case.attr_name)
+            if moshaf_attr in case.opts:
+                rep_pattern = case.opts[moshaf_attr]
+            else:
+                rep_pattern = pattern
+
+            text = re.sub(pattern, rep_pattern, text)
+
         return text
 
 
@@ -240,6 +268,7 @@ class NormalizeTaa(ConversionOperation):
 
 OPERATION_ORDER = [
     DisassembleHrofMoqatta(),
+    SpecialCases(),
     ConvertAlifMaksora(),
     NormalizeHmazat(),
     IthbatYaaYohie(),

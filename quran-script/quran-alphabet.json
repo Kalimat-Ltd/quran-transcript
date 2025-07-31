@@ -76,6 +76,7 @@
     "kasheeda": "ـ",
     "space": " ",
     "hrof_moqtaa_disassemble": {
+      "الٓمٓ ٱللَّهُ": "أَلِفْ لَآم مِّيٓمَ ٱللَّهُ",
       "الٓمٓ": "أَلِفْ لَآم مِّيٓمْ",
       "الٓمٓصٓ": "أَلِفْ لَآم مِّيٓمْ صَآدْ",
       "الٓر": "أَلِفْ لَآمْ رَا",
@@ -91,6 +92,197 @@
       "قٓ": "قَآفْ",
       "نٓ": "نُوٓنْ"
     },
+    "special_patterns": [
+      {
+        "pattern": "عِوَجَا قَيِّمًۭا",
+        "attr_name": "sakt_iwaja",
+        "opts": {
+          "sakt": "عِوَجَاۜ قَيِّمًۭا",
+          "idraj": "عِوَجًۭا قَيِّمًۭا"
+        },
+        "pos": "middle"
+      },
+      {
+        "pattern": "مَّرْقَدِنَا هَـٰذَا",
+        "attr_name": "sakt_marqdena",
+        "opts": {
+          "sakt": "مَّرْقَدِنَاۜ هَـٰذَا",
+          "idraj": "مَّرْقَدِنَا هَـٰذَا"
+        },
+        "pos": "middle"
+      },
+      {
+        "pattern": "مَنْ رَاقٍۢ",
+        "attr_name": "sakt_man_raq",
+        "opts": {
+          "sakt": "مَنْۜ رَاقٍۢ",
+          "idraj": "مَن رَّاقٍۢ"
+        },
+        "pos": "middle"
+      },
+      {
+        "pattern": "بَلْ رَانَ",
+        "attr_name": "sakt_bal_ran",
+        "opts": {
+          "sakt": "بَلْۜ رَانَ",
+          "idraj": "بَل رَّانَ"
+        },
+        "pos": "middle"
+      },
+      {
+        "pattern": "مَالِيَهْ هَلَكَ",
+        "attr_name": "sakt_maleeyah",
+        "opts": {
+          "sakt": "مَالِيَهْۜ هَلَكَ",
+          "idgham": "مَالِيَه هَّلَكَ"
+        },
+        "pos": "middle"
+      },
+      {
+        "pattern": "عَلِيمٌۢ بَرَآءَةٌۭ",
+        "attr_name": "between_anfal_and_tawba",
+        "opts": {
+          "sakt": "عَلِيمۜ بَرَآءَةٌۭ",
+          "wasl": "عَلِيمٌۢ بَرَآءَةٌۭ"
+        },
+        "pos": "middle"
+      },
+      {
+        "pattern": "يَا سِيٓنْ وَٱلْقُرْءَانِ",
+        "attr_name": "noon_and_yaseen",
+        "opts": {
+          "idgham": "يَا سِيٓن وَٱلْقُرْءَانِ",
+          "izhar": "يَا سِيٓنْ وَٱلْقُرْءَانِ"
+        },
+        "pos": "middle"
+      },
+      {
+        "pattern": "نُوٓنْ وَٱلْقَلَمِ",
+        "attr_name": "noon_and_yaseen",
+        "opts": {
+          "idgham": "يَا سِيٓن وَٱلْقُرْءَانِ",
+          "izhar": "نُوٓن وَٱلْقَلَمِ"
+        },
+        "pos": "middle"
+      },
+      {
+        "pattern": "ءَاتَىٰنِۦَ",
+        "attr_name": "yaa_ataan",
+        "opts": {
+          "hadhf": "ءَاتَىٰنِ",
+          "ithbat": "ءَاتَىٰنِي"
+        },
+        "pos": "end"
+      },
+      {
+        "pattern": "ٱلِٱسْمُ",
+        "attr_name": "start_with_ism",
+        "opts": {
+          "lism": "لِسْمُ",
+          "alism": "أَلِسْمُ"
+        },
+        "pos": "start"
+      },
+      {
+        "pattern": "وَيَبْصُۜطُ",
+        "attr_name": "yabsut",
+        "opts": {
+          "seen": "وَيَبْسُطُ",
+          "saad": "وَيَبْصُطُ"
+        },
+        "pos": "middle"
+      },
+      {
+        "pattern": "بَصْۜطَةًۭ",
+        "attr_name": "bastah",
+        "opts": {
+          "seen": "بَسْطَةًۭ",
+          "saad": "بَصْطَةًۭ"
+        },
+        "pos": "middle"
+      },
+      {
+        "pattern": "ٱلْمُصَۣيْطِرُونَ",
+        "attr_name": "almusaytirun",
+        "opts": {
+          "seen": "ٱلْمُسَيْطِرُونَ",
+          "saad": "ٱلْمُصَيْطِرُونَ"
+        },
+        "pos": "middle"
+      },
+      {
+        "pattern": "بِمُصَيْطِرٍ",
+        "attr_name": "bimusaytir",
+        "opts": {
+          "seen": "بِمُسَيْطِرٍ",
+          "saad": "بِمُصَيْطِرٍ"
+        },
+        "pos": "middle"
+      },
+      {
+        "pattern": "ءَآل",
+        "attr_name": "tasheel_or_madd",
+        "opts": {
+          "madd": "ءَآل",
+          "tasheel": "ءَا۬ل"
+        },
+        "pos": "middle"
+      },
+      {
+        "pattern": "يَلْهَث ذَّٰلِكَ",
+        "attr_name": "yalhath_dhalik",
+        "opts": {
+          "izhar": "يَلْهَثْ ذَٰلِكَ",
+          "idgham": "يَلْهَث ذَّٰلِكَ"
+        },
+        "pos": "middle"
+      },
+      {
+        "pattern": "ٱرْكَب مَّعَنَا",
+        "attr_name": "irkab_maana",
+        "opts": {
+          "izhar": "ٱرْكَبْ مَعَنَا",
+          "idgham": "ٱرْكَب مَّعَنَا"
+        },
+        "pos": "middle"
+      },
+      {
+        "pattern": "تَأْمَ۫نَّا",
+        "attr_name": "noon_tamnna",
+        "opts": {
+          "ishmam": "تَأْمَنَّا",
+          "rawm": "تَأْمَنؙنَا"
+        },
+        "pos": "middle"
+      },
+      {
+        "pattern": "(?<!\\bْ )ضَعْف\\b",
+        "attr_name": "harakat_daaf",
+        "opts": {
+          "fath": "ضَعْف",
+          "dam": "ضُعْف"
+        },
+        "pos": "middle"
+      },
+      {
+        "pattern": "سَلَـٰسِلَا۟",
+        "attr_name": "alif_salasila",
+        "opts": {
+          "hadhf": "سَلَـٰسِلَ",
+          "ithbat": "سَلَـٰسِلَا"
+        },
+        "pos": "end"
+      },
+      {
+        "pattern": "نَخْلُقكُّم",
+        "attr_name": "idgham_nakhluqkum",
+        "opts": {
+          "idgham_kamil": "نَخْلُقكُّم",
+          "idgham_naqis": "نَخْلُقكُم"
+        },
+        "pos": "middle"
+      }
+    ],
     "tanween_fath_mothhar": "ً",
     "tanween_dam_mothhar": "ٌ",
     "tanween_kasr_mothhar": "ٍ",

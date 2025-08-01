@@ -7,11 +7,30 @@ from quran_transcript.phonetics.operations import (
     ConversionOperation,
     NormalizeHmazat,
     CleanEnd,
+    EnlargeSmallLetters,
+    RemoveKasheeda,
+    DisassembleHrofMoqatta,
+    SpecialCases,
+    IthbatYaaYohie,
+    RemoveHmzatWaslMiddle,
+    RemoveSkoonMostadeer,
+    SkoonMostateel,
+    MaddAlewad,
+    WawAlsalah,
+    NormalizeTaa,
+    AddAlifIsmAllah,
+    PrepareGhonnaIdghamIqlab,
 )
 from quran_transcript.phonetics.moshaf_attributes import MoshafAttributes
 
 
-def get_occurance(char: str, operations: list[ConversionOperation] = [], context=4):
+def get_occurance(
+    char: str,
+    operations: list[ConversionOperation] = [],
+    context=4,
+    limit: int | None = None,
+    specific_aya: Aya | None = None,
+):
     moshaf = MoshafAttributes(
         rewaya="hafs",
         madd_monfasel_len=4,
@@ -20,12 +39,17 @@ def get_occurance(char: str, operations: list[ConversionOperation] = [], context
         madd_aared_len=4,
     )
 
-    start_aya = Aya()
+    if specific_aya is None:
+        start_aya = Aya()
+        max_loop = None
+    else:
+        start_aya = specific_aya
+        max_loop = 1
     counter = 0
-    for aya in start_aya.get_ayat_after(114):
+    for aya in start_aya.get_ayat_after(num_ayat=max_loop):
         txt = aya.get().uthmani
         for op in operations:
-            txt = op.apply(txt, moshaf, mode="test")
+            txt = op.apply(txt, moshaf, mode="inference")
         outs = re.finditer(char, txt)
         first = True
         for out in outs:
@@ -35,11 +59,16 @@ def get_occurance(char: str, operations: list[ConversionOperation] = [], context
             counter += 1
             print(f"Case: `{counter}`")
             print(out)
-            print(aya.get().uthmani[: out.start() + context])
+            print(f"'{aya.get().uthmani[: out.start() + context]}'")
+            print(f"'{txt[: out.start() + context]}'")
 
             print("-" * 30)
             print()
             print()
+
+        if limit is not None:
+            if counter >= limit:
+                break
 
 
 def get_missing_cases(
@@ -115,7 +144,8 @@ if __name__ == "__main__":
     #     alph.uthmani.small_yaa_sila,
     #     context=10,
     # )
-    # ياء الصلة
+
+    # # ياء الصلة
     # get_occurance(
     #     f"({alph.uthmani.tanween_fath_modgham}|{alph.uthmani.tanween_fath_mothhar})",
     #     context=10,
@@ -129,10 +159,10 @@ if __name__ == "__main__":
     #     operations=[CleanEnd()],
     # )
 
-    # # مد الفرق
+    # مد الفرق
     # get_occurance(
     #     f"{alph.uthmani.hamza}{alph.uthmani.fatha}{alph.uthmani.alif}{alph.uthmani.madd}{alph.uthmani.lam}",
-    #     context=10,
+    #     context=500,
     #     operations=[CleanEnd()],
     # )
 
@@ -142,8 +172,122 @@ if __name__ == "__main__":
     #     context=10,
     # )
 
+    # # سلاسلا
+    # get_occurance(
+    #     "سَلَـٰسِلَا۟",
+    #     context=10,
+    # )
+
+    # #  اسم الله
+    # get_occurance(
+    #     f"{alph.uthmani.lam}{alph.uthmani.kasra}?{alph.uthmani.lam}{alph.uthmani.shadda}{alph.uthmani.fatha}{alph.uthmani.haa}",
+    #     context=10,
+    #     limit=None,
+    # )
+
+    # print("Special case")
+    # pattern = f"{alph.uthmani.lam}({alph.uthmani.kasra})?{alph.uthmani.lam}{alph.uthmani.shadda}{alph.uthmani.fatha}{alph.uthmani.haa}"
+    # target_pattern = f"{alph.uthmani.lam}\\1{alph.uthmani.lam}{alph.uthmani.shadda}{alph.uthmani.fatha}{alph.uthmani.alif}{alph.uthmani.haa}"
+    # out = re.sub(pattern, target_pattern, Aya(27, 59).get().uthmani)
+    # print(out)
+
     # سلاسلا
+    # get_occurance(
+    #     f"(^|{alph.uthmani.space}|(^|{alph.uthmani.space})[{alph.uthmani.faa}{alph.uthmani.waw}{alph.uthmani.hamza}]{alph.uthmani.fatha})({alph.uthmani.haa}){alph.uthmani.fatha}{alph.uthmani.alif}{alph.uthmani.madd}",
+    #     # f"(^|{alph.uthmani.space}|(^|{alph.uthmani.space})[{alph.uthmani.faa}{alph.uthmani.waw}]{alph.uthmani.fatha})({alph.uthmani.haa}|{alph.uthmani.yaa}){alph.uthmani.fatha}{alph.uthmani.alif}{alph.uthmani.madd}",
+    #     context=15,
+    #     operations=[
+    #         RemoveKasheeda(),
+    #         NormalizeHmazat(),
+    #         ConvertAlifMaksora(),
+    #         EnlargeSmallLetters(),
+    #     ],
+    # )
+
+    # حذف الحرف الأول
+    # get_occurance(
+    #     f"([{alph.uthmani.fatha}{alph.uthmani.dama}]{alph.uthmani.yaa}|[{alph.uthmani.fatha}{alph.uthmani.kasra}]{alph.uthmani.waw}|[{alph.uthmani.pure_letters_without_yaa_and_waw_group}]){alph.uthmani.space}?([{alph.uthmani.pure_letters_group}]{alph.uthmani.shadda})",
+    #     context=10,
+    #     specific_aya=Aya(22, 61),
+    #     operations=[
+    #         DisassembleHrofMoqatta(),
+    #         SpecialCases(),
+    #         ConvertAlifMaksora(),
+    #         NormalizeHmazat(),
+    #         IthbatYaaYohie(),
+    #         RemoveKasheeda(),
+    #         RemoveHmzatWaslMiddle(),
+    #         RemoveSkoonMostadeer(),
+    #         SkoonMostateel(),
+    #         MaddAlewad(),
+    #         WawAlsalah(),
+    #         EnlargeSmallLetters(),
+    #         CleanEnd(),
+    #         NormalizeTaa(),
+    #         AddAlifIsmAllah(),
+    #     ],
+    # )
+
+    # # كسر التنوين
+    # get_occurance(
+    #     f"({alph.uthmani.noon}){alph.uthmani.ras_haaa}({alph.uthmani.space}.[{alph.uthmani.ras_haaa}{alph.uthmani.shadda}])",
+    #     context=10,
+    #     operations=[
+    #         DisassembleHrofMoqatta(),
+    #         SpecialCases(),
+    #         ConvertAlifMaksora(),
+    #         NormalizeHmazat(),
+    #         IthbatYaaYohie(),
+    #         RemoveKasheeda(),
+    #         RemoveHmzatWaslMiddle(),
+    #         RemoveSkoonMostadeer(),
+    #         SkoonMostateel(),
+    #         MaddAlewad(),
+    #         WawAlsalah(),
+    #         EnlargeSmallLetters(),
+    #         CleanEnd(),
+    #         NormalizeTaa(),
+    #         AddAlifIsmAllah(),
+    #         PrepareGhonnaIdghamIqlab(),
+    #     ],
+    # )
+
+    # # التقاء السكنان والأول منها حرف مد
+    # get_occurance(
+    #     f"({alph.uthmani.madd_alif}|{alph.uthmani.madd_yaa}|{alph.uthmani.madd_yaa})({alph.uthmani.space}.[{alph.uthmani.ras_haaa}{alph.uthmani.shadda}])",
+    #     context=10,
+    #     operations=[
+    #         DisassembleHrofMoqatta(),
+    #         SpecialCases(),
+    #         ConvertAlifMaksora(),
+    #         NormalizeHmazat(),
+    #         IthbatYaaYohie(),
+    #         RemoveKasheeda(),
+    #         RemoveHmzatWaslMiddle(),
+    #         RemoveSkoonMostadeer(),
+    #         SkoonMostateel(),
+    #         MaddAlewad(),
+    #         WawAlsalah(),
+    #         EnlargeSmallLetters(),
+    #         CleanEnd(),
+    #         NormalizeTaa(),
+    #         AddAlifIsmAllah(),
+    #         PrepareGhonnaIdghamIqlab(),
+    #     ],
+    # )
+
+    # كشف أخظاء التنوين المدغم;w
+    # get_occurance(
+    #     f"[{alph.uthmani.tanween_fath}{alph.uthmani.tanween_dam}{alph.uthmani.tanween_kasr}]{alph.uthmani.meem_iqlab}{alph.uthmani.space}[{alph.uthmani.noon_ikhfaa_group}{alph.uthmani.yaa}{alph.uthmani.waw}]",
+    #     # f"[{alph.uthmani.tanween_fath}{alph.uthmani.tanween_dam}{alph.uthmani.tanween_kasr}]{alph.uthmani.tanween_idhaam_dterminer}{alph.uthmani.space}[{alph.uthmani.noon_ikhfaa_group}{alph.uthmani.yaa}{alph.uthmani.waw}]",
+    #     context=10,
+    # )
+    # get_occurance(
+    #     # f"[{alph.uthmani.tanween_fath}{alph.uthmani.tanween_dam}{alph.uthmani.tanween_kasr}]{alph.uthmani.meem_iqlab}{alph.uthmani.space}{alph.uthmani.baa}",
+    #     f"[{alph.uthmani.tanween_fath}{alph.uthmani.tanween_dam}{alph.uthmani.tanween_kasr}]{alph.uthmani.tanween_idhaam_dterminer}{alph.uthmani.space}{alph.uthmani.baa}",
+    #     context=10,
+    # )
     get_occurance(
-        "سَلَـٰسِلَا۟",
+        f"{alph.uthmani.noon}{alph.uthmani.tanween_idhaam_dterminer}",
         context=10,
     )

@@ -127,8 +127,8 @@ class RemoveKasheeda(ConversionOperation):
 class RemoveHmzatWaslMiddle(ConversionOperation):
     arabic_name: str = "حذف همزة الوصل وصلا"
     regs: tuple[str, str] = (
-        f"({uth.space}){uth.hamzat_wasl}",
-        r"\1",
+        f"(?!^){uth.hamzat_wasl}",
+        r"",
     )
 
 
@@ -278,6 +278,122 @@ class AddAlifIsmAllah(ConversionOperation):
     )
 
 
+@dataclass
+class PrepareGhonnaIdghamIqlab(ConversionOperation):
+    ops_before: list[ConversionOperation] = field(
+        default_factory=lambda: [
+            SpecialCases(),
+            RemoveHmzatWaslMiddle(),
+            CleanEnd(),
+            NormalizeTaa(),
+            AddAlifIsmAllah(),
+        ]
+    )
+    arabic_name: str = "فك الإقلاب والعغنة الإدغام"
+    regs: tuple[str, str] = field(
+        default_factory=lambda: [
+            # النون المقلبة ميمام
+            (
+                f"{uth.noon}{uth.meem_iqlab}",
+                f"{uth.meem}",
+            ),
+            # تنوين الفتح المقبل ميمام
+            (
+                # f"{uth.tanween_fath_iqlab}",
+                # f"{uth.fatha}{uth.meem}",
+                f"{uth.tanween_fath}.({uth.space}{uth.baa})",
+                f"{uth.fatha}{uth.meem}\\1",
+            ),
+            #  فك تنوين الضم المقلب
+            (
+                # f"{uth.tanween_dam_iqlab}",
+                # f"{uth.dama}{uth.meem}",
+                f"{uth.tanween_dam}.({uth.space}{uth.baa})",
+                f"{uth.dama}{uth.meem}\\1",
+            ),
+            #  فك تنوين الكسر المقلب ميما
+            (
+                # f"{uth.tanween_kasr_iqlab}",
+                # f"{uth.kasra}{uth.meem}",
+                f"{uth.tanween_kasr}.({uth.space}{uth.baa})",
+                f"{uth.kasra}{uth.meem}\\1",
+            ),
+            # فك التنوين المدغم
+            (
+                # f"{uth.tanween_fath_modgham}",
+                # f"{uth.fatha}{uth.noon}",
+                f"{uth.tanween_fath}.({uth.space}[{uth.noon_ikhfaa_group}{uth.noon_idgham_group}])",
+                f"{uth.fatha}{uth.noon}\\1",
+            ),
+            (
+                # f"{uth.tanween_dam_modgham}",
+                # f"{uth.dama}{uth.noon}",
+                f"{uth.tanween_dam}.({uth.space}[{uth.noon_ikhfaa_group}{uth.noon_idgham_group}])",
+                f"{uth.dama}{uth.noon}\\1",
+            ),
+            (
+                # f"{uth.tanween_kasr_modgham}",
+                # f"{uth.kasra}{uth.noon}",
+                f"{uth.tanween_kasr}.({uth.space}[{uth.noon_ikhfaa_group}{uth.noon_idgham_group}])",
+                f"{uth.kasra}{uth.noon}\\1",
+            ),
+            # فك التنوين المظهر
+            (
+                f"{uth.tanween_fath_mothhar}",
+                f"{uth.fatha}{uth.noon}{uth.ras_haaa}",
+            ),
+            (
+                f"{uth.tanween_dam_mothhar}",
+                f"{uth.dama}{uth.noon}{uth.ras_haaa}",
+            ),
+            (
+                f"{uth.tanween_kasr_mothhar}",
+                f"{uth.kasra}{uth.noon}{uth.ras_haaa}",
+            ),
+            # حذف الحرف الأول من الحفران المدغمان
+            (
+                f"([{uth.fatha}{uth.dama}]{uth.yaa}|[{uth.fatha}{uth.kasra}]{uth.waw}|[{uth.pure_letters_without_yaa_and_waw_group}]){uth.space}?([{uth.pure_letters_group}]{uth.shadda})",
+                r"\2",
+            ),
+        ]
+    )
+
+
+@dataclass
+class IltiqaaAlsaknan(ConversionOperation):
+    ops_before: list[ConversionOperation] = field(
+        default_factory=lambda: [
+            PrepareGhonnaIdghamIqlab(),
+        ]
+    )
+    arabic_name: str = "التقاء الساكنان وكسر التنوين"
+    regs: list[tuple[str, str]] = field(
+        default_factory=lambda: [
+            # كسر التنوين
+            (
+                f"({uth.noon}){uth.ras_haaa}({uth.space}.[{uth.ras_haaa}{uth.shadda}])",
+                f"\\1{uth.kasra}\\2",
+            ),
+            # حذف حرف المد الأول لاتقاء الساعكنان
+            # alif
+            (
+                f"{uth.madd_alif}({uth.space}.[{uth.ras_haaa}{uth.shadda}])",
+                f"{uth.fatha}//1",
+            ),
+            # waw
+            (
+                f"{uth.madd_waw}({uth.space}.[{uth.ras_haaa}{uth.shadda}])",
+                f"{uth.dama}//1",
+            ),
+            # yaa
+            (
+                f"{uth.madd_yaa}({uth.space}.[{uth.ras_haaa}{uth.shadda}])",
+                f"{uth.kasra}//1",
+            ),
+        ]
+    )
+
+
 OPERATION_ORDER = [
     DisassembleHrofMoqatta(),
     SpecialCases(),
@@ -294,4 +410,6 @@ OPERATION_ORDER = [
     CleanEnd(),
     NormalizeTaa(),
     AddAlifIsmAllah(),
+    PrepareGhonnaIdghamIqlab(),
+    IltiqaaAlsaknan(),
 ]

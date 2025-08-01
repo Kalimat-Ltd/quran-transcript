@@ -31,6 +31,7 @@ class ConversionOperation:
     ) -> str:
         if mode == "test":
             for op in self.ops_before:
+                print(f"Applying: {type(op)}")
                 text = op.apply(text, moshaf, mode="test")
 
         if mode in {"inference", "test"}:

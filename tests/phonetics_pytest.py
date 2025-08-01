@@ -18,6 +18,8 @@ from quran_transcript.phonetics.operations import (
     CleanEnd,
     NormalizeTaa,
     AddAlifIsmAllah,
+    PrepareGhonnaIdghamIqlab,
+    IltiqaaAlsaknan,
 )
 from quran_transcript import Aya
 from quran_transcript import alphabet as alph
@@ -321,6 +323,17 @@ def test_remove_kasheeda(in_text: str, target_text: str, moshaf: MoshafAttribute
         (
             "ٱسْتِكْبَارًۭا فِى ٱلْأَرْضِ وَمَكْرَ ٱلسَّيِّئِ وَلَا يَحِيقُ ٱلْمَكْرُ ٱلسَّيِّئُ إِلَّا بِأَهْلِهِۦ فَهَلْ يَنظُرُونَ إِلَّا سُنَّتَ ٱلْأَوَّلِينَ فَلَن تَجِدَ لِسُنَّتِ ٱللَّهِ تَبْدِيلًۭا وَلَن تَجِدَ لِسُنَّتِ ٱللَّهِ تَحْوِيلًا",
             "ٱسْتِكْبَارًۭا فِى لْأَرْضِ وَمَكْرَ لسَّيِّئِ وَلَا يَحِيقُ لْمَكْرُ لسَّيِّئُ إِلَّا بِأَهْلِهِۦ فَهَلْ يَنظُرُونَ إِلَّا سُنَّتَ لْأَوَّلِينَ فَلَن تَجِدَ لِسُنَّتِ للَّهِ تَبْدِيلًۭا وَلَن تَجِدَ لِسُنَّتِ للَّهِ تَحْوِيلًا",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "قَالَ رَبُّ ٱلسَّمَـٰوَٰتِ وَٱلْأَرْضِ وَمَا بَيْنَهُمَآ إِن كُنتُم مُّوقِنِينَ",
+            "قَالَ رَبُّ لسَّمَـٰوَٰتِ وَلْأَرْضِ وَمَا بَيْنَهُمَآ إِن كُنتُم مُّوقِنِينَ",
             MoshafAttributes(
                 rewaya="hafs",
                 madd_monfasel_len=4,
@@ -1592,4 +1605,340 @@ def test_alif_ism_Allah(in_text: str, target_text: str, moshaf: MoshafAttributes
     op = AddAlifIsmAllah()
     out_text = op.apply(in_text, moshaf, mode="test")
     print(out_text)
+    assert out_text == target_text
+
+
+@pytest.mark.parametrize(
+    "in_text, target_text, moshaf",
+    [
+        (
+            "وَإِذْ وَٰعَدْنَا مُوسَىٰٓ أَرْبَعِينَ لَيْلَةًۭ ثُمَّ ٱتَّخَذْتُمُ ٱلْعِجْلَ مِنۢ بَعْدِهِۦ وَأَنتُمْ ظَـٰلِمُونَ",
+            "وَإِذْ وَٰعَدْنَا مُوسَىٰٓ أَرْبَعِينَ لَيْلَتَن ثُمَّ ٱتَّخَذْتُمُ ٱلْعِجْلَ مِم بَعْدِهِۦ وَأَنتُمْ ظَـٰلِمُونَ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "قَالَ يَـٰٓـَٔادَمُ أَنۢبِئْهُم بِأَسْمَآئِهِمْ فَلَمَّآ أَنۢبَأَهُم بِأَسْمَآئِهِمْ قَالَ أَلَمْ أَقُل لَّكُمْ إِنِّىٓ أَعْلَمُ غَيْبَ ٱلسَّمَـٰوَٰتِ وَٱلْأَرْضِ وَأَعْلَمُ مَا تُبْدُونَ وَمَا كُنتُمْ تَكْتُمُونَ",
+            "قَالَ يَـٰٓـَٔادَمُ أَمبِئْهُم بِأَسْمَآئِهِمْ فَلَمَّآ أَمبَأَهُم بِأَسْمَآئِهِمْ قَالَ أَلَمْ أَقُلَّكُمْ إِنِّىٓ أَعْلَمُ غَيْبَ سَّمَـٰوَٰتِ وَٱلْأَرْضِ وَأَعْلَمُ مَا تُبْدُونَ وَمَا كُنتُمْ تَكْتُمُونَ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "ذَٰلِكَ بِأَنَّ ٱللَّهَ يُولِجُ ٱلَّيْلَ فِى ٱلنَّهَارِ وَيُولِجُ ٱلنَّهَارَ فِى ٱلَّيْلِ وَأَنَّ ٱللَّهَ سَمِيعٌۢ بَصِيرٌۭ",
+            "ذَٰلِكَ بِأَنَّ لَّاهَ يُولِجُ لَّيْلَ فِى نَّهَارِ وَيُولِجُ نَّهَارَ فِى لَّيْلِ وَأَنَّ لَّاهَ سَمِيعُم بَصِيرٌۭ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "وَٱلسَّارِقُ وَٱلسَّارِقَةُ فَٱقْطَعُوٓا۟ أَيْدِيَهُمَا جَزَآءًۢ بِمَا كَسَبَا نَكَـٰلًۭا مِّنَ ٱللَّهِ وَٱللَّهُ عَزِيزٌ حَكِيمٌۭ",
+            "وَسَّارِقُ وَسَّارِقَةُ فَقْطَعُوٓا۟ أَيْدِيَهُمَا جَزَآءَم بِمَا كَسَبَا نَكَـٰلَمِّنَ لَّاهِ وَلَّاهُ عَزِيزُنْ حَكِيمٌۭ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "أَوَلَمْ يَرَوْا۟ إِلَى ٱلطَّيْرِ فَوْقَهُمْ صَـٰٓفَّـٰتٍۢ وَيَقْبِضْنَ مَا يُمْسِكُهُنَّ إِلَّا ٱلرَّحْمَـٰنُ إِنَّهُۥ بِكُلِّ شَىْءٍۭ بَصِيرٌ",
+            "أَوَلَمْ يَرَوْا۟ إِلَى طَّيْرِ فَوْقَهُمْ صَـٰٓفَّـٰتِن وَيَقْبِضْنَ مَا يُمْسِكُهُنَّ إِلَّا رَّحْمَـٰنُ إِنَّهُۥ بِكُلِّ شَىْءِم بَصِيرٌ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "يَمْحَقُ ٱللَّهُ ٱلرِّبَوٰا۟ وَيُرْبِى ٱلصَّدَقَـٰتِ وَٱللَّهُ لَا يُحِبُّ كُلَّ كَفَّارٍ أَثِيمٍ",
+            "يَمْحَقُ لَّاهُ رِّبَوٰا۟ وَيُرْبِى صَّدَقَـٰتِ وَلَّاهُ لَا يُحِبُّ كُلَّ كَفَّارِنْ أَثِيمٍ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "وَيَقُولُ ٱلَّذِينَ كَفَرُوا۟ لَوْلَآ أُنزِلَ عَلَيْهِ ءَايَةٌۭ مِّن رَّبِّهِۦٓ إِنَّمَآ أَنتَ مُنذِرٌۭ وَلِكُلِّ قَوْمٍ هَادٍ",
+            "وَيَقُولُ لَّذِينَ كَفَرُوا۟ لَوْلَآ أُنزِلَ عَلَيْهِ ءَايَتُمِّرَّبِّهِۦٓ إِنَّمَآ أَنتَ مُنذِرُن وَلِكُلِّ قَوْمِنْ هَادٍ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "وَإِنْ عَزَمُوا۟ ٱلطَّلَـٰقَ فَإِنَّ ٱللَّهَ سَمِيعٌ عَلِيمٌۭ",
+            "وَإِنْ عَزَمُوا۟ طَّلَـٰقَ فَإِنَّ لَّاهَ سَمِيعُنْ عَلِيمٌۭ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "وَأَلَّوِ ٱسْتَقَـٰمُوا۟ عَلَى ٱلطَّرِيقَةِ لَأَسْقَيْنَـٰهُم مَّآءً غَدَقًۭا",
+            "وَأَلَّوِ ٱسْتَقَـٰمُوا۟ عَلَى طَّرِيقَةِ لَأَسْقَيْنَـٰهُمَّآءَنْ غَدَقًۭا",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "قَالُوا۟ تِلْكَ إِذًۭا كَرَّةٌ خَاسِرَةٌۭ",
+            "قَالُوا۟ تِلْكَ إِذَن كَرَّتُنْ خَاسِرَةٌۭ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "فَمَن يَعْمَلْ مِثْقَالَ ذَرَّةٍ خَيْرًۭا يَرَهُۥ",
+            "فَمَن يَعْمَلْ مِثْقَالَ ذَرَّتِنْ خَيْرَن يَرَهُۥ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "ٱللَّهُ خَـٰلِقُ كُلِّ شَىْءٍۢ وَهُوَ عَلَىٰ كُلِّ شَىْءٍۢ وَكِيلٌۭ",
+            "ٱلَّاهُ خَـٰلِقُ كُلِّ شَىْءِن وَهُوَ عَلَىٰ كُلِّ شَىْءِن وَكِيلٌۭ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "قَوْلٌۭ مَّعْرُوفٌۭ وَمَغْفِرَةٌ خَيْرٌۭ مِّن صَدَقَةٍۢ يَتْبَعُهَآ أَذًۭى وَٱللَّهُ غَنِىٌّ حَلِيمٌۭ",
+            "قَوْلُمَّعْرُوفُن وَمَغْفِرَتُنْ خَيْرُمِّن صَدَقَتِن يَتْبَعُهَآ أَذَن وَٱلَّاهُ غَنِيُّنْ حَلِيمٌۭ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "فَتَوَلَّ عَنْهُمْ يَوْمَ يَدْعُ ٱلدَّاعِ إِلَىٰ شَىْءٍۢ نُّكُرٍ",
+            "فَتَوَلَّ عَنْهُمْ يَوْمَ يَدْعُ ٱدَّاعِ إِلَىٰ شَيْءِنُّكُرٍ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "إِنَّا مُرْسِلُوا۟ ٱلنَّاقَةِ فِتْنَةًۭ لَّهُمْ فَٱرْتَقِبْهُمْ وَٱصْطَبِرْ",
+            "إِنَّا مُرْسِلُوا۟ ٱنَّاقَةِ فِتْنَتَلَّهُمْ فَٱرْتَقِبْهُمْ وَٱصْطَبِرْ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "فَإِنِ ٱنتَهَوْا۟ فَإِنَّ ٱللَّهَ غَفُورٌۭ رَّحِيمٌۭ",
+            "فَإِنِ ٱنتَهَوْا۟ فَإِنَّ ٱلَّاهَ غَفُورُرَّحِيمٌۭ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "وَأَمَّا عَادٌۭ فَأُهْلِكُوا۟ بِرِيحٍۢ صَرْصَرٍ عَاتِيَةٍۢ",
+            "وَأَمَّا عَادُن فَأُهْلِكُوا۟ بِرِيحِن صَرْصَرِنْ عَاتِيَةٍۢ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "فَلَا تَحْسَبَنَّ ٱللَّهَ مُخْلِفَ وَعْدِهِۦ رُسُلَهُۥٓ إِنَّ ٱللَّهَ عَزِيزٌۭ ذُو ٱنتِقَامٍۢ",
+            "فَلَا تَحْسَبَنَّ ٱلَّاهَ مُخْلِفَ وَعْدِهِۦ رُسُلَهُۥٓ إِنَّ ٱلَّاهَ عَزِيزُن ذُو ٱنتِقَامٍۢ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "وَأَنزَلْنَا مِنَ ٱلْمُعْصِرَٰتِ مَآءًۭ ثَجَّاجًۭا",
+            "وَأَنزَلْنَا مِنَ ٱلْمُعْصِرَٰتِ مَآءَن ثَجَّاجًۭا",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "كِرَامًۭا كَـٰتِبِينَ",
+            "كِرَامَن كَـٰتِبِينَ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "فِيهَا عَيْنٌۭ جَارِيَةٌۭ",
+            "فِيهَا عَيْنُن جَارِيَةٌۭ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "ٱلَّذِى لَهُۥ مُلْكُ ٱلسَّمَـٰوَٰتِ وَٱلْأَرْضِ وَٱللَّهُ عَلَىٰ كُلِّ شَىْءٍۢ شَهِيدٌ",
+            "ٱلَّذِى لَهُۥ مُلْكُ ٱسَّمَـٰوَٰتِ وَٱلْأَرْضِ وَٱلَّاهُ عَلَىٰ كُلِّ شَيْءِن شَهِيدٌ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "تَبَـٰرَكَ ٱلَّذِى بِيَدِهِ ٱلْمُلْكُ وَهُوَ عَلَىٰ كُلِّ شَىْءٍۢ قَدِيرٌ",
+            "تَبَـٰرَكَ ٱلَّذِى بِيَدِهِ ٱلْمُلْكُ وَهُوَ عَلَىٰ كُلِّ شَيْءِن قَدِيرٌ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "سَيَقُولُونَ ثَلَـٰثَةٌۭ رَّابِعُهُمْ كَلْبُهُمْ وَيَقُولُونَ خَمْسَةٌۭ سَادِسُهُمْ كَلْبُهُمْ رَجْمًۢا بِٱلْغَيْبِ وَيَقُولُونَ سَبْعَةٌۭ وَثَامِنُهُمْ كَلْبُهُمْ قُل رَّبِّىٓ أَعْلَمُ بِعِدَّتِهِم مَّا يَعْلَمُهُمْ إِلَّا قَلِيلٌۭ فَلَا تُمَارِ فِيهِمْ إِلَّا مِرَآءًۭ ظَـٰهِرًۭا وَلَا تَسْتَفْتِ فِيهِم مِّنْهُمْ أَحَدًۭا",
+            "سَيَقُولُونَ ثَلَـٰثَتُرَّابِعُهُمْ كَلْبُهُمْ وَيَقُولُونَ خَمْسَتُن سَادِسُهُمْ كَلْبُهُمْ رَجْمَم بِٱلْغَيْبِ وَيَقُولُونَ سَبْعَتُن وَثَامِنُهُمْ كَلْبُهُمْ قُرَّبِّىٓ أَعْلَمُ بِعِدَّتِهِمَّا يَعْلَمُهُمْ إِلَّا قَلِيلُن فَلَا تُمَارِ فِيهِمْ إِلَّا مِرَآءَن ظَـٰهِرَن وَلَا تَسْتَفْتِ فِيهِمِّنْهُمْ أَحَدًۭا",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "وَكَأْسًۭا دِهَاقًۭا",
+            "وَكَأْسَن دِهَاقًۭا",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "أَلَمْ تَرَ كَيْفَ ضَرَبَ ٱللَّهُ مَثَلًۭا كَلِمَةًۭ طَيِّبَةًۭ كَشَجَرَةٍۢ طَيِّبَةٍ أَصْلُهَا ثَابِتٌۭ وَفَرْعُهَا فِى ٱلسَّمَآءِ",
+            "أَلَمْ تَرَ كَيْفَ ضَرَبَ ٱلَّاهُ مَثَلَن كَلِمَتَن طَيِّبَتَن كَشَجَرَتِن طَيِّبَتِنْ أَصْلُهَا ثَابِتُن وَفَرْعُهَا فِى ٱسَّمَآءِ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "فَٱنطَلَقَا حَتَّىٰٓ إِذَا لَقِيَا غُلَـٰمًۭا فَقَتَلَهُۥ قَالَ أَقَتَلْتَ نَفْسًۭا زَكِيَّةًۢ بِغَيْرِ نَفْسٍۢ لَّقَدْ جِئْتَ شَيْـًۭٔا نُّكْرًۭا",
+            "فَٱنطَلَقَا حَتَّىٰٓ إِذَا لَقِيَا غُلَـٰمَن فَقَتَلَهُۥ قَالَ أَقَتَلْتَ نَفْسَن زَكِيَّتَم بِغَيْرِ نَفْسِلَّقَدْ جِئْتَ شَيْءَنُّكْرًۭا",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "وَهُوَ ٱلَّذِى سَخَّرَ ٱلْبَحْرَ لِتَأْكُلُوا۟ مِنْهُ لَحْمًۭا طَرِيًّۭا وَتَسْتَخْرِجُوا۟ مِنْهُ حِلْيَةًۭ تَلْبَسُونَهَا وَتَرَى ٱلْفُلْكَ مَوَاخِرَ فِيهِ وَلِتَبْتَغُوا۟ مِن فَضْلِهِۦ وَلَعَلَّكُمْ تَشْكُرُونَ",
+            "وَهُوَ ٱلَّذِى سَخَّرَ ٱلْبَحْرَ لِتَأْكُلُوا۟ مِنْهُ لَحْمَن طَرِيَّن وَتَسْتَخْرِجُوا۟ مِنْهُ حِلْيَتَن تَلْبَسُونَهَا وَتَرَى ٱلْفُلْكَ مَوَاخِرَ فِيهِ وَلِتَبْتَغُوا۟ مِن فَضْلِهِۦ وَلَعَلَّكُمْ تَشْكُرُونَ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "تِلْكَ إِذًۭا قِسْمَةٌۭ ضِيزَىٰٓ",
+            "تِلْكَ إِذَن قِسْمَتُن ضِيزَىٰٓ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+    ],
+)
+def test_Prepare_ghonna_tanween_idgham(
+    in_text: str, target_text: str, moshaf: MoshafAttributes
+):
+    op = PrepareGhonnaIdghamIqlab()
+    for b_op in op.ops_before:
+        target_text = b_op.apply(target_text, moshaf, mode="test")
+    out_text = op.apply(in_text, moshaf, mode="test")
+    print(f"Target Text:\n'{target_text}'")
+    print(f"Out Text:\n'{out_text}'")
     assert out_text == target_text

@@ -119,14 +119,27 @@ class UthmaniAlphabet:
     tanween_dam_iqlab: str = ""
     tanween_kasr_iqlab: str = ""
 
+    # شروط المد
+    madd_alif: str = ""
+    madd_waw: str = ""
+    madd_yaa: str = ""
+
     # letters groups
     noon_ikhfaa_group: str = ""
+    noon_idgham_group: str = ""
     harakat_group: str = ""  # حركات
     hamazat_group: str = ""
     letters_group: str = ""
+    pure_letters_group: str = ""
+    pure_letters_without_yaa_and_waw_group: str = ""
 
     def __post_init__(self):
         self.special_patterns = [SpecialPattern(**p) for p in self.special_patterns]
+
+        self.madd_alif = self.fatha + self.alif
+        self.madd_waw = self.dama + self.waw
+        self.madd_yaa = self.kasra + self.yaa
+
         # Groups
         self.noon_ikhfaa_group = (
             self.saad
@@ -141,9 +154,12 @@ class UthmaniAlphabet:
             + self.taa_mofakhama
             + self.zay
             + self.faa
-            + self.taa_marboota
+            + self.taa_mabsoota
             + self.daad
-            + self.taa_mofakhama
+            + self.zaa_mofakhama
+        )
+        self.noon_idgham_group = (
+            self.yaa + self.raa + self.meem + self.lam + self.waw + self.noon
         )
         self.harakat_group = self.fatha + self.dama + self.kasra
         self.hamazat_group = (
@@ -187,6 +203,65 @@ class UthmaniAlphabet:
             + self.yaa
             + self.hamza
         )
+        self.pure_letters_group = (
+            self.baa
+            + self.taa_mabsoota
+            + self.thaa
+            + self.jeem
+            + self.haa_mohmala
+            + self.khaa
+            + self.daal
+            + self.thaal
+            + self.raa
+            + self.zay
+            + self.seen
+            + self.sheen
+            + self.saad
+            + self.daad
+            + self.taa_mofakhama
+            + self.zaa_mofakhama
+            + self.ayn
+            + self.ghyn
+            + self.faa
+            + self.qaf
+            + self.kaf
+            + self.lam
+            + self.meem
+            + self.noon
+            + self.haa
+            + self.waw
+            + self.yaa
+            + self.hamza
+        )
+        self.pure_letters_without_yaa_and_waw_group = (
+            self.baa
+            + self.taa_mabsoota
+            + self.thaa
+            + self.jeem
+            + self.haa_mohmala
+            + self.khaa
+            + self.daal
+            + self.thaal
+            + self.raa
+            + self.zay
+            + self.seen
+            + self.sheen
+            + self.saad
+            + self.daad
+            + self.taa_mofakhama
+            + self.zaa_mofakhama
+            + self.ayn
+            + self.ghyn
+            + self.faa
+            + self.qaf
+            + self.kaf
+            + self.lam
+            + self.meem
+            + self.noon
+            + self.haa
+            + self.hamza
+        )
+
         # تنوين مظهر وتنوين مدغم
         self.tanween_fath_mothhar = self.tanween_fath
         self.tanween_dam_mothhar = self.tanween_dam

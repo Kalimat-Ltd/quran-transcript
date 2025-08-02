@@ -94,6 +94,15 @@ class ConvertAlifMaksora(ConversionOperation):
 
 
 @dataclass
+class DeleteShaddaAtBeginning(ConversionOperation):
+    arabic_name: str = "حذف الشدة من الحرف الأول"
+    regs: tuple[str, str] = (
+        f"(^.){uth.shadda}",
+        r"\1",
+    )
+
+
+@dataclass
 class NormalizeHmazat(ConversionOperation):
     arabic_name: str = "توحيد الهمزات"
     regs: tuple[str, str] = (
@@ -399,6 +408,7 @@ class Ghonna(ConversionOperation):
     ops_before: list[ConversionOperation] = field(
         default_factory=lambda: [
             IltiqaaAlsaknan(),
+            DeleteShaddaAtBeginning(),
         ]
     )
     arabic_name: str = "وضع الغنة في النون الميم"
@@ -435,6 +445,12 @@ class Ghonna(ConversionOperation):
         )
 
         # النون والميم المشددتين
+        # العنة المتطرفة
+        text = re.sub(
+            f"([{uth.meem}{uth.noon}]){uth.shadda}$",
+            r"\1" * self.ghonna_len,
+            text,
+        )
         text = re.sub(
             f"([{uth.meem}{uth.noon}]){uth.shadda}",
             r"\1" * (self.ghonna_len + 1),
@@ -473,6 +489,129 @@ class Imala(ConversionOperation):
     )
 
 
+@dataclass
+class MaddPattern:
+    pattern: str
+    target: str
+
+
+@dataclass
+class Madd(ConversionOperation):
+    arabic_name: str = "فك المد"
+    ops_before: list[ConversionOperation] = field(
+        default_factory=lambda: [
+            Ghonna(),
+            Tasheel(),
+            Imala(),
+        ]
+    )
+    regs: tuple[str, str] = ("", "")
+    madd_map: dict = field(
+        default_factory=lambda: {
+            "fath": MaddPattern(
+                pattern=f"({uth.fatha}){uth.alif}",
+                target=ph.alif,
+            ),
+            "dam": MaddPattern(
+                pattern=f"({uth.dama}){uth.waw}",
+                target=ph.waw_madd,
+            ),
+            "kasr": MaddPattern(
+                pattern=f"({uth.kasra}){uth.yaa}",
+                target=ph.yaa_madd,
+            ),
+        }
+    )
+
+    def forward(self, text, moshaf: MoshafAttributes) -> str:
+        # المد المنفصل
+        # ها ويا التنبيه
+        text = re.sub(
+            f"((?:^|{uth.space}|(?:(?:^|{uth.space})[{uth.faa}{uth.waw}{uth.hamza}]{uth.fatha}))[{uth.yaa}{uth.haa}]{uth.fatha}){uth.alif}{uth.madd}({uth.hamza}.(?!{uth.space}))",
+            r"\1" + ph.alif * moshaf.madd_monfasel_len + r"\2",
+            text,
+        )
+        # normal
+        for k, madd_patt in self.madd_map.items():
+            text = re.sub(
+                f"{madd_patt.pattern}{uth.madd}({uth.space}{uth.hamza})",
+                r"\1" + moshaf.madd_monfasel_len * madd_patt.target + r"\2",
+                text,
+            )
+
+        # المد المتصل وقفا
+        # أقوى السببين
+        for k, madd_patt in self.madd_map.items():
+            text = re.sub(
+                f"{madd_patt.pattern}{uth.madd}({uth.hamza}$)",
+                r"\1"
+                + max(moshaf.madd_mottasel_waqf, moshaf.madd_aared_len)
+                * madd_patt.target
+                + r"\2",
+                text,
+            )
+
+        # المد المنفصل
+        for k, madd_patt in self.madd_map.items():
+            text = re.sub(
+                f"{madd_patt.pattern}{uth.madd}({uth.hamza})",
+                r"\1" + moshaf.madd_mottasel_len * madd_patt.target + r"\2",
+                text,
+            )
+
+        # المد اللازم
+        # أوجه العنين
+        text = re.sub(
+            f"({uth.fatha}){uth.yaa}{uth.madd}",
+            r"\1" + (moshaf.madd_yaa_alayn_alharfy - 1) * ph.yaa,
+            text,
+        )
+        # ميم آل عمران
+        if moshaf.meem_aal_imran == "wasl_2":
+            meema_len = 2
+        elif moshaf.meem_aal_imran == "wasl_6":
+            meema_len = 6
+        else:
+            meema_len = 6
+        text = re.sub(
+            f"({uth.meem}{uth.kasra}){uth.yaa}{uth.madd}({uth.meem}{uth.fatha})",
+            r"\1" + ph.yaa_madd * meema_len + r"\2",
+            text,
+        )
+
+        for k, madd_patt in self.madd_map.items():
+            text = re.sub(
+                f"{madd_patt.pattern}{uth.madd}(.(?:{uth.shadda}|{uth.ras_haaa}|[{ph.noon}{ph.meem}{ph.noon_mokhfah}]{{2,3}}))",
+                r"\1" + 6 * madd_patt.target + r"\2",
+                text,
+            )
+
+        # المد العارض للسكون
+        for k, madd_patt in self.madd_map.items():
+            text = re.sub(
+                f"{madd_patt.pattern}(.{uth.ras_haaa}?(?:$|{ph.sakt}))",
+                r"\1" + moshaf.madd_aared_len * madd_patt.target + r"\2",
+                text,
+            )
+
+        # مد اللين
+        text = re.sub(
+            f"({uth.fatha})([{uth.yaa}{uth.waw}]){uth.ras_haaa}?(.{uth.ras_haaa}?$)",
+            r"\1" + (moshaf.madd_alleen_len - 1) * r"\2" + r"\3",
+            text,
+        )
+
+        # المد الطبيعي
+        for k, madd_patt in self.madd_map.items():
+            text = re.sub(
+                f"{madd_patt.pattern}(?![{ph.alif}{uth.yaa}{uth.waw}])",
+                r"\1" + 2 * madd_patt.target,
+                text,
+            )
+
+        return text
+
+
 OPERATION_ORDER = [
     DisassembleHrofMoqatta(),
     SpecialCases(),
@@ -491,7 +630,9 @@ OPERATION_ORDER = [
     AddAlifIsmAllah(),
     PrepareGhonnaIdghamIqlab(),
     IltiqaaAlsaknan(),
+    DeleteShaddaAtBeginning(),
     Ghonna(),
     Tasheel(),
     Imala(),
+    Madd(),
 ]

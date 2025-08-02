@@ -8,7 +8,7 @@ from .moshaf_attributes import MoshafAttributes
 @dataclass
 class ConversionOperation:
     regs: list[tuple[str, str]] | tuple[str, str]
-    arabic_name: str = ""
+    arabic_name: str
     ops_before: list["ConversionOperation"] | None = None
 
     def __post_init__(self):
@@ -27,12 +27,15 @@ class ConversionOperation:
         self,
         text: str,
         moshaf: MoshafAttributes,
+        discard_ops: list["ConversionOperation"] = [],
         mode: Literal["inference", "test"] = "inference",
     ) -> str:
         if mode == "test":
+            discard_ops_names = {o.arabic_name for o in discard_ops}
             for op in self.ops_before:
-                print(f"Applying: {type(op)}")
-                text = op.apply(text, moshaf, mode="test")
+                if op.arabic_name not in discard_ops_names:
+                    print(f"Applying: {type(op)}")
+                    text = op.apply(text, moshaf, mode="test", discard_ops=discard_ops)
 
         if mode in {"inference", "test"}:
             return self.forward(text, moshaf)

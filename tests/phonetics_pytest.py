@@ -23,6 +23,7 @@ from quran_transcript.phonetics.operations import (
     Ghonna,
     Tasheel,
     Imala,
+    Madd,
 )
 from quran_transcript import Aya
 from quran_transcript import alphabet as alph
@@ -2273,6 +2274,17 @@ def test_iltiqaa_alsaknana(in_text: str, target_text: str, moshaf: MoshafAttribu
                 madd_aared_len=4,
             ),
         ),
+        (
+            "مِّنْ خَوْفٍۭ",
+            "مِّنْ خَوْفٍۭ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
     ],
 )
 def test_ghonna(in_text: str, target_text: str, moshaf: MoshafAttributes):
@@ -2345,6 +2357,325 @@ def test_imala(in_text: str, target_text: str, moshaf: MoshafAttributes):
     op = Imala()
     for b_op in op.ops_before:
         target_text = b_op.apply(target_text, moshaf, mode="test")
+    out_text = op.apply(in_text, moshaf, mode="test")
+    print(f"Target Text:\n'{target_text}'")
+    print(f"Out Text:\n'{out_text}'")
+    assert out_text == target_text
+
+
+@pytest.mark.parametrize(
+    "in_text, target_text, moshaf",
+    [
+        # المد المنفصل
+        (
+            "يَـٰٓأَيُّهَا ٱلَّذِينَ",
+            "يَااااءَيُّهَا لَّذِۦۦن",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=2,
+            ),
+        ),
+        (
+            "يَـٰٓأَيُّهَا ٱلَّذِينَ",
+            "يَااءَيُّهَا لَّذِۦۦۦۦۦۦن",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=2,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=6,
+            ),
+        ),
+        (
+            "أَهَـٰٓؤُلَآءِ",
+            "أَهَااؤُلَاااااء",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=2,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=5,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "بِمَآ أُنزِلَ",
+            "بِمَااااا أُنزِلَ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=5,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "قَالُوٓا۟ ءَامَنَّا",
+            "قَاالُۥۥۥۥ ءَاامَنَّاا",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=5,
+                madd_mottasel_waqf=5,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "وَفِىٓ أَنفُسِكُمْ",
+            "وَفِۦۦ أَنفُسِكُمْ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=2,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "مَالَهُۥٓ أَخْلَدَهُۥ",
+            "مَاالَهُۥۥۥۥۥ أَخْلَدَه",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=5,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "طَعَامِهِۦٓ أَنَّا",
+            "طَعَاامِهِۦۦۦۦ أَنَّاا",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=5,
+                madd_mottasel_waqf=5,
+                madd_aared_len=6,
+            ),
+        ),
+        (
+            "أَوْ كَصَيِّبٍۢ مِّنَ ٱلسَّمَآءِ",
+            "أَوْ كَصَيِّبِممممِنَ سَّمَااااااء",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=6,
+            ),
+        ),
+        # المد المتصل
+        (
+            "وَٱلسَّمَآءَ بِنَآءًۭ وَأَنزَلَ مِنَ ٱلسَّمَآءِ مَآءًۭ",
+            "وَسَّمَااااءَ بِنَااااءَوووَأَںںںزَلَ مِنَ سَّمَااااءِ مَااااءَاا",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=5,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "سُوٓءَ ٱلْعَذَابِ",
+            "سُۥۥۥۥۥءَ لْعَذَااااب",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=5,
+                madd_mottasel_waqf=5,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "سِىٓءَ بِهِمْ",
+            "سِۦۦۦۦۦۦءَ بِهِمْ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=6,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        # combined متصل ومنفصل
+        (
+            "أَسَـٰٓـُٔوا۟ ٱلسُّوٓأَىٰٓ أَن",
+            "أَسَااااءُ سُّۥۥۥۥءَاا أَن",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=2,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        # المد اللازم
+        (
+            "ءَآلْـَٔـٰنَ وَقَدْ عَصَيْتَ",
+            "ءَاااااالْءَاانَ وَقَدْ عَصَيييت",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "ٱلصَّآخَّةُ",
+            "ٱصَّااااااخَّةُ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "أَتُحَـٰٓجُّوٓنِّى",
+            "أَتُحَااااااجُّۥۥۥۥۥۥننننِۦۦ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "جَآنٌّۭ",
+            "جَااااااننن",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "كٓهيعٓصٓ",
+            "كَاااااافْ هَاا يَاا عَيںںںصَاااااادْ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                madd_yaa_alayn_alharfy=2,
+            ),
+        ),
+        (
+            "عٓسٓقٓ",
+            "عَيييييںںںسِۦۦۦۦۦۦںںںقَاااااافْ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                madd_yaa_alayn_alharfy=6,
+            ),
+        ),
+        (
+            "الٓمٓ",
+            "ءَلِفْ لَااااااممممِۦۦۦۦۦۦمْ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "الٓمٓ ٱللَّهُ",
+            "ءَلِفْ لَااااااممممِۦۦۦۦۦۦمَ لَّااااه",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                meem_aal_imran="wasl_6",
+            ),
+        ),
+        (
+            "الٓمٓ ٱللَّهُ",
+            "ءَلِفْ لَااااااممممِۦۦمَ لَّااه",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=2,
+                meem_aal_imran="wasl_2",
+            ),
+        ),
+        # مد طبيعي
+        (
+            "قَرِيبًۭا",
+            "قَرِۦۦبَاا",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=2,
+                meem_aal_imran="wasl_2",
+            ),
+        ),
+        # مد اللين
+        (
+            "مِّنْ خَوْفٍۭ",
+            "مِنْ خَوووووف",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=6,
+            ),
+        ),
+        # compos tests
+        (
+            "قَالُوا۟ هَـٰذَا ٱلَّذِى رُزِقْنَا مِن قَبْلُ وَأُتُوا۟ بِهِۦ مُتَشَـٰبِهًۭا وَلَهُمْ فِيهَآ أَزْوَٰجٌۭ مُّطَهَّرَةٌۭ وَهُمْ فِيهَا خَـٰلِدُونَ",
+            "قَاالُۥۥ هَااذَ لَّذِۦۦ رُزِقْنَاا مِںںںقَبْلُ وَأُتُۥۥ بِهِۦۦ مُتَشَاابِهَوووَلَهُمْ فِۦۦهَاااا أَزْوَااجُممممُطَهَّرَتُوووَهُمْ فِۦۦهَاا خَاالِدُۥۥن",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=2,
+            ),
+        ),
+        (
+            "عَلِيمٌۢ بَرَآءَةٌۭ",
+            "عَلِۦۦۦۦمۜ بَرَااااءَه",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                between_anfal_and_tawba="sakt",
+            ),
+        ),
+    ],
+)
+def test_madd(in_text: str, target_text: str, moshaf: MoshafAttributes):
+    op = Madd()
+    for b_op in op.ops_before:
+        target_text = b_op.apply(
+            target_text,
+            moshaf,
+            mode="test",
+            discard_ops=[EnlargeSmallLetters()],
+        )
     out_text = op.apply(in_text, moshaf, mode="test")
     print(f"Target Text:\n'{target_text}'")
     print(f"Out Text:\n'{out_text}'")

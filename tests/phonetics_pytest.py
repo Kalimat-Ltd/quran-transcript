@@ -22,6 +22,7 @@ from quran_transcript.phonetics.operations import (
     IltiqaaAlsaknan,
     Ghonna,
     Tasheel,
+    Imala,
 )
 from quran_transcript import Aya
 from quran_transcript import alphabet as alph
@@ -2315,6 +2316,33 @@ def test_ghonna(in_text: str, target_text: str, moshaf: MoshafAttributes):
 )
 def test_tasheel(in_text: str, target_text: str, moshaf: MoshafAttributes):
     op = Tasheel()
+    for b_op in op.ops_before:
+        target_text = b_op.apply(target_text, moshaf, mode="test")
+    out_text = op.apply(in_text, moshaf, mode="test")
+    print(f"Target Text:\n'{target_text}'")
+    print(f"Out Text:\n'{out_text}'")
+    assert out_text == target_text
+
+
+@pytest.mark.parametrize(
+    "in_text, target_text, moshaf",
+    [
+        # إدغم النون في الياء
+        (
+            "مَجْر۪ىٰهَا",
+            "مَجْر۪ــهَا",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+    ],
+)
+def test_imala(in_text: str, target_text: str, moshaf: MoshafAttributes):
+    op = Imala()
     for b_op in op.ops_before:
         target_text = b_op.apply(target_text, moshaf, mode="test")
     out_text = op.apply(in_text, moshaf, mode="test")

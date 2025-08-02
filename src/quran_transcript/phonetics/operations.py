@@ -458,6 +458,21 @@ class Tasheel(ConversionOperation):
     )
 
 
+@dataclass
+class Imala(ConversionOperation):
+    arabic_name: str = "فك التسهيل"
+    ops_before: list[ConversionOperation] = field(
+        default_factory=lambda: [
+            ConvertAlifMaksora(),
+            EnlargeSmallLetters(),
+        ]
+    )
+    regs: tuple[str, str] = (
+        f"{uth.imala_sign}{uth.alif}",
+        f"{ph.fatha_momala}{ph.alif_momala}{ph.alif_momala}",
+    )
+
+
 OPERATION_ORDER = [
     DisassembleHrofMoqatta(),
     SpecialCases(),
@@ -478,4 +493,5 @@ OPERATION_ORDER = [
     IltiqaaAlsaknan(),
     Ghonna(),
     Tasheel(),
+    Imala(),
 ]

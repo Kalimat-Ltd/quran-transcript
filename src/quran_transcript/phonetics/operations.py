@@ -378,17 +378,17 @@ class IltiqaaAlsaknan(ConversionOperation):
             # alif
             (
                 f"{uth.madd_alif}({uth.space}.[{uth.ras_haaa}{uth.shadda}])",
-                f"{uth.fatha}//1",
+                f"{uth.fatha}\\1",
             ),
             # waw
             (
                 f"{uth.madd_waw}({uth.space}.[{uth.ras_haaa}{uth.shadda}])",
-                f"{uth.dama}//1",
+                f"{uth.dama}\\1",
             ),
             # yaa
             (
                 f"{uth.madd_yaa}({uth.space}.[{uth.ras_haaa}{uth.shadda}])",
-                f"{uth.kasra}//1",
+                f"{uth.kasra}\\1",
             ),
         ]
     )

@@ -444,6 +444,20 @@ class Ghonna(ConversionOperation):
         return text
 
 
+@dataclass
+class Tasheel(ConversionOperation):
+    arabic_name: str = "إضافة علامة التسهيل"
+    ops_before: list[ConversionOperation] = field(
+        default_factory=lambda: [
+            SpecialCases(),
+        ]
+    )
+    regs: tuple[str, str] = (
+        f"{uth.alif}{uth.tasheel_sign}",
+        f"{ph.hamza_mosahala}",
+    )
+
+
 OPERATION_ORDER = [
     DisassembleHrofMoqatta(),
     SpecialCases(),
@@ -463,4 +477,5 @@ OPERATION_ORDER = [
     PrepareGhonnaIdghamIqlab(),
     IltiqaaAlsaknan(),
     Ghonna(),
+    Tasheel(),
 ]

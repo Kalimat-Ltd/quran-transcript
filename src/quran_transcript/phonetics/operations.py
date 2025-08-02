@@ -49,17 +49,6 @@ class SpecialCases(ConversionOperation):
 
 
 @dataclass
-class SpecialWays(ConversionOperation):
-    arabic_name: str = "الأوجه الخاصة لحفص"
-    regs: tuple[str, str] = ("", "")
-
-    def forward(self, text, moshaf):
-        for word, rep in uth.hrof_moqtaa_disassemble.items():
-            text = re.sub(f"(^|{uth.space}){word}({uth.space}|$)", f"\\1{rep}\\2", text)
-        return text
-
-
-@dataclass
 class ConvertAlifMaksora(ConversionOperation):
     arabic_name: str = "تحويل الأف المقصورة إله: حضف أو ألف أو ياء"
     regs: list[tuple[str, str]] = field(
@@ -626,6 +615,30 @@ class Qalqla(ConversionOperation):
     )
 
 
+@dataclass
+class RemoveRasHaaAndShadda(ConversionOperation):
+    arabic_name: str = "حذف السكون والشدة م تكرار الحرف المشدد"
+    regs: list[tuple[str, str]] = field(
+        default_factory=lambda: [
+            # shadda
+            (
+                f"(.){uth.shadda}",
+                r"\1\1",
+            ),
+            # skoon
+            (
+                f"{uth.ras_haaa}",
+                r"",
+            ),
+        ]
+    )
+    ops_before: list[ConversionOperation] = field(
+        default_factory=lambda: [
+            CleanEnd(),
+        ]
+    )
+
+
 OPERATION_ORDER = [
     DisassembleHrofMoqatta(),
     SpecialCases(),
@@ -650,4 +663,5 @@ OPERATION_ORDER = [
     Imala(),
     Madd(),
     Qalqla(),
+    RemoveRasHaaAndShadda(),
 ]

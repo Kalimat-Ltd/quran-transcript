@@ -394,6 +394,56 @@ class IltiqaaAlsaknan(ConversionOperation):
     )
 
 
+@dataclass
+class Ghonna(ConversionOperation):
+    ops_before: list[ConversionOperation] = field(
+        default_factory=lambda: [
+            IltiqaaAlsaknan(),
+        ]
+    )
+    arabic_name: str = "وضع الغنة في النون الميم"
+    regs: tuple[str, str] = ("", "")
+    ghonna_len: int = 3
+    idgham_yaa_waw_len: int = 2
+
+    def forward(self, text, moshaf: MoshafAttributes) -> str:
+        # الميم المخفار
+        if moshaf.meem_mokhfah == "meem":
+            meem_mokhfah = ph.meem
+        elif moshaf.meem_mokhfah == "ikhfaa":
+            meem_mokhfah = ph.meem_mokhfah
+        else:
+            raise ValueError()
+        text = re.sub(
+            f"{uth.meem}{uth.space}?{uth.baa}",
+            f"{meem_mokhfah * self.ghonna_len}{uth.baa}",
+            text,
+        )
+
+        # إدغام النون في الياء و الواو
+        text = re.sub(
+            f"{uth.noon}{uth.space}([{uth.yaa}{uth.waw}])",
+            r"\1" * (self.idgham_yaa_waw_len + 1),
+            text,
+        )
+
+        # إخفاء النون
+        text = re.sub(
+            f"{uth.noon}{uth.space}?([{uth.noon_ikhfaa_group}])",
+            f"{ph.noon_mokhfah * self.ghonna_len}\\1",
+            text,
+        )
+
+        # النون والميم المشددتين
+        text = re.sub(
+            f"([{uth.meem}{uth.noon}]){uth.shadda}",
+            r"\1" * (self.ghonna_len + 1),
+            text,
+        )
+
+        return text
+
+
 OPERATION_ORDER = [
     DisassembleHrofMoqatta(),
     SpecialCases(),
@@ -412,4 +462,5 @@ OPERATION_ORDER = [
     AddAlifIsmAllah(),
     PrepareGhonnaIdghamIqlab(),
     IltiqaaAlsaknan(),
+    Ghonna(),
 ]

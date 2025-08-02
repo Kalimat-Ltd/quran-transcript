@@ -20,6 +20,7 @@ from quran_transcript.phonetics.operations import (
     AddAlifIsmAllah,
     PrepareGhonnaIdghamIqlab,
     IltiqaaAlsaknan,
+    Ghonna,
 )
 from quran_transcript import Aya
 from quran_transcript import alphabet as alph
@@ -2011,6 +2012,269 @@ def test_Prepare_ghonna_tanween_idgham(
 )
 def test_iltiqaa_alsaknana(in_text: str, target_text: str, moshaf: MoshafAttributes):
     op = IltiqaaAlsaknan()
+    for b_op in op.ops_before:
+        target_text = b_op.apply(target_text, moshaf, mode="test")
+    out_text = op.apply(in_text, moshaf, mode="test")
+    print(f"Target Text:\n'{target_text}'")
+    print(f"Out Text:\n'{out_text}'")
+    assert out_text == target_text
+
+
+@pytest.mark.parametrize(
+    "in_text, target_text, moshaf",
+    [
+        # إدغم النون في الياء
+        (
+            "فَمَن يَعْمَلْ",
+            "فَمَيييَعْمَلْ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "خَيْرًۭا يَرَهُۥ",
+            "خَيْرَيييَرَهُۥ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "مِن وَلِىٍّۢ وَلَا نَصِيرٍ",
+            "مِوووَلِيِّوووَلَا نَصِيرٍ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        # إخفاء النون
+        (
+            "مِنكُمْ",
+            "مِںںںكُمْ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "مِن قَبْلِكَ",
+            "مِںںںقَبْلِكَ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "خَمْسَةٌۭ سَادِسُهُمْ",
+            "خَمْسَتُںںںسَادِسُهُمْ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        # الميم المخفاة
+        (
+            "مِنۢ بَعْدِ",
+            "مِ۾۾۾بَعْدِ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "أَنۢبِئْهُم",
+            "أَ۾۾۾بِئْهُم",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "سَمِيعٌۢ بَصِيرٌ",
+            "سَمِيعُ۾۾۾بَصِيرٌ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "تَرْمِيهِم بِحِجَارَةٍۢ",
+            "تَرْمِيهِ۾۾۾بِحِجَارَةٍۢ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "تَرْمِيهِم بِحِجَارَةٍۢ",
+            "تَرْمِيهِمممبِحِجَارَةٍۢ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                meem_mokhfah="meem",
+            ),
+        ),
+        (
+            "سَمِيعٌۢ بَصِيرٌ",
+            "سَمِيعُمممبَصِيرٌ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                meem_mokhfah="meem",
+            ),
+        ),
+        # النون المشددة
+        (
+            "إِنَّمَا",
+            "إِننننَمَا",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "وَلَن نُّشْرِكَ",
+            "وَلَننننُشْرِكَ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "مِنَ ٱلْجِنَّةِ وَٱلنَّاسِ",
+            "مِنَ لْجِننننَةِ وَننننَاسِ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "وَلَٰكِنَّ ٱلْبِرَّ",
+            "وَلَٰكِننننَ لْبِرَّ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "حَمَّالَةَ ٱلْحَطَبِ",
+            "حَممممَالَةَ ٱلْحَطَبِ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "",
+            "",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "ٱلْيَمِّ وَلَا تَخَافِى",
+            "ٱلْيَممممِ وَلَا تَخَافِى",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "لَكُم مَّا",
+            "لَكُممممَا",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "مِن مَّالٍ",
+            "مِممممَالٍ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "خَيْرٌۭ مِّن",
+            "خَيْرُممممِن",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+    ],
+)
+def test_ghonna(in_text: str, target_text: str, moshaf: MoshafAttributes):
+    op = Ghonna()
     for b_op in op.ops_before:
         target_text = b_op.apply(target_text, moshaf, mode="test")
     out_text = op.apply(in_text, moshaf, mode="test")

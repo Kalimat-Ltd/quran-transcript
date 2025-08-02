@@ -400,7 +400,7 @@ class MoshafAttributes(BaseModel):
         " or softening (`tarqeeq`) when pausing at this word in Surah Al-Fajr."
         " `wasl`: means not pasuing so we only have one way (tarqeeq of Raa)",
     )
-    meem_mokhfaa: Literal["meem", "ikhfaa"] = Field(
+    meem_mokhfah: Literal["meem", "ikhfaa"] = Field(
         default="ikhfaa",
         field_arabic_name="هل الميم مخفاة أو مدغمة",
         field_arabic_attrs_map={

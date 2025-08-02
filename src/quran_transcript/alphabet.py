@@ -322,8 +322,8 @@ class QuranPhoneticScriptAlphabet:
     alif_momala: str
     hamza_mosahala: str
     qlqla: str
-    noon_mokhfa: str
-    meem_mokhfa: str
+    noon_mokhfah: str
+    meem_mokhfah: str
     sakt: str
     dama_mokhtalasa: str
 
@@ -406,8 +406,8 @@ with open(alphabet_path, "r", encoding="utf8") as f:
         alif_momala=uthmani.kasheeda,
         hamza_mosahala=uthmani.tasheel_sign,
         qlqla="\u066f",  # dotless qaf "ٯ"
-        noon_mokhfa=uthmani.small_noon,
-        meem_mokhfa=uthmani.meem_iqlab,
+        noon_mokhfah="\u06ba",  # urdu ghonna
+        meem_mokhfah="\u06fe",
         sakt=uthmani.small_seen_above,
         dama_mokhtalasa="\u0619",
     )

@@ -612,6 +612,20 @@ class Madd(ConversionOperation):
         return text
 
 
+@dataclass
+class Qalqla(ConversionOperation):
+    arabic_name: str = "إضافة علامة القلقة"
+    regs: tuple[str, str] = (
+        f"([{uth.qlqla_group}](?:{uth.shadda}$|{uth.ras_haaa}|$))",
+        r"\1" + ph.qlqla,
+    )
+    ops_before: list[ConversionOperation] = field(
+        default_factory=lambda: [
+            CleanEnd(),
+        ]
+    )
+
+
 OPERATION_ORDER = [
     DisassembleHrofMoqatta(),
     SpecialCases(),
@@ -635,4 +649,5 @@ OPERATION_ORDER = [
     Tasheel(),
     Imala(),
     Madd(),
+    Qalqla(),
 ]

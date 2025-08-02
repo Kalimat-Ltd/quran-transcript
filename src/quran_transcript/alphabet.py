@@ -132,6 +132,7 @@ class UthmaniAlphabet:
     letters_group: str = ""
     pure_letters_group: str = ""
     pure_letters_without_yaa_and_waw_group: str = ""
+    qlqla_group: str = ""
 
     def __post_init__(self):
         self.special_patterns = [SpecialPattern(**p) for p in self.special_patterns]
@@ -260,6 +261,9 @@ class UthmaniAlphabet:
             + self.noon
             + self.haa
             + self.hamza
+        )
+        self.qlqla_group = (
+            self.qaf + self.taa_mofakhama + self.baa + self.jeem + self.daal
         )
 
         # تنوين مظهر وتنوين مدغم
@@ -405,7 +409,7 @@ with open(alphabet_path, "r", encoding="utf8") as f:
         fatha_momala=uthmani.imala_sign,
         alif_momala=uthmani.kasheeda,
         hamza_mosahala="\u0672",  # kashmiri hmamza above
-        qlqla="\u066f",  # dotless qaf "ٯ"
+        qlqla="\u0687",  # جيم صغيرة
         noon_mokhfah="\u06ba",  # urdu ghonna
         meem_mokhfah="\u06fe",
         sakt=uthmani.small_seen_above,

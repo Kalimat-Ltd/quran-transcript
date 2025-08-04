@@ -680,7 +680,7 @@ class Madd(ConversionOperation):
         # المد الطبيعي
         for k, madd_patt in self.madd_map.items():
             text = re.sub(
-                f"{madd_patt.pattern}(?![{ph.alif}{uth.yaa}{uth.waw}])",
+                f"{madd_patt.pattern}(?![{ph.alif}{uth.yaa}{uth.waw}{uth.ras_haaa}{uth.shadda}])",
                 r"\1" + 2 * madd_patt.target,
                 text,
             )

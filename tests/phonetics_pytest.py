@@ -1,5 +1,6 @@
 import pytest
 import re
+from dataclasses import asdict
 
 from quran_transcript.phonetics.moshaf_attributes import MoshafAttributes
 from quran_transcript.phonetics.operations import (
@@ -27,6 +28,7 @@ from quran_transcript.phonetics.operations import (
     Madd,
     Qalqla,
 )
+from quran_transcript.phonetics.phonetizer import quran_phonetizer
 from quran_transcript import Aya
 from quran_transcript import alphabet as alph
 
@@ -2718,6 +2720,17 @@ def test_imala(in_text: str, target_text: str, moshaf: MoshafAttributes):
                 madd_aared_len=4,
             ),
         ),
+        (
+            "إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ",
+            "ءِيَّااكَ نَعْبُدُ وَءِيَّااكَ نَسْتَعِۦۦۦۦن",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
     ],
 )
 def test_madd(in_text: str, target_text: str, moshaf: MoshafAttributes):
@@ -3050,3 +3063,254 @@ def test_get_thrird_letter_in_verb_haraka(
     haraka = op._get_verb_third_letter_haraka(verb)
     print(f"'{haraka}'")
     assert haraka == target_haraka
+
+
+@pytest.mark.parametrize(
+    "in_text, target_text, moshaf",
+    [
+        (
+            "أَعُوذُ بِٱللَّهِ مِنَ ٱلشَّيْطَانِ ٱلرَّجِيمِ",
+            "ءَعُۥۥذُ بِللَااهِ مِنَ ششَيطَاانِ ررَجِۦۦۦۦم",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                between_anfal_and_tawba="sakt",
+            ),
+        ),
+        (
+            "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ",
+            "بِسمِ للَااهِ ررَحمَاانِ ررَحِۦۦۦۦۦۦم",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=6,
+                between_anfal_and_tawba="sakt",
+            ),
+        ),
+        (
+            "ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَـٰلَمِينَ",
+            "ءَلحَمدُ لِللَااهِ رَببِ لعَاالَمِۦۦن",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=2,
+                between_anfal_and_tawba="sakt",
+            ),
+        ),
+        (
+            "ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ",
+            "ءَررَحمَاانِ ررَحِۦۦۦۦم",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                between_anfal_and_tawba="sakt",
+            ),
+        ),
+        (
+            "مَـٰلِكِ يَوْمِ ٱلدِّينِ",
+            "مَاالِكِ يَومِ ددِۦۦۦۦن",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                between_anfal_and_tawba="sakt",
+            ),
+        ),
+        (
+            "إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ",
+            "ءِييَااكَ نَعبُدُ وَءِييَااكَ نَستَعِۦۦۦۦن",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                between_anfal_and_tawba="sakt",
+            ),
+        ),
+        (
+            "ٱهْدِنَا ٱلصِّرَٰطَ ٱلْمُسْتَقِيمَ",
+            "ءِهدِنَ صصِرَااطَ لمُستَقِۦۦۦۦم",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                between_anfal_and_tawba="sakt",
+            ),
+        ),
+        (
+            "صِرَٰطَ ٱلَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ ٱلْمَغْضُوبِ عَلَيْهِمْ وَلَا ٱلضَّآلِّينَ",
+            "صِرَااطَ للَذِۦۦنَ ءَنعَمتَ عَلَيهِم غَيرِ لمَغضُۥۥبِ عَلَيهِم وَلَ ضضَااااااللِۦۦۦۦن",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                between_anfal_and_tawba="sakt",
+            ),
+        ),
+        (
+            "الٓمٓ",
+            "ءَلِف لَااااااممممِۦۦۦۦۦۦم",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                between_anfal_and_tawba="sakt",
+            ),
+        ),
+        (
+            "ذَٰلِكَ ٱلْكِتَـٰبُ لَا رَيْبَ",
+            "ذَاالِكَ لكِتَاابُ لَاا رَيييبڇ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                between_anfal_and_tawba="sakt",
+            ),
+        ),
+        (
+            "فِيهِ هُدًۭى لِّلْمُتَّقِينَ",
+            "فِۦۦهِ هُدَللِلمُتتَقِۦۦۦۦن",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                between_anfal_and_tawba="sakt",
+            ),
+        ),
+        (
+            "ٱلَّذِينَ يُؤْمِنُونَ بِٱلْغَيْبِ وَيُقِيمُونَ ٱلصَّلَوٰةَ وَمِمَّا رَزَقْنَـٰهُمْ يُنفِقُونَ",
+            "ءَللَذِۦۦنَ يُءمِنُۥۥنَ بِلغَيبِ وَيُقِۦۦمُۥۥنَ صصَلَااتَ وَمِممممَاا رَزَقڇنَااهُم يُںںںفِقُۥۥۥۥن",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                between_anfal_and_tawba="sakt",
+            ),
+        ),
+        (
+            "وَٱلَّذِينَ يُؤْمِنُونَ بِمَآ أُنزِلَ إِلَيْكَ وَمَآ أُنزِلَ مِن قَبْلِكَ وَبِٱلْـَٔاخِرَةِ هُمْ يُوقِنُونَ",
+            "وَللَذِۦۦنَ يُءمِنُۥۥنَ بِمَاااا ءُںںںزِلَ ءِلَيكَ وَمَاااا ءُںںںزِلَ مِںںںقَبڇلِكَ وَبِلءَااخِرَتِ هُم يُۥۥقِنُۥۥۥۥن",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                between_anfal_and_tawba="sakt",
+            ),
+        ),
+        (
+            "أُو۟لَـٰٓئِكَ عَلَىٰ هُدًۭى مِّن رَّبِّهِمْ وَأُو۟لَـٰٓئِكَ هُمُ ٱلْمُفْلِحُونَ",
+            "ءُلَاااااءِكَ عَلَاا هُدَممممِررَببِهِم وَءُلَاااااءِكَ هُمُ لمُفلِحُۥۥن",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=5,
+                madd_mottasel_waqf=4,
+                madd_aared_len=2,
+                between_anfal_and_tawba="sakt",
+            ),
+        ),
+        (
+            "إِنَّ ٱلَّذِينَ كَفَرُوا۟ سَوَآءٌ عَلَيْهِمْ ءَأَنذَرْتَهُمْ أَمْ لَمْ تُنذِرْهُمْ لَا يُؤْمِنُونَ",
+            "ءِننننَ للَذِۦۦنَ كَفَرُۥۥ سَوَااااءُن عَلَيهِم ءَءَںںںذَرتَهُم ءَم لَم تُںںںذِرهُم لَاا يُءمِنُۥۥۥۥن",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                between_anfal_and_tawba="sakt",
+            ),
+        ),
+        (
+            "إِنَّ ٱللَّهَ لَا يَسْتَحْىِۦٓ أَن يَضْرِبَ مَثَلًۭا مَّا بَعُوضَةًۭ فَمَا فَوْقَهَا",
+            "ءِننننَ للَااهَ لَاا يَستَحيِۦۦۦۦ ءَيييَضرِبَ مَثَلَممممَاا بَعُۥۥضَتَںںںفَمَاا فَوقَهَاا",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                between_anfal_and_tawba="sakt",
+            ),
+        ),
+        (
+            "وَمَن يُطِعِ ٱللَّهَ وَٱلرَّسُولَ فَأُو۟لَـٰٓئِكَ مَعَ ٱلَّذِينَ أَنْعَمَ ٱللَّهُ عَلَيْهِم مِّنَ ٱلنَّبِيِّـۧنَ وَٱلصِّدِّيقِينَ وَٱلشُّهَدَآءِ وَٱلصَّـٰلِحِينَ وَحَسُنَ أُو۟لَـٰٓئِكَ رَفِيقًۭا",
+            "وَمَيييُطِعِ للَااهَ وَررَسُۥۥلَ فَءُلَااااءِكَ مَعَ للَذِۦۦنَ ءَنعَمَ للَااهُ عَلَيهِممممِنَ ننننَبِييِۦۦنَ وَصصِددِۦۦقِۦۦنَ وَششُهَدَااااءِ وَصصَاالِحِۦۦنَ وَحَسُنَ ءُلَااااءِكَ رَفِۦۦقَاا",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                between_anfal_and_tawba="sakt",
+            ),
+        ),
+        (
+            "وَأَقِيمُوا۟ ٱلصَّلَوٰةَ",
+            "وَءَقِۦۦمُ صصَلَااااه",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                between_anfal_and_tawba="sakt",
+            ),
+        ),
+    ],
+)
+def test_quran_phonetizer(in_text: str, target_text: str, moshaf: MoshafAttributes):
+    out_text = quran_phonetizer(in_text, moshaf)
+    print(f"Target Text:\n'{target_text}'")
+    print(f"Out Text:\n'{out_text}'")
+    assert out_text == target_text
+
+
+def test_quran_phonetizer_stree_test():
+    start_aya = Aya()
+    moshaf = MoshafAttributes(
+        rewaya="hafs",
+        madd_monfasel_len=4,
+        madd_mottasel_len=4,
+        madd_mottasel_waqf=4,
+        madd_aared_len=4,
+        noon_tamnna="rawm",
+    )
+
+    for aya in start_aya.get_ayat_after(114):
+        txt = aya.get().uthmani
+        out_text = quran_phonetizer(txt, moshaf, remove_sapce=True)
+        alphabet = set(asdict(alph.phonetics).values())
+        out_alphabet = set(out_text)
+        if not out_alphabet <= alphabet:
+            print(f"Diff: '{out_alphabet - alphabet}'")
+            print(aya)
+            print(out_text)
+            raise ValueError()

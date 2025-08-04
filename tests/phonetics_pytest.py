@@ -3284,6 +3284,18 @@ def test_get_thrird_letter_in_verb_haraka(
                 between_anfal_and_tawba="sakt",
             ),
         ),
+        (
+            "ثَمَـٰنِيَةَ أَزْوَٰجٍۢ مِّنَ ٱلضَّأْنِ ٱثْنَيْنِ وَمِنَ ٱلْمَعْزِ ٱثْنَيْنِ قُلْ ءَآلذَّكَرَيْنِ حَرَّمَ أَمِ ٱلْأُنثَيَيْنِ أَمَّا ٱشْتَمَلَتْ عَلَيْهِ أَرْحَامُ ٱلْأُنثَيَيْنِ نَبِّـُٔونِى بِعِلْمٍ إِن كُنتُمْ صَـٰدِقِينَ",
+            "ثَمَاانِيَتَ ءَزوَااجِممممِنَ ضضَءنِ ثنَينِ وَمِنَ لمَعزِ ثنَينِ قُل ءَٲذذَكَرَينِ حَررَمَ ءَمِ لءُںںںثَيَينِ ءَممممَ شتَمَلَت عَلَيهِ ءَرحَاامُ لءُںںںثَيَينِ نَببِءُۥۥنِۦۦ بِعِلمِن ءِںںںكُںںںتُم صَاادِقِۦۦۦۦن",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                tasheel_or_madd="tasheel",
+            ),
+        ),
     ],
 )
 def test_quran_phonetizer(in_text: str, target_text: str, moshaf: MoshafAttributes):

@@ -49,6 +49,87 @@ class SpecialCases(ConversionOperation):
 
 
 @dataclass
+class BeginWithHamzatWasl(ConversionOperation):
+    arabic_name: str = (
+        "تحويل همزة الوصل في البداية لهمة في الأسماء والأفعلا والمعرف بأل"
+    )
+    regs: tuple[str, str] = ("", "")
+    ops_before: list[ConversionOperation] = field(
+        default_factory=lambda: [
+            DisassembleHrofMoqatta(),
+            SpecialCases(),
+        ]
+    )
+
+    def _get_verb_third_letter_haraka(self, verb: str):
+        if verb in uth.begin_hamzat_wasl.damma_aarida_verbs:
+            return uth.kasra
+
+        letters = f"{uth.pure_letters_group}{uth.hamazat_group}"
+        match = re.search(
+            f"^{uth.hamzat_wasl}(?:{uth.noon}[{uth.noon_ikhfaa_group}]|[{letters}]{uth.shadda}|(?:{uth.noon}{uth.meem_iqlab}|[{letters}][{uth.harakat_group}{uth.ras_haaa}])[{letters}])(.)",
+            verb,
+        )
+        if match:
+            haraka = match.group(1)
+            if haraka == uth.dama:
+                return uth.dama
+            elif haraka in {uth.kasra, uth.fatha}:
+                return uth.kasra
+            else:
+                raise ValueError(
+                    f"Can no determine haraka exeptected: ضمة أو فتحة أو كسرة got : `{haraka}`"
+                )
+
+        raise ValueError("Can not found match to extract harak")
+
+    def forward(self, text: str, moshaf):
+        if re.search(f"^{uth.hamzat_wasl}", text):
+            words = text.split(uth.space)
+            first_word = words[0]
+            # الأسماء
+            if (first_word in uth.begin_hamzat_wasl.verbs_nouns_inter) or (
+                first_word in uth.begin_hamzat_wasl.nouns
+            ):
+                first_word = re.sub(
+                    f"(^){uth.hamzat_wasl}",
+                    f"\\1{uth.hamza}{uth.kasra}",
+                    first_word,
+                )
+            # الأفعال
+            elif first_word in uth.begin_hamzat_wasl.verbs:
+                third_letter_haraka = self._get_verb_third_letter_haraka(first_word)
+                first_word = re.sub(
+                    f"(^){uth.hamzat_wasl}",
+                    f"\\1{uth.hamza}{third_letter_haraka}",
+                    first_word,
+                )
+
+                # اجتماع همزتان
+                haraka_to_letter_madd = {
+                    uth.kasra: uth.yaa,
+                    uth.dama: uth.waw,
+                }
+                first_word = re.sub(
+                    f"(^{uth.hamza}.)[{uth.hamazat_group}]{uth.ras_haaa}",
+                    f"\\1{haraka_to_letter_madd[third_letter_haraka]}",
+                    first_word,
+                )
+
+            # المعرف بأل
+            else:
+                first_word = re.sub(
+                    f"(^){uth.hamzat_wasl}",
+                    f"\\1{uth.hamza}{uth.fatha}",
+                    first_word,
+                )
+
+            # joing again
+            text = uth.space.join([first_word] + words[1:])
+        return text
+
+
+@dataclass
 class ConvertAlifMaksora(ConversionOperation):
     arabic_name: str = "تحويل الأف المقصورة إله: حضف أو ألف أو ياء"
     regs: list[tuple[str, str]] = field(
@@ -648,6 +729,7 @@ class RemoveRasHaaAndShadda(ConversionOperation):
 OPERATION_ORDER = [
     DisassembleHrofMoqatta(),
     SpecialCases(),
+    BeginWithHamzatWasl(),
     ConvertAlifMaksora(),
     NormalizeHmazat(),
     IthbatYaaYohie(),

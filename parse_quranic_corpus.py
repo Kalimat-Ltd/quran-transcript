@@ -328,7 +328,21 @@ if __name__ == "__main__":
         verbose=False,
         print_sets=False,
     )
+    letters = f"{uth.pure_letters_group}{uth.hamazat_group}"
+    sel_verbs_group = filter_words(
+        quran_words,
+        regs=f"^{uth.hamzat_wasl}(?:{uth.noon}[{uth.noon_ikhfaa_group}]|[{letters}]{uth.shadda}|(?:{uth.noon}{uth.meem_iqlab}|[{letters}][{uth.harakat_group}{uth.ras_haaa}])[{letters}])(.)",
+        tags="V",
+        part_idx=0,
+        verbose=True,
+        print_sets=False,
+    )
+
     print(f"Len of verbs: {len(verbs_group)}")
+    print(f"Len of selected: {len(sel_verbs_group)}")
+    print("Missings:")
+    for v in verbs_group - sel_verbs_group:
+        print(f"'{v}'")
 
     print("\n\nالأسماء\n\n")
     names_group = filter_words(
@@ -347,4 +361,4 @@ if __name__ == "__main__":
     print(f"Verbs Al Zeda Intersection: {verbs_group.intersection(al_group_zaeda)}")
     print(f"Verbs Al Jamida Intersection: {verbs_group.intersection(al_group_jamda)}")
 
-    write_begin_hamzat_wasl(quran_words, "./quran-script/begin_with_hamzat_wasl.json")
+    # write_begin_hamzat_wasl(quran_words, "./quran-script/begin_with_hamzat_wasl.json")

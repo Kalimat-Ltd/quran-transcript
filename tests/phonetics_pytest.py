@@ -5,6 +5,7 @@ from quran_transcript.phonetics.moshaf_attributes import MoshafAttributes
 from quran_transcript.phonetics.operations import (
     DisassembleHrofMoqatta,
     SpecialCases,
+    BeginWithHamzatWasl,
     ConvertAlifMaksora,
     NormalizeHmazat,
     IthbatYaaYohie,
@@ -2823,3 +2824,229 @@ def test_qlqla(in_text: str, target_text: str, moshaf: MoshafAttributes):
     print(f"Target Text:\n'{target_text}'")
     print(f"Out Text:\n'{out_text}'")
     assert out_text == target_text
+
+
+@pytest.mark.parametrize(
+    "in_text, target_text, moshaf",
+    [
+        (
+            "وَقَالَ فِرْعَوْنُ يَـٰهَـٰمَـٰنُ ٱبْنِ لِى صَرْحًۭا لَّعَلِّىٓ أَبْلُغُ ٱلْأَسْبَـٰبَ",
+            "وَقَالَ فِرْعَوْنُ يَـٰهَـٰمَـٰنُ ٱبْنِ لِى صَرْحًۭا لَّعَلِّىٓ أَبْلُغُ ٱلْأَسْبَـٰبَ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                between_anfal_and_tawba="sakt",
+            ),
+        ),
+        (
+            "ٱبْنِ لِى صَرْحًۭا لَّعَلِّىٓ أَبْلُغُ ٱلْأَسْبَـٰبَ",
+            "ءِبْنِ لِى صَرْحًۭا لَّعَلِّىٓ أَبْلُغُ ٱلْأَسْبَـٰبَ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                between_anfal_and_tawba="sakt",
+            ),
+        ),
+        (
+            "ٱقْرَأْ",
+            "ءِقْرَأْ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                between_anfal_and_tawba="sakt",
+            ),
+        ),
+        (
+            "ٱتَّسَقَ",
+            "ءِتَّسَقَ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                between_anfal_and_tawba="sakt",
+            ),
+        ),
+        (
+            "ٱئْتُوا۟",
+            "ءِيتُوا۟",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                between_anfal_and_tawba="sakt",
+            ),
+        ),
+        (
+            "ٱئْتُونِى بِكِتَـٰبٍۢ مِّن قَبْلِ هَـٰذَآ أَوْ أَثَـٰرَةٍۢ مِّنْ عِلْمٍ إِن كُنتُمْ صَـٰدِقِينَ",
+            "ءِيتُونِى بِكِتَـٰبٍۢ مِّن قَبْلِ هَـٰذَآ أَوْ أَثَـٰرَةٍۢ مِّنْ عِلْمٍ إِن كُنتُمْ صَـٰدِقِينَ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                between_anfal_and_tawba="sakt",
+            ),
+        ),
+        (
+            "ٱئْتُونِى",
+            "ءِيتُونِى",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                between_anfal_and_tawba="sakt",
+            ),
+        ),
+        (
+            "ٱؤْتُمِنَ أَمَـٰنَتَهُۥ وَلْيَتَّقِ ٱللَّهَ رَبَّهُۥ",
+            "ءُوتُمِنَ أَمَـٰنَتَهُۥ وَلْيَتَّقِ ٱللَّهَ رَبَّهُۥ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                between_anfal_and_tawba="sakt",
+            ),
+        ),
+        (
+            "ٱسْتِكْبَارًۭا فِى ٱلْأَرْضِ وَمَكْرَ ٱلسَّيِّئِ وَلَا يَحِيقُ ٱلْمَكْرُ ٱلسَّيِّئُ إِلَّا بِأَهْلِهِۦ فَهَلْ يَنظُرُونَ إِلَّا سُنَّتَ ٱلْأَوَّلِينَ فَلَن تَجِدَ لِسُنَّتِ ٱللَّهِ تَبْدِيلًۭا وَلَن تَجِدَ لِسُنَّتِ ٱللَّهِ تَحْوِيلًا",
+            "ءِسْتِكْبَارًۭا فِى ٱلْأَرْضِ وَمَكْرَ ٱلسَّيِّئِ وَلَا يَحِيقُ ٱلْمَكْرُ ٱلسَّيِّئُ إِلَّا بِأَهْلِهِۦ فَهَلْ يَنظُرُونَ إِلَّا سُنَّتَ ٱلْأَوَّلِينَ فَلَن تَجِدَ لِسُنَّتِ ٱللَّهِ تَبْدِيلًۭا وَلَن تَجِدَ لِسُنَّتِ ٱللَّهِ تَحْوِيلًا",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                between_anfal_and_tawba="sakt",
+            ),
+        ),
+        (
+            "ٱلَّذِينَ ءَامَنُوا۟ وَلَمْ يَلْبِسُوٓا۟ إِيمَـٰنَهُم بِظُلْمٍ أُو۟لَـٰٓئِكَ لَهُمُ ٱلْأَمْنُ وَهُم مُّهْتَدُونَ",
+            "ءَلَّذِينَ ءَامَنُوا۟ وَلَمْ يَلْبِسُوٓا۟ إِيمَـٰنَهُم بِظُلْمٍ أُو۟لَـٰٓئِكَ لَهُمُ ٱلْأَمْنُ وَهُم مُّهْتَدُونَ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                between_anfal_and_tawba="sakt",
+            ),
+        ),
+        (
+            "ٱلَّـٰٓـِٔى وَلَدْنَهُمْ وَإِنَّهُمْ لَيَقُولُونَ مُنكَرًۭا مِّنَ ٱلْقَوْلِ وَزُورًۭا وَإِنَّ ٱللَّهَ لَعَفُوٌّ غَفُورٌۭ",
+            "ءَلَّـٰٓـِٔى وَلَدْنَهُمْ وَإِنَّهُمْ لَيَقُولُونَ مُنكَرًۭا مِّنَ ٱلْقَوْلِ وَزُورًۭا وَإِنَّ ٱللَّهَ لَعَفُوٌّ غَفُورٌۭ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                between_anfal_and_tawba="sakt",
+            ),
+        ),
+        (
+            "ٱلَّذِينَ يَنقُضُونَ عَهْدَ ٱللَّهِ مِنۢ بَعْدِ مِيثَـٰقِهِۦ وَيَقْطَعُونَ مَآ أَمَرَ ٱللَّهُ بِهِۦٓ أَن يُوصَلَ وَيُفْسِدُونَ فِى ٱلْأَرْضِ",
+            "ءَلَّذِينَ يَنقُضُونَ عَهْدَ ٱللَّهِ مِنۢ بَعْدِ مِيثَـٰقِهِۦ وَيَقْطَعُونَ مَآ أَمَرَ ٱللَّهُ بِهِۦٓ أَن يُوصَلَ وَيُفْسِدُونَ فِى ٱلْأَرْضِ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                between_anfal_and_tawba="sakt",
+            ),
+        ),
+        (
+            "ٱللَّهُمَّ وَتَحِيَّتُهُمْ فِيهَا سَلَـٰمٌۭ وَءَاخِرُ دَعْوَىٰهُمْ أَنِ ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَـٰلَمِينَ",
+            "ءَللَّهُمَّ وَتَحِيَّتُهُمْ فِيهَا سَلَـٰمٌۭ وَءَاخِرُ دَعْوَىٰهُمْ أَنِ ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَـٰلَمِينَ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                between_anfal_and_tawba="sakt",
+            ),
+        ),
+        (
+            "ٱلْخَبِيثَـٰتُ لِلْخَبِيثِينَ وَٱلْخَبِيثُونَ لِلْخَبِيثَـٰتِ وَٱلطَّيِّبَـٰتُ لِلطَّيِّبِينَ وَٱلطَّيِّبُونَ لِلطَّيِّبَـٰتِ أُو۟لَـٰٓئِكَ مُبَرَّءُونَ مِمَّا يَقُولُونَ لَهُم مَّغْفِرَةٌۭ وَرِزْقٌۭ كَرِيمٌۭ",
+            "ءَلْخَبِيثَـٰتُ لِلْخَبِيثِينَ وَٱلْخَبِيثُونَ لِلْخَبِيثَـٰتِ وَٱلطَّيِّبَـٰتُ لِلطَّيِّبِينَ وَٱلطَّيِّبُونَ لِلطَّيِّبَـٰتِ أُو۟لَـٰٓئِكَ مُبَرَّءُونَ مِمَّا يَقُولُونَ لَهُم مَّغْفِرَةٌۭ وَرِزْقٌۭ كَرِيمٌۭ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                between_anfal_and_tawba="sakt",
+            ),
+        ),
+    ],
+)
+def test_qlqla(in_text: str, target_text: str, moshaf: MoshafAttributes):
+    op = BeginWithHamzatWasl()
+    for b_op in op.ops_before:
+        target_text = b_op.apply(
+            target_text,
+            moshaf,
+            mode="test",
+        )
+    out_text = op.apply(in_text, moshaf, mode="test")
+    print(f"Target Text:\n'{target_text}'")
+    print(f"Out Text:\n'{out_text}'")
+    assert out_text == target_text
+
+
+@pytest.mark.parametrize(
+    "verb, target_haraka",
+    [
+        (
+            "ٱقْرَأْ",
+            alph.uthmani.kasra,
+        ),
+        (
+            "ٱتَّسَقَ",
+            alph.uthmani.kasra,
+        ),
+        (
+            "ٱنشَقَّتْ",
+            alph.uthmani.kasra,
+        ),
+        (
+            "ٱئْتُوا۟",
+            alph.uthmani.kasra,
+        ),
+        (
+            "ٱرْكُضْ",
+            alph.uthmani.dama,
+        ),
+        (
+            "ٱنفَطَرَتْ",
+            alph.uthmani.kasra,
+        ),
+    ],
+)
+def test_get_thrird_letter_in_verb_haraka(
+    verb: str,
+    target_haraka: str,
+):
+    op = BeginWithHamzatWasl()
+    haraka = op._get_verb_third_letter_haraka(verb)
+    print(f"'{haraka}'")
+    assert haraka == target_haraka

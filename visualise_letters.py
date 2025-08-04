@@ -182,12 +182,12 @@ if __name__ == "__main__":
     #     context=10,
     # )
 
-    # #  اسم الله
-    # get_occurance(
-    #     f"{alph.uthmani.lam}{alph.uthmani.kasra}?{alph.uthmani.lam}{alph.uthmani.shadda}{alph.uthmani.fatha}{alph.uthmani.haa}",
-    #     context=10,
-    #     limit=None,
-    # )
+    #  اسم الله
+    get_occurance(
+        f"({alph.uthmani.lam}{alph.uthmani.kasra}?{alph.uthmani.lam}{alph.uthmani.shadda}{alph.uthmani.fatha})({alph.uthmani.haa}(?:[{alph.uthmani.harakat_group}]{alph.uthmani.meem}|[{alph.uthmani.harakat_group}]|$))",
+        context=10,
+        limit=None,
+    )
 
     # print("Special case")
     # pattern = f"{alph.uthmani.lam}({alph.uthmani.kasra})?{alph.uthmani.lam}{alph.uthmani.shadda}{alph.uthmani.fatha}{alph.uthmani.haa}"
@@ -312,29 +312,29 @@ if __name__ == "__main__":
     # )
 
     #  مد اللين
-    get_occurance(
-        f"({alph.uthmani.fatha})([{alph.uthmani.yaa}{alph.uthmani.waw}]){alph.uthmani.ras_haaa}?(.{alph.uthmani.ras_haaa}?$)",
-        specific_aya=Aya(106, 1),
-        operations=[
-            DisassembleHrofMoqatta(),
-            SpecialCases(),
-            ConvertAlifMaksora(),
-            NormalizeHmazat(),
-            IthbatYaaYohie(),
-            RemoveKasheeda(),
-            RemoveHmzatWaslMiddle(),
-            RemoveSkoonMostadeer(),
-            SkoonMostateel(),
-            MaddAlewad(),
-            WawAlsalah(),
-            EnlargeSmallLetters(),
-            CleanEnd(),
-            NormalizeTaa(),
-            AddAlifIsmAllah(),
-            PrepareGhonnaIdghamIqlab(),
-            IltiqaaAlsaknan(),
-            Ghonna(),
-            Tasheel(),
-            Imala(),
-        ],
-    )
+    # get_occurance(
+    #     f"({alph.uthmani.fatha})([{alph.uthmani.yaa}{alph.uthmani.waw}]){alph.uthmani.ras_haaa}?(.{alph.uthmani.ras_haaa}?$)",
+    #     specific_aya=Aya(106, 1),
+    #     operations=[
+    #         DisassembleHrofMoqatta(),
+    #         SpecialCases(),
+    #         ConvertAlifMaksora(),
+    #         NormalizeHmazat(),
+    #         IthbatYaaYohie(),
+    #         RemoveKasheeda(),
+    #         RemoveHmzatWaslMiddle(),
+    #         RemoveSkoonMostadeer(),
+    #         SkoonMostateel(),
+    #         MaddAlewad(),
+    #         WawAlsalah(),
+    #         EnlargeSmallLetters(),
+    #         CleanEnd(),
+    #         NormalizeTaa(),
+    #         AddAlifIsmAllah(),
+    #         PrepareGhonnaIdghamIqlab(),
+    #         IltiqaaAlsaknan(),
+    #         Ghonna(),
+    #         Tasheel(),
+    #         Imala(),
+    #     ],
+    # )

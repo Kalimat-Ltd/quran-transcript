@@ -29,6 +29,25 @@ class SpecialPattern:
 
 
 @dataclass
+class BeginHamzatWasl:
+    verbs_nouns_inter: set[str]
+    verbs: set[str]
+    damma_aarida_verbs: set[str]
+    nouns: set[str]
+
+    def _to_set(self, var):
+        if isinstance(var, list):
+            return set(var)
+        return var
+
+    def __post_init__(self):
+        self.verbs_nouns_inter = self._to_set(self.verbs_nouns_inter)
+        self.verbs = self._to_set(self.verbs)
+        self.damma_aarida_verbs = self._to_set(self.damma_aarida_verbs)
+        self.nouns = self._to_set(self.nouns)
+
+
+@dataclass
 class UthmaniAlphabet:
     alif: str
     alif_maksora: str
@@ -107,6 +126,7 @@ class UthmaniAlphabet:
 
     hrof_moqtaa_disassemble: dict[str, str]
     special_patterns: list[SpecialPattern]
+    begin_hamzat_wasl: BeginHamzatWasl
 
     # تنوين مظهر وتنوين مدغم
     tanween_fath_mothhar: str = ""
@@ -364,13 +384,19 @@ imlaey_starts: ["يا", "ويا", "ها"]
 
 BASE_PATH = Path(__file__).parent
 alphabet_path = BASE_PATH / "quran-script/quran-alphabet.json"
+begin_with_hamzat_wasl_path = BASE_PATH / "quran-script/begin_with_hamzat_wasl.json"
+
+with open(begin_with_hamzat_wasl_path, "r", encoding="utf8") as f:
+    begin_hamzat_wasl = BeginHamzatWasl(**json.load(f))
 with open(alphabet_path, "r", encoding="utf8") as f:
     alphabet_dict = json.load(f)
     imlaey = ImlaeyAlphabet(**alphabet_dict["imlaey"])
     unique_rasm = UniqueRasmMap(**alphabet_dict["unique_rasm_map"])
     istiaatha = Istiaatha(**alphabet_dict["istiaatha"])
     sadaka = Sadaka(**alphabet_dict["sadaka"])
-    uthmani = UthmaniAlphabet(**alphabet_dict["uthmani"])
+    uthmani = UthmaniAlphabet(
+        begin_hamzat_wasl=begin_hamzat_wasl, **alphabet_dict["uthmani"]
+    )
     phonetics = QuranPhoneticScriptAlphabet(
         hamza=uthmani.hamza,
         baa=uthmani.baa,

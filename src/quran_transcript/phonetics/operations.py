@@ -270,9 +270,15 @@ class NormalizeTaa(ConversionOperation):
 @dataclass
 class AddAlifIsmAllah(ConversionOperation):
     arabic_name: str = "إضافة ألف مد الطبيعي في اسم الله عز وجل"
+    ops_before: list[ConversionOperation] = field(
+        default_factory=lambda: [
+            CleanEnd(),
+            NormalizeTaa(),
+        ]
+    )
     regs: tuple[str, str] = (
-        f"{uth.lam}({uth.kasra})?{uth.lam}{uth.shadda}{uth.fatha}{uth.haa}",
-        f"{uth.lam}\\1{uth.lam}{uth.shadda}{uth.fatha}{uth.alif}{uth.haa}",
+        f"({uth.lam}{uth.kasra}?{uth.lam}{uth.shadda}{uth.fatha})({uth.haa}(?:.|$)(?![{uth.baa}{uth.waw}]))",
+        f"\\1{uth.alif}\\2",
     )
 
 

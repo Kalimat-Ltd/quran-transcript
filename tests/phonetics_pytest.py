@@ -1604,12 +1604,52 @@ def test_special_cases(in_text: str, target_text: str, moshaf: MoshafAttributes)
                 madd_aared_len=4,
             ),
         ),
+        (
+            "لَّا ظَلِيلٍۢ وَلَا يُغْنِى مِنَ ٱللَّهَبِ",
+            "لَّا ظَلِيلٍۢ وَلَا يُغْنِى مِنَ ٱللَّهَبِ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "وَإِذَا رَأَوْا۟ تِجَـٰرَةً أَوْ لَهْوًا ٱنفَضُّوٓا۟ إِلَيْهَا وَتَرَكُوكَ قَآئِمًۭا قُلْ مَا عِندَ ٱللَّهِ خَيْرٌۭ مِّنَ ٱللَّهْوِ وَمِنَ ٱلتِّجَـٰرَةِ وَٱللَّهُ خَيْرُ ٱلرَّٰزِقِينَ",
+            "وَإِذَا رَأَوْا۟ تِجَـٰرَةً أَوْ لَهْوًا ٱنفَضُّوٓا۟ إِلَيْهَا وَتَرَكُوكَ قَآئِمًۭا قُلْ مَا عِندَ ٱللَّاهِ خَيْرٌۭ مِّنَ ٱللَّهْوِ وَمِنَ ٱلتِّجَـٰرَةِ وَٱللَّاهُ خَيْرُ ٱلرَّٰزِقِينَ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "فَسَيَكْفِيكَهُمُ ٱللَّهُ",
+            "فَسَيَكْفِيكَهُمُ ٱللَّاهُ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
     ],
 )
 def test_alif_ism_Allah(in_text: str, target_text: str, moshaf: MoshafAttributes):
     op = AddAlifIsmAllah()
+    for b_op in op.ops_before:
+        target_text = b_op.apply(
+            target_text,
+            moshaf,
+            mode="test",
+        )
     out_text = op.apply(in_text, moshaf, mode="test")
-    print(out_text)
+    print(f"Target Text:\n'{target_text}'")
+    print(f"Out Text:\n'{out_text}'")
     assert out_text == target_text
 
 
@@ -2664,6 +2704,17 @@ def test_imala(in_text: str, target_text: str, moshaf: MoshafAttributes):
                 madd_mottasel_waqf=4,
                 madd_aared_len=4,
                 between_anfal_and_tawba="sakt",
+            ),
+        ),
+        (
+            "فَسَيَكْفِيكَهُمُ ٱللَّهُ",
+            "فَسَيَكْفِۦۦكَهُمُ لَّااااه",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
             ),
         ),
     ],

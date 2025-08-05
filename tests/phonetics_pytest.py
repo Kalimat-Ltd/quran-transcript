@@ -29,6 +29,7 @@ from quran_transcript.phonetics.operations import (
     Qalqla,
 )
 from quran_transcript.phonetics.phonetizer import quran_phonetizer
+from quran_transcript.phonetics.sifa import process_sifat, SifaaOuput
 from quran_transcript import Aya
 from quran_transcript import alphabet as alph
 
@@ -3326,3 +3327,98 @@ def test_quran_phonetizer_stree_test():
             print(aya)
             print(out_text)
             raise ValueError()
+
+
+@pytest.mark.parametrize(
+    "in_text, ex_sifa_outputs, moshaf",
+    [
+        (
+            "ٱلْحَمْدُ",
+            [
+                SifaaOuput(
+                    phonemes="ءَ",
+                    hams_or_jahr="jahr",
+                    shidda_or_rakhawa="shadeed",
+                    tafkheem_or_taqeeq="moraqaq",
+                    itbaq="monfateh",
+                    safeer="no_safeer",
+                    qalqla="not_moqalqal",
+                    tikraar="not_mokarar",
+                    tafashie="not_motafashie",
+                    istitala="not_mostateel",
+                    ghonna="not_maghnoon",
+                ),
+                SifaaOuput(
+                    phonemes="ل",
+                    hams_or_jahr="jahr",
+                    shidda_or_rakhawa="between",
+                    tafkheem_or_taqeeq="moraqaq",
+                    itbaq="monfateh",
+                    safeer="no_safeer",
+                    qalqla="not_moqalqal",
+                    tikraar="not_mokarar",
+                    tafashie="not_motafashie",
+                    istitala="not_mostateel",
+                    ghonna="not_maghnoon",
+                ),
+                SifaaOuput(
+                    phonemes="حَ",
+                    hams_or_jahr="hams",
+                    shidda_or_rakhawa="rikhw",
+                    tafkheem_or_taqeeq="moraqaq",
+                    itbaq="monfateh",
+                    safeer="no_safeer",
+                    qalqla="not_moqalqal",
+                    tikraar="not_mokarar",
+                    tafashie="not_motafashie",
+                    istitala="not_mostateel",
+                    ghonna="not_maghnoon",
+                ),
+                SifaaOuput(
+                    phonemes="م",
+                    hams_or_jahr="jahr",
+                    shidda_or_rakhawa="between",
+                    tafkheem_or_taqeeq="moraqaq",
+                    itbaq="monfateh",
+                    safeer="no_safeer",
+                    qalqla="not_moqalqal",
+                    tikraar="not_mokarar",
+                    tafashie="not_motafashie",
+                    istitala="not_mostateel",
+                    ghonna="maghnoon",
+                ),
+                SifaaOuput(
+                    phonemes="دڇ",
+                    hams_or_jahr="jahr",
+                    shidda_or_rakhawa="shadeed",
+                    tafkheem_or_taqeeq="moraqaq",
+                    itbaq="monfateh",
+                    safeer="no_safeer",
+                    qalqla="moqalqal",
+                    tikraar="not_mokarar",
+                    tafashie="not_motafashie",
+                    istitala="not_mostateel",
+                    ghonna="not_maghnoon",
+                ),
+            ],
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                between_anfal_and_tawba="sakt",
+            ),
+        ),
+    ],
+)
+def test_process_sifat(
+    in_text: str, ex_sifa_outputs: list[SifaaOuput], moshaf: MoshafAttributes
+):
+    phoneme_script = quran_phonetizer(in_text, moshaf)
+    print(f"phonized text Text:\n'{phoneme_script}'")
+    sifa_outputs = process_sifat(phoneme_script, moshaf)
+
+    assert len(ex_sifa_outputs) == len(sifa_outputs)
+    for out, target in zip(sifa_outputs, ex_sifa_outputs):
+        assert out == target

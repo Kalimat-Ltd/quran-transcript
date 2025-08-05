@@ -353,6 +353,24 @@ class QuranPhoneticScriptAlphabet:
 
 
 @dataclass
+class QuranPhoneticScriptGroups:
+    core: str
+    residuals: str
+    harakat: str
+    hams: str
+    shidda: str
+    between_shidda_rakhawa: str
+    tafkheem: str
+    itbaaq: str
+    safeer: str
+    qalqal: str
+    tikrar: str
+    tafashie: str
+    istitala: str
+    ghonna: str
+
+
+@dataclass
 class UniqueRasmMap:
     rasm_map: list[dict[str, str]]
     imlaey_starts: list[str]
@@ -440,4 +458,96 @@ with open(alphabet_path, "r", encoding="utf8") as f:
         meem_mokhfah="\u06fe",
         sakt=uthmani.small_seen_above,
         dama_mokhtalasa="\u0619",
+    )
+    phonetic_groups = QuranPhoneticScriptGroups(
+        core=phonetics.hamza
+        + phonetics.baa
+        + phonetics.taa
+        + phonetics.thaa
+        + phonetics.jeem
+        + phonetics.haa_mohmala
+        + phonetics.khaa
+        + phonetics.daal
+        + phonetics.thaal
+        + phonetics.raa
+        + phonetics.zay
+        + phonetics.seen
+        + phonetics.sheen
+        + phonetics.saad
+        + phonetics.daad
+        + phonetics.taa_mofakhama
+        + phonetics.zaa_mofakhama
+        + phonetics.ayn
+        + phonetics.ghyn
+        + phonetics.faa
+        + phonetics.qaf
+        + phonetics.kaf
+        + phonetics.lam
+        + phonetics.meem
+        + phonetics.noon
+        + phonetics.haa
+        + phonetics.waw
+        + phonetics.yaa
+        + phonetics.alif
+        + phonetics.waw_madd
+        + phonetics.yaa_madd
+        + phonetics.meem_mokhfah
+        + phonetics.noon_mokhfah
+        + phonetics.alif_momala
+        + phonetics.hamza_mosahala,
+        residuals=phonetics.fatha
+        + phonetics.dama
+        + phonetics.kasra
+        + phonetics.qlqla
+        + phonetics.fatha_momala
+        + phonetics.sakt
+        + phonetics.dama_mokhtalasa,
+        harakat=phonetics.fatha + phonetics.dama + phonetics.kasra,
+        hams=phonetics.faa
+        + phonetics.haa_mohmala
+        + phonetics.thaa
+        + phonetics.haa
+        + phonetics.sheen
+        + phonetics.khaa
+        + phonetics.saad
+        + phonetics.seen
+        + phonetics.kaf
+        + phonetics.taa,
+        shidda=phonetics.hamza
+        + phonetics.jeem
+        + phonetics.daal
+        + phonetics.qaf
+        + phonetics.taa_mofakhama
+        + phonetics.baa
+        + phonetics.kaf
+        + phonetics.taa,
+        between_shidda_rakhawa=phonetics.lam
+        + phonetics.noon
+        + phonetics.ayn
+        + phonetics.meem
+        + phonetics.raa,
+        tafkheem=phonetics.khaa
+        + phonetics.saad
+        + phonetics.daad
+        + phonetics.ghyn
+        + phonetics.taa_mofakhama
+        + phonetics.qaf
+        + phonetics.zaa_mofakhama,
+        itbaaq=phonetics.saad
+        + phonetics.daad
+        + phonetics.taa_mofakhama
+        + phonetics.zaa_mofakhama,
+        safeer=phonetics.saad + phonetics.zay + phonetics.seen,
+        qalqal=phonetics.qaf
+        + phonetics.taa_mofakhama
+        + phonetics.baa
+        + phonetics.jeem
+        + phonetics.daal,
+        tikrar=phonetics.raa,
+        tafashie=phonetics.sheen,
+        istitala=phonetics.daad,
+        ghonna=phonetics.noon
+        + phonetics.meem
+        + phonetics.noon_mokhfah
+        + phonetics.meem_mokhfah,
     )

@@ -5,7 +5,9 @@ import quran_transcript.alphabet as alph
 from quran_transcript.phonetics.operations import (
     ConvertAlifMaksora,
     ConversionOperation,
+    BeginWithHamzatWasl,
     NormalizeHmazat,
+    DeleteShaddaAtBeginning,
     CleanEnd,
     EnlargeSmallLetters,
     RemoveKasheeda,
@@ -25,6 +27,7 @@ from quran_transcript.phonetics.operations import (
     Tasheel,
     Imala,
 )
+from quran_transcript.phonetics.operations import OPERATION_ORDER
 from quran_transcript.phonetics.moshaf_attributes import MoshafAttributes
 
 
@@ -182,12 +185,12 @@ if __name__ == "__main__":
     #     context=10,
     # )
 
-    #  اسم الله
-    get_occurance(
-        f"({alph.uthmani.lam}{alph.uthmani.kasra}?{alph.uthmani.lam}{alph.uthmani.shadda}{alph.uthmani.fatha})({alph.uthmani.haa}(?:[{alph.uthmani.harakat_group}]{alph.uthmani.meem}|[{alph.uthmani.harakat_group}]|$))",
-        context=10,
-        limit=None,
-    )
+    # #  اسم الله
+    # get_occurance(
+    #     f"({alph.uthmani.lam}{alph.uthmani.kasra}?{alph.uthmani.lam}{alph.uthmani.shadda}{alph.uthmani.fatha})({alph.uthmani.haa}(?:[{alph.uthmani.harakat_group}]{alph.uthmani.meem}|[{alph.uthmani.harakat_group}]|$))",
+    #     context=10,
+    #     limit=None,
+    # )
 
     # print("Special case")
     # pattern = f"{alph.uthmani.lam}({alph.uthmani.kasra})?{alph.uthmani.lam}{alph.uthmani.shadda}{alph.uthmani.fatha}{alph.uthmani.haa}"
@@ -333,6 +336,42 @@ if __name__ == "__main__":
     #         AddAlifIsmAllah(),
     #         PrepareGhonnaIdghamIqlab(),
     #         IltiqaaAlsaknan(),
+    #         Ghonna(),
+    #         Tasheel(),
+    #         Imala(),
+    #     ],
+    # )
+
+    # # اسم الله بعد إجراء كل العمليات
+    # get_occurance(
+    #     f"{alph.phonetics.lam}{{2}}{alph.phonetics.fatha}{alph.phonetics.alif}{{2}}{alph.phonetics.haa}",
+    #     operations=OPERATION_ORDER,
+    # )
+
+    # المد الطبيعي
+    # get_occurance(
+    #     f"{alph.uthmani.dama}{alph.uthmani.waw}{alph.uthmani.yaa}",
+    #     # f"{alph.uthmani.kasra}{alph.uthmani.yaa}(?![{alph.uthmani.alif}{alph.uthmani.yaa}{alph.uthmani.waw}{alph.uthmani.ras_haaa}{alph.uthmani.shadda}{alph.uthmani.harakat_group}])",
+    #     operations=[
+    #         DisassembleHrofMoqatta(),
+    #         SpecialCases(),
+    #         BeginWithHamzatWasl(),
+    #         ConvertAlifMaksora(),
+    #         NormalizeHmazat(),
+    #         IthbatYaaYohie(),
+    #         RemoveKasheeda(),
+    #         RemoveHmzatWaslMiddle(),
+    #         RemoveSkoonMostadeer(),
+    #         SkoonMostateel(),
+    #         MaddAlewad(),
+    #         WawAlsalah(),
+    #         EnlargeSmallLetters(),
+    #         CleanEnd(),
+    #         NormalizeTaa(),
+    #         AddAlifIsmAllah(),
+    #         PrepareGhonnaIdghamIqlab(),
+    #         IltiqaaAlsaknan(),
+    #         DeleteShaddaAtBeginning(),
     #         Ghonna(),
     #         Tasheel(),
     #         Imala(),

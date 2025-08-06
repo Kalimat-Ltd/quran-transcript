@@ -5,7 +5,10 @@ import json
 
 from quran_transcript import Aya
 from quran_transcript.alphabet import uthmani as uth
+from quran_transcript.alphabet import phonetics as ph
+from quran_transcript.alphabet import phonetic_groups as phg
 from quran_transcript.alphabet import BeginHamzatWasl
+from quran_transcript import quran_phonetizer, MoshafAttributes
 
 
 @dataclass
@@ -172,6 +175,8 @@ def filter_words(
     regs: str,
     tags: list[str] | str,
     part_idx: int | None = None,
+    trans_func=None,
+    trans_func_kwargs: dict = {},
     print_sets=False,
     verbose=True,
 ):
@@ -181,17 +186,21 @@ def filter_words(
     word_forms = set()
     counter = 0
     for q_word in quran_words:
-        re_outs = re.finditer(regs, q_word.uthmani_word)
+        if trans_func:
+            txt = trans_func(q_word.uthmani_word, **trans_func_kwargs)
+        else:
+            txt = q_word.uthmani_word
+        re_outs = re.finditer(regs, txt)
         for re_out in re_outs:
             for target_tag in tags:
                 if part_idx is not None:
-                    parts = [q_word.parts[0]]
+                    parts = [q_word.parts[part_idx]]
                 else:
                     parts = q_word.parts
                 for part in parts:
                     if (part.tag == target_tag) or (target_tag == "all"):
                         counter += 1
-                        word_forms.add(q_word.uthmani_word)
+                        word_forms.add(txt)
                         if verbose:
                             print(f"Case: `{counter}`")
                             print(re_out)
@@ -273,13 +282,13 @@ if __name__ == "__main__":
 
     quran_words = parse_corpus_data(corpus_text)
 
-    # Filtering
-    print("\n\nVerbs start with Lam\n\n")
-    filter_words(
-        quran_words,
-        regs=f"^{uth.hamzat_wasl}{uth.lam}",
-        tags="V",
-    )
+    # # Filtering
+    # print("\n\nVerbs start with Lam\n\n")
+    # filter_words(
+    #     quran_words,
+    #     regs=f"^{uth.hamzat_wasl}{uth.lam}",
+    #     tags="V",
+    # )
 
     # print("\n\nالأسماء المعرفة\n\n")
     # filter_words(
@@ -299,66 +308,107 @@ if __name__ == "__main__":
     #     tags="DET",
     # )
 
-    print("\n\nالاسم المكتوب بال الجامدة\n\n")
-    al_group_jamda = filter_words(
-        quran_words,
-        regs=f"^{uth.hamzat_wasl}{uth.lam}",
-        tags=["N", "PN", "ADJ", "IMPN", "PRON", "DEM", "REL", "T", "LOC"],
-        part_idx=0,
-        verbose=False,
-        print_sets=False,
-    )
-    print(f"Al group Jameda: {len(al_group_jamda)}")
-    al_group_zaeda = filter_words(
-        quran_words,
-        regs=f"^{uth.hamzat_wasl}{uth.lam}",
-        tags="DET",
-        part_idx=0,
-        verbose=False,
-        print_sets=False,
-    )
-    print(f"Al group Zeda: {len(al_group_zaeda)}")
-
-    print("\n\nالأفعلا \n\n")
-    verbs_group = filter_words(
-        quran_words,
-        regs=f"^{uth.hamzat_wasl}",
-        tags="V",
-        part_idx=0,
-        verbose=False,
-        print_sets=False,
-    )
-    letters = f"{uth.pure_letters_group}{uth.hamazat_group}"
-    sel_verbs_group = filter_words(
-        quran_words,
-        regs=f"^{uth.hamzat_wasl}(?:{uth.noon}[{uth.noon_ikhfaa_group}]|[{letters}]{uth.shadda}|(?:{uth.noon}{uth.meem_iqlab}|[{letters}][{uth.harakat_group}{uth.ras_haaa}])[{letters}])(.)",
-        tags="V",
-        part_idx=0,
-        verbose=True,
-        print_sets=False,
-    )
-
-    print(f"Len of verbs: {len(verbs_group)}")
-    print(f"Len of selected: {len(sel_verbs_group)}")
-    print("Missings:")
-    for v in verbs_group - sel_verbs_group:
-        print(f"'{v}'")
-
-    print("\n\nالأسماء\n\n")
-    names_group = filter_words(
-        quran_words,
-        regs=f"^{uth.hamzat_wasl}",
-        tags=["N", "PN", "ADJ", "IMPN", "PRON", "DEM", "REL", "T", "LOC"],
-        part_idx=0,
-        verbose=False,
-        print_sets=False,
-    )
-    names_group = names_group - al_group_jamda
-    print(f"Len of names: {len(names_group)}")
-
-    print(f"Names Verb Intersection: {verbs_group.intersection(names_group)}")
-    print(f"Names Al Zeda Intersection: {names_group.intersection(al_group_zaeda)}")
-    print(f"Verbs Al Zeda Intersection: {verbs_group.intersection(al_group_zaeda)}")
-    print(f"Verbs Al Jamida Intersection: {verbs_group.intersection(al_group_jamda)}")
+    # print("\n\nالاسم المكتوب بال الجامدة\n\n")
+    # al_group_jamda = filter_words(
+    #     quran_words,
+    #     regs=f"^{uth.hamzat_wasl}{uth.lam}",
+    #     tags=["N", "PN", "ADJ", "IMPN", "PRON", "DEM", "REL", "T", "LOC"],
+    #     part_idx=0,
+    #     verbose=False,
+    #     print_sets=False,
+    # )
+    # print(f"Al group Jameda: {len(al_group_jamda)}")
+    # al_group_zaeda = filter_words(
+    #     quran_words,
+    #     regs=f"^{uth.hamzat_wasl}{uth.lam}",
+    #     tags="DET",
+    #     part_idx=0,
+    #     verbose=False,
+    #     print_sets=False,
+    # )
+    # print(f"Al group Zeda: {len(al_group_zaeda)}")
+    #
+    # print("\n\nالأفعلا \n\n")
+    # verbs_group = filter_words(
+    #     quran_words,
+    #     regs=f"^{uth.hamzat_wasl}",
+    #     tags="V",
+    #     part_idx=0,
+    #     verbose=False,
+    #     print_sets=False,
+    # )
+    # letters = f"{uth.pure_letters_group}{uth.hamazat_group}"
+    # sel_verbs_group = filter_words(
+    #     quran_words,
+    #     regs=f"^{uth.hamzat_wasl}(?:{uth.noon}[{uth.noon_ikhfaa_group}]|[{letters}]{uth.shadda}|(?:{uth.noon}{uth.meem_iqlab}|[{letters}][{uth.harakat_group}{uth.ras_haaa}])[{letters}])(.)",
+    #     tags="V",
+    #     part_idx=0,
+    #     verbose=True,
+    #     print_sets=False,
+    # )
+    #
+    # print(f"Len of verbs: {len(verbs_group)}")
+    # print(f"Len of selected: {len(sel_verbs_group)}")
+    # print("Missings:")
+    # for v in verbs_group - sel_verbs_group:
+    #     print(f"'{v}'")
+    #
+    # print("\n\nالأسماء\n\n")
+    # names_group = filter_words(
+    #     quran_words,
+    #     regs=f"^{uth.hamzat_wasl}",
+    #     tags=["N", "PN", "ADJ", "IMPN", "PRON", "DEM", "REL", "T", "LOC"],
+    #     part_idx=0,
+    #     verbose=False,
+    #     print_sets=False,
+    # )
+    # names_group = names_group - al_group_jamda
+    # print(f"Len of names: {len(names_group)}")
+    #
+    # print(f"Names Verb Intersection: {verbs_group.intersection(names_group)}")
+    # print(f"Names Al Zeda Intersection: {names_group.intersection(al_group_zaeda)}")
+    # print(f"Verbs Al Zeda Intersection: {verbs_group.intersection(al_group_zaeda)}")
+    # print(f"Verbs Al Jamida Intersection: {verbs_group.intersection(al_group_jamda)}")
 
     # write_begin_hamzat_wasl(quran_words, "./quran-script/begin_with_hamzat_wasl.json")
+
+    # print("\n\nالراء الساكنو سكون عارض\n\n")
+    # raa_group = filter_words(
+    #     quran_words,
+    #     regs=f"{uth.hamzat_wasl}{uth.raa}{uth.ras_haaa}",
+    #     tags="all",
+    #     # part_idx=0,
+    #     verbose=False,
+    #     print_sets=True,
+    # )
+
+    # print("\n\nاسم الله قبل التحويل\n\n")
+    # raa_group = filter_words(
+    #     quran_words,
+    #     f"({uth.lam}{uth.kasra}?{uth.lam}{uth.shadda}{uth.fatha})({uth.haa}(?:.|$)(?![{uth.baa}{uth.waw}]))",
+    #     tags="all",
+    #     # part_idx=0,
+    #     verbose=False,
+    #     print_sets=True,
+    # )
+
+    print("\n\nاسم الله\n\n")
+    raa_group = filter_words(
+        quran_words,
+        regs=f"(?<!{ph.jeem})(?<!{ph.daal})(?<!{ph.taa}{ph.fatha}{ph.waw})(.){uth.space}?{ph.lam}{{2}}{ph.fatha}{ph.alif}{{2,6}}{ph.haa}(?!{ph.dama}{ph.meem}(?!{ph.meem}))",
+        tags="all",
+        # part_idx=0,
+        verbose=False,
+        print_sets=True,
+        trans_func=quran_phonetizer,
+        trans_func_kwargs={
+            "moshaf": MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                # tasheel_or_madd='tasheel',
+            ),
+        },
+    )

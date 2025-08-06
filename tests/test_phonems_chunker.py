@@ -45,10 +45,10 @@ if __name__ == "__main__":
         madd_mottasel_len=4,
         madd_mottasel_waqf=4,
         madd_aared_len=4,
-        tasheel_or_madd="tasheel",
+        tasheel_or_madd="madd",
     )
 
-    phonetic_script = quran_phonetizer("ٱلْحَمْدُ", moshaf)
+    phonetic_script = quran_phonetizer("قُلْ ءَآللَّهُ أَذِنَ", moshaf)
     chunks = chunck_phonemes(phonetic_script)
     sifa_outs = process_sifat(phonetic_script, moshaf)
 

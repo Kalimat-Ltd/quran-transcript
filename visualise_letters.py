@@ -2,6 +2,9 @@ import re
 
 from quran_transcript import Aya
 import quran_transcript.alphabet as alph
+from quran_transcript.alphabet import uthmani as uth
+from quran_transcript.alphabet import phonetics as ph
+from quran_transcript.alphabet import phonetic_groups as phg
 from quran_transcript.phonetics.operations import (
     ConvertAlifMaksora,
     ConversionOperation,
@@ -377,3 +380,9 @@ if __name__ == "__main__":
     #         Imala(),
     #     ],
     # )
+
+    # اسم الله بعد إجراء كل العمليات
+    get_occurance(
+        f"(?<!{ph.jeem})(?<!{ph.daal})(?<!{ph.taa}{ph.fatha}{ph.waw})(.){uth.space}?{ph.lam}{{2}}{ph.fatha}{ph.alif}{{2,6}}{ph.haa}(?!{ph.dama}{ph.meem}(?!{ph.meem}))",
+        operations=OPERATION_ORDER,
+    )

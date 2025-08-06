@@ -34,6 +34,7 @@ from quran_transcript.phonetics.sifa import (
     process_sifat,
     SifaaOuput,
     lam_tafkheem_tarqeeq_finder,
+    alif_tafkheem_tarqeeq_finder,
 )
 from quran_transcript import Aya
 from quran_transcript import alphabet as alph
@@ -3302,6 +3303,18 @@ def test_get_thrird_letter_in_verb_haraka(
                 tasheel_or_madd="tasheel",
             ),
         ),
+        (
+            "وَلِلَّهِ مُلْكُ ٱلسَّمَـٰوَٰتِ وَٱلْأَرْضِ وَٱللَّهُ عَلَىٰ كُلِّ شَىْءٍۢ قَدِيرٌ",
+            "وَلِللَااهِ مُلكُ سسَمَااوَااتِ وَلءَرضِ وَللَااهُ عَلَاا كُللِ شَيءِںںںقَدِۦۦۦۦر",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                tasheel_or_madd="tasheel",
+            ),
+        ),
     ],
 )
 def test_quran_phonetizer(in_text: str, target_text: str, moshaf: MoshafAttributes):
@@ -3311,7 +3324,7 @@ def test_quran_phonetizer(in_text: str, target_text: str, moshaf: MoshafAttribut
     assert out_text == target_text
 
 
-def test_quran_phonetizer_stree_test():
+def test_quran_phonetizer_strees_test():
     start_aya = Aya()
     moshaf = MoshafAttributes(
         rewaya="hafs",
@@ -3848,7 +3861,7 @@ def test_quran_phonetizer_stree_test():
                     ghonna="maghnoon",
                 ),
                 SifaaOuput(
-                    phonemes="ا",
+                    phonemes="اا",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
                     tafkheem_or_taqeeq="moraqaq",
@@ -3994,7 +4007,7 @@ def test_quran_phonetizer_stree_test():
                     phonemes="اا",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
-                    tafkheem_or_taqeeq="moraqaq",
+                    tafkheem_or_taqeeq="mofakham",
                     itbaq="monfateh",
                     safeer="no_safeer",
                     qalqla="not_moqalqal",
@@ -4267,7 +4280,7 @@ def test_quran_phonetizer_stree_test():
                     phonemes="اا",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
-                    tafkheem_or_taqeeq="moraqaq",
+                    tafkheem_or_taqeeq="mofakham",
                     itbaq="monfateh",
                     safeer="no_safeer",
                     qalqla="not_moqalqal",
@@ -4410,7 +4423,7 @@ def test_quran_phonetizer_stree_test():
                     phonemes="اا",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
-                    tafkheem_or_taqeeq="moraqaq",
+                    tafkheem_or_taqeeq="mofakham",
                     itbaq="monfateh",
                     safeer="no_safeer",
                     qalqla="not_moqalqal",
@@ -4586,6 +4599,124 @@ def test_lam_tafkheem_tarqeeq_finder(
     ph_script = quran_phonetizer(uth_text, moshaf)
     outputs = lam_tafkheem_tarqeeq_finder(ph_script)
     print(uth_text)
+    print(f"Ouputs: {outputs}")
+    print(f"Ex Ouputs: {ex_outs}")
+    assert len(outputs) == len(ex_outs)
+    for o, ex_o in zip(outputs, ex_outs):
+        assert o == ex_o
+
+
+@pytest.mark.parametrize(
+    "uth_text, ex_outs, moshaf",
+    [
+        (
+            "قُلِ ٱللَّهُمَّ مَـٰلِكَ ٱلْمُلْكِ",
+            [
+                "moraqaq",
+                None,
+            ],
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                between_anfal_and_tawba="sakt",
+            ),
+        ),
+        (
+            "وَلَوْ شَآءَ ٱللَّهُ لَذَهَبَ بِسَمْعِهِمْ وَأَبْصَـٰرِهِمْ إِنَّ ٱللَّهَ عَلَىٰ كُلِّ شَىْءٍۢ قَدِيرٌۭ",
+            [
+                None,
+                "mofakham",
+                None,
+                "mofakham",
+                None,
+            ],
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                between_anfal_and_tawba="sakt",
+            ),
+        ),
+        (
+            "ٱللَّهُ لَآ إِلَـٰهَ إِلَّا هُوَ ٱلْحَىُّ ٱلْقَيُّومُ",
+            [
+                "mofakham",
+                None,
+                None,
+                None,
+            ],
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                between_anfal_and_tawba="sakt",
+            ),
+        ),
+        (
+            "وَلِلَّهِ مُلْكُ ٱلسَّمَـٰوَٰتِ وَٱلْأَرْضِ وَٱللَّهُ عَلَىٰ كُلِّ شَىْءٍۢ قَدِيرٌ",
+            [
+                "moraqaq",
+                None,
+                None,
+                "mofakham",
+                None,
+            ],
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                between_anfal_and_tawba="sakt",
+            ),
+        ),
+        (
+            "قُلْ ءَآللَّهُ أَذِنَ",
+            [
+                None,
+                "mofakham",
+            ],
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                tasheel_or_madd="madd",
+            ),
+        ),
+        (
+            "قُلْ ءَآللَّهُ أَذِنَ",
+            [
+                "mofakham",
+            ],
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                tasheel_or_madd="tasheel",
+            ),
+        ),
+    ],
+)
+def test_lam_tafkheem_tarqeeq_finder(
+    uth_text: str,
+    ex_outs: list[Literal["mofakham", "moraqaq"]],
+    moshaf: MoshafAttributes,
+):
+    ph_script = quran_phonetizer(uth_text, moshaf)
+    outputs = alif_tafkheem_tarqeeq_finder(ph_script)
+    print(uth_text)
+    print(ph_script)
     print(f"Ouputs: {outputs}")
     print(f"Ex Ouputs: {ex_outs}")
     assert len(outputs) == len(ex_outs)

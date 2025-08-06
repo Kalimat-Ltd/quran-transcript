@@ -27,7 +27,6 @@ def chunck_phonemes(phonetic_script: str) -> list[str]:
     return re.findall(f"((?:{core_group})[{phg.residuals}]?)", phonetic_script)
 
 
-# TODO:
 def parse_tafkheem_sifa(
     phonemes: list[str], idx: int
 ) -> Literal["mofakham", "moraqaq"]:
@@ -109,12 +108,46 @@ def lam_tafkheem_tarqeeq_finder(
     # return outputs
 
 
+def alif_tafkheem_tarqeeq_finder(
+    phonetic_script_with_space: str,
+) -> list[Literal["mofakham", "moraqaq"] | None]:
+    """findes lam in script and returns tafkheem or tarqeeq for
+    every madd alif
+
+    This specially created to handel alif after lam اسم الله
+    """
+    phoneme_with_laam_Allh_reg = f"(?<!{ph.jeem})(?<!{ph.daal})(?<!{ph.taa}{ph.fatha}{ph.waw})(.){uth.space}?{ph.lam}{{2}}{ph.fatha}({ph.alif}{{2,6}}){ph.haa}(?!{ph.dama}{ph.meem}(?!{ph.meem}))"
+    alif_reg = f"{ph.fatha}({ph.alif}{{2,6}})"
+
+    alif_poses = []
+    for match in re.finditer(alif_reg, phonetic_script_with_space):
+        alif_poses.append(match.start(1))
+
+    pos_to_phoneme_before_lam_Allah = {}
+    for match in re.finditer(phoneme_with_laam_Allh_reg, phonetic_script_with_space):
+        pos = match.start(2)
+        pos_to_phoneme_before_lam_Allah[pos] = match.group(1)
+
+    outputs = []
+    for alif_pos in alif_poses:
+        if alif_pos in pos_to_phoneme_before_lam_Allah:
+            if pos_to_phoneme_before_lam_Allah[alif_pos] == ph.kasra:
+                outputs.append("moraqaq")
+            else:
+                outputs.append("mofakham")
+        else:
+            outputs.append(None)
+    return outputs
+
+
 # TODO: add state for letter raaa
 def process_sifat(phonetic_script: str, moshaf: MoshafAttributes) -> list[SifaaOuput]:
     phonenemes_groups = chunck_phonemes(phonetic_script)
     outputs = []
     lam_tafkheem_and_tarqeeq = lam_tafkheem_tarqeeq_finder(phonetic_script)
+    alif_tafkheem_and_tarqeeq = alif_tafkheem_tarqeeq_finder(phonetic_script)
     lam_idx = 0
+    alif_idx = 0
     for idx in range(len(phonenemes_groups)):
         p = phonenemes_groups[idx][0]
         hams = "hams" if p in phg.hams else "jahr"
@@ -126,11 +159,15 @@ def process_sifat(phonetic_script: str, moshaf: MoshafAttributes) -> list[SifaaO
             else "rikhw"
         )
 
+        tafkheem = parse_tafkheem_sifa(phonenemes_groups, idx)
         if phonenemes_groups[idx][0] == ph.lam:
             tafkheem = lam_tafkheem_and_tarqeeq[lam_idx]
             lam_idx += 1
-        else:
-            tafkheem = parse_tafkheem_sifa(phonenemes_groups, idx)
+        if phonenemes_groups[idx][0] == ph.alif:
+            alif_state = alif_tafkheem_and_tarqeeq[alif_idx]
+            if alif_state is not None:
+                tafkheem = alif_state
+            alif_idx += 1
 
         itbaq = "motbaq" if p in phg.itbaaq else "monfateh"
         safeer = "safeer" if p in phg.safeer else "no_safeer"

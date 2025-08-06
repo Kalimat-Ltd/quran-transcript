@@ -569,6 +569,7 @@ class Imala(ConversionOperation):
 class MaddPattern:
     pattern: str
     target: str
+    madd: str
 
 
 @dataclass
@@ -587,14 +588,17 @@ class Madd(ConversionOperation):
             "fath": MaddPattern(
                 pattern=f"({uth.fatha}){uth.alif}",
                 target=ph.alif,
+                madd=uth.alif,
             ),
             "dam": MaddPattern(
                 pattern=f"({uth.dama}){uth.waw}",
                 target=ph.waw_madd,
+                madd=uth.waw,
             ),
             "kasr": MaddPattern(
                 pattern=f"({uth.kasra}){uth.yaa}",
                 target=ph.yaa_madd,
+                madd=uth.yaa,
             ),
         }
     )
@@ -680,7 +684,7 @@ class Madd(ConversionOperation):
         # المد الطبيعي
         for k, madd_patt in self.madd_map.items():
             text = re.sub(
-                f"{madd_patt.pattern}(?![{ph.alif}{uth.yaa}{uth.waw}{uth.ras_haaa}{uth.shadda}{uth.harakat_group}])",
+                f"{madd_patt.pattern}(?![{madd_patt.madd}{uth.ras_haaa}{uth.shadda}{uth.harakat_group}])",
                 r"\1" + 2 * madd_patt.target,
                 text,
             )

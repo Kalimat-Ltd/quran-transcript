@@ -2,10 +2,31 @@ from typing import Literal
 from pydantic import BaseModel
 import re
 
-from .moshaf_attributes import MoshafAttributes
 from ..alphabet import phonetics as ph
 from ..alphabet import uthmani as uth
 from ..alphabet import phonetic_groups as phg
+from .moshaf_attributes import MoshafAttributes
+from .operations import (
+    DisassembleHrofMoqatta,
+    SpecialCases,
+    BeginWithHamzatWasl,
+    ConvertAlifMaksora,
+    NormalizeHmazat,
+    IthbatYaaYohie,
+    RemoveKasheeda,
+    RemoveHmzatWaslMiddle,
+    RemoveSkoonMostadeer,
+    SkoonMostateel,
+    MaddAlewad,
+    WawAlsalah,
+    EnlargeSmallLetters,
+    CleanEnd,
+    NormalizeTaa,
+    AddAlifIsmAllah,
+    PrepareGhonnaIdghamIqlab,
+    IltiqaaAlsaknan,
+    DeleteShaddaAtBeginning,
+)
 
 
 class SifaaOuput(BaseModel):
@@ -49,7 +70,7 @@ def parse_tafkheem_sifa(
             raise ValueError(
                 f"For Letter alif: `{ph.alif}` can not start  a phoneme script"
             )
-        elif phonemes[idx - 1][0] in phg.tafkheem:
+        elif phonemes[idx - 1][0] in (phg.tafkheem + ph.raa):
             return "mofakham"
         else:
             return "moraqaq"
@@ -137,6 +158,73 @@ def alif_tafkheem_tarqeeq_finder(
                 outputs.append("mofakham")
         else:
             outputs.append(None)
+    return outputs
+
+
+RAA_OPERATIONS = [
+    DisassembleHrofMoqatta(),
+    SpecialCases(),
+    ConvertAlifMaksora(),
+    NormalizeHmazat(),
+    RemoveKasheeda(),
+    RemoveHmzatWaslMiddle(),
+    RemoveSkoonMostadeer(),
+    SkoonMostateel(),
+    MaddAlewad(),
+    WawAlsalah(),
+    EnlargeSmallLetters(),
+    CleanEnd(),
+    NormalizeTaa(),
+    PrepareGhonnaIdghamIqlab(),
+    IltiqaaAlsaknan(),
+    DeleteShaddaAtBeginning(),
+]
+
+
+def raa_tafkheem_tarqeeq_finder(
+    uthmani_script: str,
+    moshaf: MoshafAttributes,
+) -> list[Literal["mofakham", "moraqaq"] | None]:
+    """findes lam in script and returns tafkheem or tarqeeq for
+    every madd alif
+
+    This specially created to handel alif after lam اسم الله
+    """
+    clean_text = uthmani_script
+    for op in RAA_OPERATIONS:
+        clean_text = op.apply(clean_text, moshaf)
+
+    raa_reg = (
+        f"({uth.raa})[{uth.harakat_group}{uth.shadda}{uth.ras_haaa}{uth.imala_sign}]?"
+    )
+
+    tarqeeq_cases = [
+        f"({uth.raa}){uth.shadda}?[{uth.kasra}{uth.imala_sign}]",
+        f"{uth.kasra}({uth.raa})(?:{uth.ras_haaa}|$)(?![{phg.tafkheem}])",
+        f"{uth.kasra}[^{phg.tafkheem}]{uth.ras_haaa}({uth.raa})(?:{uth.ras_haaa}|$)",
+        f"{uth.kasra}{uth.yaa}({uth.raa})(?:{uth.ras_haaa}|$)",
+        f"{uth.fatha}{uth.yaa}{uth.ras_haaa}({uth.raa})(?:{uth.ras_haaa}|$)",
+    ]
+    tarqeeq_cases = [f"(?:{c})" for c in tarqeeq_cases]
+
+    raa_poses = []
+    for match in re.finditer(raa_reg, clean_text):
+        raa_poses.append(match.start(1))
+
+    tarqeeq_poses = set()
+    for match in re.finditer("|".join(tarqeeq_cases), clean_text):
+        for g_idx in range(1, len(tarqeeq_cases) + 1):
+            if match.group(g_idx):
+                tarqeeq_poses.add(match.start(g_idx))
+                break
+
+    outputs = []
+    for pos in raa_poses:
+        if pos in tarqeeq_poses:
+            outputs.append("moraqaq")
+        else:
+            outputs.append("mofakham")
+
     return outputs
 
 

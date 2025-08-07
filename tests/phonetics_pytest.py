@@ -35,6 +35,7 @@ from quran_transcript.phonetics.sifa import (
     SifaaOuput,
     lam_tafkheem_tarqeeq_finder,
     alif_tafkheem_tarqeeq_finder,
+    raa_tafkheem_tarqeeq_finder,
 )
 from quran_transcript import Aya
 from quran_transcript import alphabet as alph
@@ -3315,6 +3316,18 @@ def test_get_thrird_letter_in_verb_haraka(
                 tasheel_or_madd="tasheel",
             ),
         ),
+        (
+            "لَـَٔايَـٰتٍۢ",
+            "لَءَاايَاات",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=2,
+                tasheel_or_madd="tasheel",
+            ),
+        ),
     ],
 )
 def test_quran_phonetizer(in_text: str, target_text: str, moshaf: MoshafAttributes):
@@ -4717,6 +4730,272 @@ def test_lam_tafkheem_tarqeeq_finder(
     outputs = alif_tafkheem_tarqeeq_finder(ph_script)
     print(uth_text)
     print(ph_script)
+    print(f"Ouputs: {outputs}")
+    print(f"Ex Ouputs: {ex_outs}")
+    assert len(outputs) == len(ex_outs)
+    for o, ex_o in zip(outputs, ex_outs):
+        assert o == ex_o
+
+
+@pytest.mark.parametrize(
+    "uth_text, ex_outs, moshaf",
+    [
+        (
+            "كَرِيمٌۭ",
+            [
+                "moraqaq",
+            ],
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "فِرْعَوْنَ",
+            [
+                "moraqaq",
+            ],
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "حِجْرٌۭ",
+            [
+                "moraqaq",
+            ],
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "خَيْرٌۭ",
+            [
+                "moraqaq",
+            ],
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "قَدِيرٌۭ",
+            [
+                "moraqaq",
+            ],
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "مَجْر۪ىٰهَا",
+            [
+                "moraqaq",
+            ],
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "رَمَضَانَ",
+            [
+                "mofakham",
+            ],
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "مَرْيَمَ",
+            [
+                "mofakham",
+            ],
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "وَٱلْعَصْرِ",
+            [
+                "mofakham",
+            ],
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "كَفَرُوا۟",
+            [
+                "mofakham",
+            ],
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "ٱلْقُرْءَانُ",
+            [
+                "mofakham",
+            ],
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "خُسْرٍ",
+            [
+                "mofakham",
+            ],
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "ٱرْجِعُوٓا۟",
+            [
+                "mofakham",
+            ],
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "ٱلَّذِى ٱرْتَضَىٰ لَهُمْ",
+            [
+                "mofakham",
+            ],
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "وَإِرْصَادًۭا",
+            [
+                "mofakham",
+            ],
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "قِرْطَاسٍۢ",
+            [
+                "mofakham",
+            ],
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "فِرْقَةٍۢ",
+            [
+                "mofakham",
+            ],
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+        (
+            "شَهْرُ رَمَضَانَ ٱلَّذِىٓ أُنزِلَ فِيهِ ٱلْقُرْءَانُ هُدًۭى لِّلنَّاسِ وَبَيِّنَـٰتٍۢ مِّنَ ٱلْهُدَىٰ وَٱلْفُرْقَانِ فَمَن شَهِدَ مِنكُمُ ٱلشَّهْرَ فَلْيَصُمْهُ وَمَن كَانَ مَرِيضًا أَوْ عَلَىٰ سَفَرٍۢ فَعِدَّةٌۭ مِّنْ أَيَّامٍ أُخَرَ يُرِيدُ ٱللَّهُ بِكُمُ ٱلْيُسْرَ وَلَا يُرِيدُ بِكُمُ ٱلْعُسْرَ وَلِتُكْمِلُوا۟ ٱلْعِدَّةَ وَلِتُكَبِّرُوا۟ ٱللَّهَ عَلَىٰ مَا هَدَىٰكُمْ وَلَعَلَّكُمْ تَشْكُرُونَ",
+            [
+                "mofakham",
+                "mofakham",
+                "mofakham",
+                "mofakham",
+                "mofakham",
+                "moraqaq",
+                "moraqaq",
+                "mofakham",
+                "moraqaq",
+                "mofakham",
+                "moraqaq",
+                "mofakham",
+                "mofakham",
+                "mofakham",
+            ],
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
+    ],
+)
+def test_raa_tafkheem_tarqeeq_finder(
+    uth_text: str,
+    ex_outs: list[Literal["mofakham", "moraqaq"]],
+    moshaf: MoshafAttributes,
+):
+    outputs = raa_tafkheem_tarqeeq_finder(uth_text, moshaf)
+    print(uth_text)
     print(f"Ouputs: {outputs}")
     print(f"Ex Ouputs: {ex_outs}")
     assert len(outputs) == len(ex_outs)

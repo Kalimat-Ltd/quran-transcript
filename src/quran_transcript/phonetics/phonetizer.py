@@ -16,6 +16,7 @@ class QuranPhoneticScriptOutput:
 def quran_phonetizer(
     uhtmani_text: str, moshaf: MoshafAttributes, remove_sapce=False
 ) -> QuranPhoneticScriptOutput:
+    """الرسم الصوتي للقآن الكريم على طبقتين: طبقة الأحرف وطبقة الصفات"""
     text = uhtmani_text
     for op in OPERATION_ORDER:
         text = op.apply(text, moshaf)

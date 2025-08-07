@@ -6,6 +6,122 @@
 # `quran_transcript` package
 TODO: docs
 
+# 📖 Quran Transcript
+
+
+## 🔧 Installation
+
+Install the package directly from GitHub using pip:
+
+```bash
+pip install git+https://github.com/Abdullahaml2/quran-transcript.git
+```
+
+## 🧠 Usage Examples
+
+### 🕋 Aya Object
+
+إنشاء كائن Aya لتمثيل آية محددة واسترجاع معلوماتها
+
+```python
+from quran_transcript import Aya
+
+aya = Aya(1, 1)  # سورة الفاتحة، الآية 1
+print(aya)
+
+aya_info = aya.get()
+print(aya_info)
+```
+
+### 🔁 Loop Through All Surahs
+
+التنقل عبر جميع الآيات في القرآن
+
+```python
+start_aya = Aya()
+for aya in start_aya.get_ayat_after():
+    aya_info = aya.get()
+    # Do something with the aya info
+```
+
+### 🧮 Get Number of Verses per Surah
+
+بناء خريطة بأرقام السور وعدد آياتها
+
+```python
+sura_to_aya_count = {}
+start_aya = Aya(1, 1)
+
+for i in range(1, 115):  # 114 سورة في القرآن
+    aya.set(i, 1)
+    sura_to_aya_count[i] = aya.get().num_ayat_in_sura
+
+print(sura_to_aya_count)
+```
+
+### 🔄 Convert Imlaey Script to Uthmani
+
+تحويل الرسم الإملائي للرسم العثماني
+
+```python
+from quran_transcript import search, Aya
+
+imlaey_text = 'فأخرج به من الثمرات رزقا لكم'
+results = search(
+    imlaey_text,
+    start_aya=Aya(2, 13),
+    window=20,
+    remove_tashkeel=True
+)
+
+uthmani_script = results[0].uthmani_script
+print(uthmani_script)
+```
+
+### 🔤 Convert Uthmani Script to Phonetic Script
+
+تحويل الرسم العثماني للرسم الصوتي للقرآن
+
+```python
+from quran_transcript import Aya, search, quran_phonetizer, MoshafAttributes
+import json
+
+imlaey_text = "بسم الله الرحمن الرحيم"
+results = search(
+    imlaey_text,
+    start_aya=Aya(1, 1),
+    window=2,
+    remove_tashkeel=True
+)
+
+uthmani_script = results[0].uthmani_script
+print(f"الرسم العثماني:\n{uthmani_script}")
+
+# تحديد خصائص المصحف للتحويل الصوتي
+moshaf = MoshafAttributes(
+    rewaya="hafs",
+    madd_monfasel_len=4,
+    madd_mottasel_len=4,
+    madd_mottasel_waqf=4,
+    madd_aared_len=4,
+)
+
+phonetic_script = quran_phonetizer(uthmani_script, moshaf)
+
+print('\n' * 2)
+print(f"الرسم الصوتي:\n{phonetic_script.phonemes}")
+print('\n' * 2)
+print("صفات الحروف:")
+for sifa in phonetic_script.sifat:
+    print(json.dumps(sifa.model_dump(), ensure_ascii=False, indent=4))
+    print()
+```
+
+> 📘 For more information on `MoshafAttributes`, refer to the [Quran Dataset Documentation](https://github.com/obadx/prepare-quran-dataset?tab=readme-ov-file#moshaf-attributes-docs).
+
+# Needs refactory
+
+
 # Build for Source
 create a `venv` or a conda environment to avoid coflicts, Then
 ```bash

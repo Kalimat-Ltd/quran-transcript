@@ -48,9 +48,10 @@ if __name__ == "__main__":
         tasheel_or_madd="madd",
     )
 
-    phonetic_script = quran_phonetizer("قُلْ ءَآللَّهُ أَذِنَ", moshaf)
+    uthmani_script = "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ"
+    phonetic_script = quran_phonetizer(uthmani_script, moshaf).phonemes
     chunks = chunck_phonemes(phonetic_script)
-    sifa_outs = process_sifat(phonetic_script, moshaf)
+    sifa_outs = process_sifat(uthmani_script, phonetic_script, moshaf)
 
     for o in sifa_outs:
         print(f"{format_pydantic(o)},")

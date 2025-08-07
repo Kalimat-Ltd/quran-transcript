@@ -1,6 +1,7 @@
 from typing import Literal
 from pydantic import BaseModel
 import re
+from dataclasses import dataclass
 
 from ..alphabet import phonetics as ph
 from ..alphabet import uthmani as uth
@@ -181,10 +182,40 @@ RAA_OPERATIONS = [
 ]
 
 
+@dataclass
+class SpecialRaaPattern:
+    pattern: str
+    attr_name: str
+
+
+SPECIAL_RAA_PATTERNS = [
+    SpecialRaaPattern(
+        pattern=f"{ph.faa}{ph.kasra}({ph.raa}){uth.ras_haaa}{ph.qaf}{ph.kasra}{ph.noon}",
+        attr_name="raa_firq",
+    ),
+    SpecialRaaPattern(
+        pattern=f"{uth.hamzat_wasl}{uth.lam}{uth.ras_haaa}{uth.qaf}{uth.kasra}{uth.taa_mofakhama}{uth.ras_haaa}({uth.raa})$",
+        attr_name="raa_alqitr",
+    ),
+    SpecialRaaPattern(
+        pattern=f"{uth.meem}{uth.kasra}{uth.saad}{uth.ras_haaa}({uth.raa})$",
+        attr_name="raa_misr",
+    ),
+    SpecialRaaPattern(
+        pattern=f"{uth.waw}{uth.fatha}{uth.noon}{uth.dama}{uth.thaal}{uth.dama}({uth.raa})$",
+        attr_name="raa_nudhur",
+    ),
+    SpecialRaaPattern(
+        pattern=f"[{uth.hamza}{uth.yaa}]{uth.fatha}{uth.seen}{uth.ras_haaa}({uth.raa})$",
+        attr_name="raa_yasr",
+    ),
+]
+
+
 def raa_tafkheem_tarqeeq_finder(
     uthmani_script: str,
     moshaf: MoshafAttributes,
-) -> list[Literal["mofakham", "moraqaq"] | None]:
+) -> list[Literal["mofakham", "moraqaq"]]:
     """findes lam in script and returns tafkheem or tarqeeq for
     every madd alif
 
@@ -211,12 +242,25 @@ def raa_tafkheem_tarqeeq_finder(
     for match in re.finditer(raa_reg, clean_text):
         raa_poses.append(match.start(1))
 
+    tafkheem_poses = set()
     tarqeeq_poses = set()
+    for special_patt in SPECIAL_RAA_PATTERNS:
+        match = re.search(special_patt.pattern, clean_text)
+        if match:
+            attr_val = getattr(moshaf, special_patt.attr_name)
+            pos = match.start(1)
+            if attr_val == "tafkheem":
+                tafkheem_poses.add(pos)
+            elif attr_val == "tarqeeq":
+                tarqeeq_poses.add(pos)
+
     for match in re.finditer("|".join(tarqeeq_cases), clean_text):
         for g_idx in range(1, len(tarqeeq_cases) + 1):
             if match.group(g_idx):
-                tarqeeq_poses.add(match.start(g_idx))
-                break
+                pos = match.start(g_idx)
+                if pos not in tafkheem_poses:
+                    tarqeeq_poses.add(pos)
+                    break
 
     outputs = []
     for pos in raa_poses:
@@ -228,14 +272,17 @@ def raa_tafkheem_tarqeeq_finder(
     return outputs
 
 
-# TODO: add state for letter raaa
-def process_sifat(phonetic_script: str, moshaf: MoshafAttributes) -> list[SifaaOuput]:
+def process_sifat(
+    uthmani_script: str, phonetic_script: str, moshaf: MoshafAttributes
+) -> list[SifaaOuput]:
     phonenemes_groups = chunck_phonemes(phonetic_script)
     outputs = []
     lam_tafkheem_and_tarqeeq = lam_tafkheem_tarqeeq_finder(phonetic_script)
     alif_tafkheem_and_tarqeeq = alif_tafkheem_tarqeeq_finder(phonetic_script)
+    raa_tafkheem_tarqeeq = raa_tafkheem_tarqeeq_finder(uthmani_script, moshaf)
     lam_idx = 0
     alif_idx = 0
+    raa_idx = 0
     for idx in range(len(phonenemes_groups)):
         p = phonenemes_groups[idx][0]
         hams = "hams" if p in phg.hams else "jahr"
@@ -251,11 +298,14 @@ def process_sifat(phonetic_script: str, moshaf: MoshafAttributes) -> list[SifaaO
         if phonenemes_groups[idx][0] == ph.lam:
             tafkheem = lam_tafkheem_and_tarqeeq[lam_idx]
             lam_idx += 1
-        if phonenemes_groups[idx][0] == ph.alif:
+        elif phonenemes_groups[idx][0] == ph.alif:
             alif_state = alif_tafkheem_and_tarqeeq[alif_idx]
             if alif_state is not None:
                 tafkheem = alif_state
             alif_idx += 1
+        elif phonenemes_groups[idx][0] == ph.raa:
+            tafkheem = raa_tafkheem_tarqeeq[raa_idx]
+            raa_idx += 1
 
         itbaq = "motbaq" if p in phg.itbaaq else "monfateh"
         safeer = "safeer" if p in phg.safeer else "no_safeer"

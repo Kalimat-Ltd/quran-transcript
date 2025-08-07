@@ -176,6 +176,7 @@ def filter_words(
     tags: list[str] | str,
     part_idx: int | None = None,
     trans_func=None,
+    trans_func_out=lambda x: x,
     trans_func_kwargs: dict = {},
     print_sets=False,
     verbose=True,
@@ -187,7 +188,7 @@ def filter_words(
     counter = 0
     for q_word in quran_words:
         if trans_func:
-            txt = trans_func(q_word.uthmani_word, **trans_func_kwargs)
+            txt = trans_func_out(trans_func(q_word.uthmani_word, **trans_func_kwargs))
         else:
             txt = q_word.uthmani_word
         re_outs = re.finditer(regs, txt)
@@ -392,23 +393,90 @@ if __name__ == "__main__":
     #     print_sets=True,
     # )
 
-    print("\n\nاسم الله\n\n")
-    raa_group = filter_words(
-        quran_words,
-        regs=f"(?<!{ph.jeem})(?<!{ph.daal})(?<!{ph.taa}{ph.fatha}{ph.waw})(.){uth.space}?{ph.lam}{{2}}{ph.fatha}{ph.alif}{{2,6}}{ph.haa}(?!{ph.dama}{ph.meem}(?!{ph.meem}))",
-        tags="all",
-        # part_idx=0,
-        verbose=False,
-        print_sets=True,
-        trans_func=quran_phonetizer,
-        trans_func_kwargs={
-            "moshaf": MoshafAttributes(
-                rewaya="hafs",
-                madd_monfasel_len=4,
-                madd_mottasel_len=4,
-                madd_mottasel_waqf=4,
-                madd_aared_len=4,
-                # tasheel_or_madd='tasheel',
-            ),
-        },
-    )
+    # print("\n\nاسم الله\n\n")
+    # raa_group = filter_words(
+    #     quran_words,
+    #     regs=f"(?<!{ph.jeem})(?<!{ph.daal})(?<!{ph.taa}{ph.fatha}{ph.waw})(.){uth.space}?{ph.lam}{{2}}{ph.fatha}{ph.alif}{{2,6}}{ph.haa}(?!{ph.dama}{ph.meem}(?!{ph.meem}))",
+    #     tags="all",
+    #     # part_idx=0,
+    #     verbose=False,
+    #     print_sets=True,
+    #     trans_func=quran_phonetizer,
+    #     trans_func_out=lambda x: x.phonemes,
+    #     trans_func_kwargs={
+    #         "moshaf": MoshafAttributes(
+    #             rewaya="hafs",
+    #             madd_monfasel_len=4,
+    #             madd_mottasel_len=4,
+    #             madd_mottasel_waqf=4,
+    #             madd_aared_len=4,
+    #             # tasheel_or_madd='tasheel',
+    #         ),
+    #     },
+    # )
+
+    # print("\n\nحرف الراء\n\n")
+    # raa_group = filter_words(
+    #     quran_words,
+    #     regs=f"{ph.raa}{uth.fatha}{ph.alif}",
+    #     tags="all",
+    #     # part_idx=0,
+    #     verbose=False,
+    #     print_sets=True,
+    #     trans_func=quran_phonetizer,
+    #     trans_func_out=lambda x: x.phonemes,
+    #     trans_func_kwargs={
+    #         "moshaf": MoshafAttributes(
+    #             rewaya="hafs",
+    #             madd_monfasel_len=4,
+    #             madd_mottasel_len=4,
+    #             madd_mottasel_waqf=4,
+    #             madd_aared_len=4,
+    #             # tasheel_or_madd='tasheel',
+    #         ),
+    #     },
+    # )
+
+    # print("\n\nراء نذر\n\n")
+    # raa_group = filter_words(
+    #     quran_words,
+    #     regs=f"{ph.waw}{ph.fatha}{ph.noon}{ph.dama}{ph.thaal}{uth.dama}{ph.raa}$",
+    #     tags="all",
+    #     # part_idx=0,
+    #     verbose=False,
+    #     print_sets=True,
+    #     trans_func=quran_phonetizer,
+    #     trans_func_out=lambda x: x.phonemes,
+    #     trans_func_kwargs={
+    #         "moshaf": MoshafAttributes(
+    #             rewaya="hafs",
+    #             madd_monfasel_len=4,
+    #             madd_mottasel_len=4,
+    #             madd_mottasel_waqf=4,
+    #             madd_aared_len=4,
+    #             # tasheel_or_madd='tasheel',
+    #         ),
+    #     },
+    # )
+
+    # print("\n\nراء يسر\n\n")
+    # raa_group = filter_words(
+    #     quran_words,
+    #     regs=f"[{uth.hamza}{uth.yaa}]{uth.fatha}{uth.seen}{uth.raa}$",
+    #     tags="all",
+    #     # part_idx=0,
+    #     verbose=False,
+    #     print_sets=True,
+    #     trans_func=quran_phonetizer,
+    #     trans_func_out=lambda x: x.phonemes,
+    #     trans_func_kwargs={
+    #         "moshaf": MoshafAttributes(
+    #             rewaya="hafs",
+    #             madd_monfasel_len=4,
+    #             madd_mottasel_len=4,
+    #             madd_mottasel_waqf=4,
+    #             madd_aared_len=4,
+    #             # tasheel_or_madd='tasheel',
+    #         ),
+    #     },
+    # )

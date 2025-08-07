@@ -381,8 +381,14 @@ if __name__ == "__main__":
     #     ],
     # )
 
-    # اسم الله بعد إجراء كل العمليات
+    # # اسم الله بعد إجراء كل العمليات
+    # get_occurance(
+    #     f"(?<!{ph.jeem})(?<!{ph.daal})(?<!{ph.taa}{ph.fatha}{ph.waw})(.){uth.space}?{ph.lam}{{2}}{ph.fatha}{ph.alif}{{2,6}}{ph.haa}(?!{ph.dama}{ph.meem}(?!{ph.meem}))",
+    #     operations=OPERATION_ORDER,
+    # )
+
+    # حرف الراء
     get_occurance(
-        f"(?<!{ph.jeem})(?<!{ph.daal})(?<!{ph.taa}{ph.fatha}{ph.waw})(.){uth.space}?{ph.lam}{{2}}{ph.fatha}{ph.alif}{{2,6}}{ph.haa}(?!{ph.dama}{ph.meem}(?!{ph.meem}))",
-        operations=OPERATION_ORDER,
+        f"{uth.raa}{uth.space}{uth.raa}{uth.shadda}"
+        # operations=OPERATION_ORDER,
     )

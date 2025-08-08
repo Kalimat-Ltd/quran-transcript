@@ -5632,6 +5632,17 @@ def test_lam_tafkheem_tarqeeq_finder(
                 raa_yasr="tafkheem",
             ),
         ),
+        (
+            "تُصَعِّرْ خَدَّكَ",
+            ["moraqaq"],
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+            ),
+        ),
     ],
 )
 def test_raa_tafkheem_tarqeeq_finder(

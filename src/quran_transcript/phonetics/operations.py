@@ -39,7 +39,7 @@ class SpecialCases(ConversionOperation):
                 if moshaf_attr in case.opts:
                     rep_pattern = case.opts[moshaf_attr]
                 else:
-                    rep_pattern = pattern
+                    rep_pattern = case.pattern
             elif case.target_pattern is not None:
                 rep_pattern = case.target_pattern
 

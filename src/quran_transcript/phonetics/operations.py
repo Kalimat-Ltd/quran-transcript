@@ -130,6 +130,15 @@ class BeginWithHamzatWasl(ConversionOperation):
 
 
 @dataclass
+class BeginWithSaken(ConversionOperation):
+    arabic_name: str = "البدأ بحرف ساكن"
+    regs: tuple[str, str] = (
+        f"(^.){uth.ras_haaa}",
+        f"\\1{uth.kasra}",
+    )
+
+
+@dataclass
 class ConvertAlifMaksora(ConversionOperation):
     arabic_name: str = "تحويل الأف المقصورة إله: حضف أو ألف أو ياء"
     regs: list[tuple[str, str]] = field(
@@ -734,6 +743,7 @@ OPERATION_ORDER = [
     DisassembleHrofMoqatta(),
     SpecialCases(),
     BeginWithHamzatWasl(),
+    BeginWithSaken(),
     ConvertAlifMaksora(),
     NormalizeHmazat(),
     IthbatYaaYohie(),

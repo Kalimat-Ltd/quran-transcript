@@ -480,3 +480,35 @@ if __name__ == "__main__":
     #         ),
     #     },
     # )
+
+    print("\n\nالمبدوء بساكن\n\n")
+    raa_group = filter_words(
+        quran_words,
+        regs=f"^.[^{uth.harakat_group}]",
+        tags="all",
+        # part_idx=0,
+        verbose=False,
+        print_sets=True,
+        trans_func=quran_phonetizer,
+        trans_func_out=lambda x: x.phonemes,
+        trans_func_kwargs={
+            "moshaf": MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=4,
+                # tasheel_or_madd='tasheel',
+            ),
+        },
+    )
+
+    # print("\n\nالمبدوء بساكن\n\n")
+    # raa_group = filter_words(
+    #     quran_words,
+    #     regs=f"^.{uth.ras_haaa}",
+    #     tags="all",
+    #     # part_idx=0,
+    #     verbose=False,
+    #     print_sets=True,
+    # )

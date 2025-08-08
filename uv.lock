@@ -289,7 +289,7 @@ test = [
 [package.metadata]
 requires-dist = [
     { name = "levenshtein", specifier = ">=0.27.1" },
-    { name = "pydantic", specifier = ">=2.11.7" },
+    { name = "pydantic", specifier = ">=2.10.0" },
     { name = "pytest", marker = "extra == 'test'" },
     { name = "xmltodict" },
 ]

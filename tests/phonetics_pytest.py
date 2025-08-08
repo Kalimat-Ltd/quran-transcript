@@ -3374,7 +3374,7 @@ def test_quran_phonetizer_strees_test():
 
     for aya in start_aya.get_ayat_after(114):
         txt = aya.get().uthmani
-        out_text = quran_phonetizer(txt, moshaf, remove_sapce=True).phonemes
+        out_text = quran_phonetizer(txt, moshaf, remove_spaces=True).phonemes
         alphabet = set(asdict(alph.phonetics).values())
         out_alphabet = set(out_text)
         if not out_alphabet <= alphabet:

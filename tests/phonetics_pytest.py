@@ -32,7 +32,7 @@ from quran_transcript.phonetics.operations import (
 from quran_transcript.phonetics.phonetizer import quran_phonetizer
 from quran_transcript.phonetics.sifa import (
     process_sifat,
-    SifaaOuput,
+    SifaOutput,
     lam_tafkheem_tarqeeq_finder,
     alif_tafkheem_tarqeeq_finder,
     raa_tafkheem_tarqeeq_finder,
@@ -3390,7 +3390,7 @@ def test_quran_phonetizer_strees_test():
         (
             "ٱلْحَمْدُ",
             [
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ءَ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="shadeed",
@@ -3403,7 +3403,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ل",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -3416,7 +3416,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="حَ",
                     hams_or_jahr="hams",
                     shidda_or_rakhawa="rikhw",
@@ -3429,7 +3429,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="م",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -3442,7 +3442,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="دڇ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="shadeed",
@@ -3468,7 +3468,7 @@ def test_quran_phonetizer_strees_test():
         (
             "مِن قَبْلِكَ",
             [
-                SifaaOuput(
+                SifaOutput(
                     phonemes="مِ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -3481,7 +3481,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ںںں",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
@@ -3494,7 +3494,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="قَ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="shadeed",
@@ -3507,7 +3507,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="بڇ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="shadeed",
@@ -3520,7 +3520,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="لِ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -3533,7 +3533,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ك",
                     hams_or_jahr="hams",
                     shidda_or_rakhawa="shadeed",
@@ -3559,7 +3559,7 @@ def test_quran_phonetizer_strees_test():
         (
             "بِمَآ أُنزِلَ",
             [
-                SifaaOuput(
+                SifaOutput(
                     phonemes="بِ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="shadeed",
@@ -3572,7 +3572,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="مَ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -3585,7 +3585,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="اااا",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
@@ -3598,7 +3598,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ءُ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="shadeed",
@@ -3611,7 +3611,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ںںں",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
@@ -3624,7 +3624,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="زِ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
@@ -3637,7 +3637,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ل",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -3663,7 +3663,7 @@ def test_quran_phonetizer_strees_test():
         (
             "وَلَا ٱلضَّآلِّينَ",
             [
-                SifaaOuput(
+                SifaOutput(
                     phonemes="وَ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
@@ -3676,7 +3676,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="لَ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -3689,7 +3689,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ضضَ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
@@ -3702,7 +3702,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="اااااا",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
@@ -3715,7 +3715,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="للِ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -3728,7 +3728,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ۦۦۦۦ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
@@ -3741,7 +3741,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ن",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -3767,7 +3767,7 @@ def test_quran_phonetizer_strees_test():
         (
             "وَلِلَّهِ مُلْكُ ٱلسَّمَـٰوَٰتِ وَٱلْأَرْضِ وَٱللَّهُ عَلَىٰ كُلِّ شَىْءٍۢ قَدِيرٌ",
             [
-                SifaaOuput(
+                SifaOutput(
                     phonemes="وَ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
@@ -3780,7 +3780,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="لِ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -3793,7 +3793,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="للَ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -3806,7 +3806,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="اا",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
@@ -3819,7 +3819,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="هِ",
                     hams_or_jahr="hams",
                     shidda_or_rakhawa="rikhw",
@@ -3832,7 +3832,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="مُ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -3845,7 +3845,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ل",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -3858,7 +3858,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="كُ",
                     hams_or_jahr="hams",
                     shidda_or_rakhawa="shadeed",
@@ -3871,7 +3871,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="سسَ",
                     hams_or_jahr="hams",
                     shidda_or_rakhawa="rikhw",
@@ -3884,7 +3884,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="مَ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -3897,7 +3897,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="اا",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
@@ -3910,7 +3910,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="وَ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
@@ -3923,7 +3923,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="اا",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
@@ -3936,7 +3936,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="تِ",
                     hams_or_jahr="hams",
                     shidda_or_rakhawa="shadeed",
@@ -3949,7 +3949,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="وَ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
@@ -3962,7 +3962,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ل",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -3975,7 +3975,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ءَ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="shadeed",
@@ -3988,7 +3988,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ر",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -4001,7 +4001,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ضِ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
@@ -4014,7 +4014,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="وَ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
@@ -4027,7 +4027,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="للَ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -4040,7 +4040,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="اا",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
@@ -4053,7 +4053,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="هُ",
                     hams_or_jahr="hams",
                     shidda_or_rakhawa="rikhw",
@@ -4066,7 +4066,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="عَ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -4079,7 +4079,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="لَ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -4092,7 +4092,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="اا",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
@@ -4105,7 +4105,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="كُ",
                     hams_or_jahr="hams",
                     shidda_or_rakhawa="shadeed",
@@ -4118,7 +4118,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="للِ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -4131,7 +4131,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="شَ",
                     hams_or_jahr="hams",
                     shidda_or_rakhawa="rikhw",
@@ -4144,7 +4144,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ي",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
@@ -4157,7 +4157,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ءِ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="shadeed",
@@ -4170,7 +4170,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ںںں",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
@@ -4183,7 +4183,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="قَ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="shadeed",
@@ -4196,7 +4196,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="دِ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="shadeed",
@@ -4209,7 +4209,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ۦۦۦۦ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
@@ -4222,7 +4222,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ر",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -4248,7 +4248,7 @@ def test_quran_phonetizer_strees_test():
         (
             "قُلْ ءَآللَّهُ أَذِنَ",
             [
-                SifaaOuput(
+                SifaOutput(
                     phonemes="قُ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="shadeed",
@@ -4261,7 +4261,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ل",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -4274,7 +4274,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ءَ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="shadeed",
@@ -4287,7 +4287,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ٲ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
@@ -4300,7 +4300,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="للَ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -4313,7 +4313,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="اا",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
@@ -4326,7 +4326,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="هُ",
                     hams_or_jahr="hams",
                     shidda_or_rakhawa="rikhw",
@@ -4339,7 +4339,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ءَ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="shadeed",
@@ -4352,7 +4352,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ذِ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
@@ -4365,7 +4365,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ن",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -4391,7 +4391,7 @@ def test_quran_phonetizer_strees_test():
         (
             "قُلْ ءَآللَّهُ أَذِنَ",
             [
-                SifaaOuput(
+                SifaOutput(
                     phonemes="قُ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="shadeed",
@@ -4404,7 +4404,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ل",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -4417,7 +4417,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ءَ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="shadeed",
@@ -4430,7 +4430,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="اااااا",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
@@ -4443,7 +4443,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="للَ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -4456,7 +4456,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="اا",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
@@ -4469,7 +4469,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="هُ",
                     hams_or_jahr="hams",
                     shidda_or_rakhawa="rikhw",
@@ -4482,7 +4482,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ءَ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="shadeed",
@@ -4495,7 +4495,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ذِ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
@@ -4508,7 +4508,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ن",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -4534,7 +4534,7 @@ def test_quran_phonetizer_strees_test():
         (
             "رَّضِىَ ٱللَّهُ عَنْهُمْ وَرَضُوا۟ عَنْهُ",
             [
-                SifaaOuput(
+                SifaOutput(
                     phonemes="رَ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -4547,7 +4547,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ضِ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
@@ -4560,7 +4560,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="يَ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
@@ -4573,7 +4573,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="للَ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -4586,7 +4586,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="اا",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
@@ -4599,7 +4599,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="هُ",
                     hams_or_jahr="hams",
                     shidda_or_rakhawa="rikhw",
@@ -4612,7 +4612,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="عَ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -4625,7 +4625,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ن",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -4638,7 +4638,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="هُ",
                     hams_or_jahr="hams",
                     shidda_or_rakhawa="rikhw",
@@ -4651,7 +4651,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="م",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -4664,7 +4664,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="وَ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
@@ -4677,7 +4677,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="رَ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -4690,7 +4690,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ضُ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
@@ -4703,7 +4703,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ۥۥ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
@@ -4716,7 +4716,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="عَ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -4729,7 +4729,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ن",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -4742,7 +4742,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ه",
                     hams_or_jahr="hams",
                     shidda_or_rakhawa="rikhw",
@@ -4768,7 +4768,7 @@ def test_quran_phonetizer_strees_test():
         (
             "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ",
             [
-                SifaaOuput(
+                SifaOutput(
                     phonemes="بِ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="shadeed",
@@ -4781,7 +4781,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="س",
                     hams_or_jahr="hams",
                     shidda_or_rakhawa="rikhw",
@@ -4794,7 +4794,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="مِ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -4807,7 +4807,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="للَ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -4820,7 +4820,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="اا",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
@@ -4833,7 +4833,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="هِ",
                     hams_or_jahr="hams",
                     shidda_or_rakhawa="rikhw",
@@ -4846,7 +4846,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ررَ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -4859,7 +4859,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ح",
                     hams_or_jahr="hams",
                     shidda_or_rakhawa="rikhw",
@@ -4872,7 +4872,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="مَ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -4885,7 +4885,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="اا",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
@@ -4898,7 +4898,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="نِ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -4911,7 +4911,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ررَ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -4924,7 +4924,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="حِ",
                     hams_or_jahr="hams",
                     shidda_or_rakhawa="rikhw",
@@ -4937,7 +4937,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="ۦۦۦۦ",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="rikhw",
@@ -4950,7 +4950,7 @@ def test_quran_phonetizer_strees_test():
                     istitala="not_mostateel",
                     ghonna="not_maghnoon",
                 ),
-                SifaaOuput(
+                SifaOutput(
                     phonemes="م",
                     hams_or_jahr="jahr",
                     shidda_or_rakhawa="between",
@@ -4975,7 +4975,7 @@ def test_quran_phonetizer_strees_test():
     ],
 )
 def test_process_sifat(
-    in_text: str, ex_sifa_outputs: list[SifaaOuput], moshaf: MoshafAttributes
+    in_text: str, ex_sifa_outputs: list[SifaOutput], moshaf: MoshafAttributes
 ):
     phoneme_script = quran_phonetizer(in_text, moshaf).phonemes
     print(f"phonized text Text:\n'{phoneme_script}'")

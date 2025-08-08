@@ -3,14 +3,14 @@ from dataclasses import dataclass
 
 from .operations import OPERATION_ORDER
 from .moshaf_attributes import MoshafAttributes
-from .sifa import process_sifat, SifaaOuput
+from .sifa import process_sifat, SifaOutput
 from .. import alphabet as alph
 
 
 @dataclass
 class QuranPhoneticScriptOutput:
     phonemes: str
-    sifat: list[SifaaOuput]
+    sifat: list[SifaOutput]
 
 
 def quran_phonetizer(

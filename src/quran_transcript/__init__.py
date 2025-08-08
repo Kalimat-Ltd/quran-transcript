@@ -14,7 +14,7 @@ from .utils import (
 
 from .tasmeea import tasmeea_sura_multi_part, tasmeea_sura, check_sura_missing_parts
 from .phonetics.phonetizer import quran_phonetizer, QuranPhoneticScriptOutput
-from .phonetics.sifa import SifaaOuput
+from .phonetics.sifa import SifaOutput
 from .phonetics.moshaf_attributes import MoshafAttributes
 
 from . import alphabet as alphabet
@@ -39,5 +39,5 @@ __all__ = [
     "quran_phonetizer",
     "MoshafAttributes",
     "QuranPhoneticScriptOutput",
-    "SifaaOuput",
+    "SifaOutput",
 ]

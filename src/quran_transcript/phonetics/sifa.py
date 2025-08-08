@@ -30,7 +30,7 @@ from .operations import (
 )
 
 
-class SifaaOuput(BaseModel):
+class SifaOutput(BaseModel):
     phonemes: str
     hams_or_jahr: Literal["hams", "jahr"]
     shidda_or_rakhawa: Literal["shadeed", "between", "rikhw"]
@@ -274,7 +274,7 @@ def raa_tafkheem_tarqeeq_finder(
 
 def process_sifat(
     uthmani_script: str, phonetic_script: str, moshaf: MoshafAttributes
-) -> list[SifaaOuput]:
+) -> list[SifaOutput]:
     phonenemes_groups = chunck_phonemes(phonetic_script)
     outputs = []
     lam_tafkheem_and_tarqeeq = lam_tafkheem_tarqeeq_finder(phonetic_script)
@@ -319,7 +319,7 @@ def process_sifat(
         istitala = "mostateel" if p in phg.istitala else "not_mostateel"
         ghonna = "maghnoon" if p in phg.ghonna else "not_maghnoon"
         outputs.append(
-            SifaaOuput(
+            SifaOutput(
                 phonemes=phonenemes_groups[idx],
                 hams_or_jahr=hams,
                 shidda_or_rakhawa=shidda,

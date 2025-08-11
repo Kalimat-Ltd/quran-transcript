@@ -20,7 +20,7 @@ def quran_phonetizer(
     text = uhtmani_text
 
     # cleaning extra scpace
-    text = re.sub(r"\s+", "", text)
+    text = re.sub(r"\s+", "\s", text)
     text = re.sub(r"(\s$|^\s)", "", text)
 
     for op in OPERATION_ORDER:

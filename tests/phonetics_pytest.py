@@ -3352,6 +3352,18 @@ def test_get_thrird_letter_in_verb_haraka(
                 tasheel_or_madd="tasheel",
             ),
         ),
+        (
+            "فَلَمَّآ أَتَىٰهَا نُودِىَ يَـٰمُوسَىٰٓ",
+            "فَلَممممَاااا ءَتَااهَاا نُۥۥدِيَ يَاامُۥۥسَاا",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=4,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=2,
+                tasheel_or_madd="tasheel",
+            ),
+        ),
     ],
 )
 def test_quran_phonetizer(in_text: str, target_text: str, moshaf: MoshafAttributes):

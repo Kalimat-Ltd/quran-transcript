@@ -20,8 +20,8 @@ def quran_phonetizer(
     text = uhtmani_text
 
     # cleaning extra scpace
-    text = re.sub(r"\s+", "\s", text)
-    text = re.sub(r"(\s$|^\s)", "", text)
+    text = re.sub(r"\s+", rf"{alph.uthmani.space}", text)
+    text = re.sub(r"(\s$|^\s)", r"", text)
 
     for op in OPERATION_ORDER:
         text = op.apply(text, moshaf)

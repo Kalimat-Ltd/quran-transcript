@@ -716,10 +716,8 @@ class Qalqla(ConversionOperation):
 
 
 @dataclass
-class RemoveRasHaaAndShaddaMadd(ConversionOperation):
-    arabic_name: str = (
-        "حذف السكون والشدة م تكرار الحرف المشدد وحذف علامة المد في آخر الكلمة"
-    )
+class RemoveRasHaaAndShadda(ConversionOperation):
+    arabic_name: str = "حذف السكون والشدة م تكرار الحرف المشدد"
     regs: list[tuple[str, str]] = field(
         default_factory=lambda: [
             # shadda
@@ -730,11 +728,6 @@ class RemoveRasHaaAndShaddaMadd(ConversionOperation):
             # skoon
             (
                 f"{uth.ras_haaa}",
-                r"",
-            ),
-            # madd
-            (
-                f"{uth.madd}$",
                 r"",
             ),
         ]
@@ -772,5 +765,5 @@ OPERATION_ORDER = [
     Imala(),
     Madd(),
     Qalqla(),
-    RemoveRasHaaAndShaddaMadd(),
+    RemoveRasHaaAndShadda(),
 ]

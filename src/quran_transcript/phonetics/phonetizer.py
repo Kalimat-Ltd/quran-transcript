@@ -18,6 +18,11 @@ def quran_phonetizer(
 ) -> QuranPhoneticScriptOutput:
     """الرسم الصوتي للقآن الكريم على طبقتين: طبقة الأحرف وطبقة الصفات"""
     text = uhtmani_text
+
+    # cleaning extra scpace
+    text = re.sub(r"\s+", "", text)
+    text = re.sub(r"(\s$|^\s)", "", text)
+
     for op in OPERATION_ORDER:
         text = op.apply(text, moshaf)
 

@@ -3,15 +3,12 @@
 <div align="center">
 <strong>بفضل الله وحده عز وجل نقدم الرسم الصوتي للقرآن الكريم الملم بجل قواعد التجويد وصفات الحوف</strong>
 
-[![Tests][tests-badge]][tests-url]
 [![PyPI][pypi-badge]][pypi-url]
 [![Python Versions][python-badge]][python-url]
 [![Google Colab][colab-badge]][colab-url]
 
 </div>
 
-[tests-badge]: https://img.shields.io/github/actions/workflow/status/obadx/quran-transcript/tests.yml?branch=main&label=tests
-[tests-url]: https://github.com/obadx/quran-transcript/actions/workflows/tests.yaml
 [pypi-badge]: https://img.shields.io/pypi/v/quran-transcript.svg
 [pypi-url]: https://pypi.org/project/quran-transcript/
 [python-badge]: https://img.shields.io/pypi/pyversions/quran-transcript.svg

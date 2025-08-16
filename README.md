@@ -11,7 +11,7 @@
 </div>
 
 [tests-badge]: https://img.shields.io/github/actions/workflow/status/obadx/quran-transcript/tests.yml?branch=main&label=tests
-[tests-url]: https://github.com/obadx/quran-transcript/actions/workflows/tests.yml
+[tests-url]: https://github.com/obadx/quran-transcript/actions/workflows/tests.yaml
 [pypi-badge]: https://img.shields.io/pypi/v/quran-transcript.svg
 [pypi-url]: https://pypi.org/project/quran-transcript/
 [python-badge]: https://img.shields.io/pypi/pyversions/quran-transcript.svg

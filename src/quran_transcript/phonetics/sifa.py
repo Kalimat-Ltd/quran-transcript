@@ -45,6 +45,14 @@ class SifaOutput(BaseModel):
 
 
 def chunck_phonemes(phonetic_script: str) -> list[str]:
+    """Chunk phonemes into groups
+    Example:
+    Inpupt: قَاالَ
+    Output:
+    قَ
+    اا
+    لَ
+    """
     core_group = "|".join([f"{c}+" for c in phg.core])
     return re.findall(f"((?:{core_group})[{phg.residuals}]?)", phonetic_script)
 

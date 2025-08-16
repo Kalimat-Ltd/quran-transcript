@@ -1,5 +1,12 @@
 from dataclasses import dataclass
-from typing import Any, Literal, get_origin, get_args, Self
+from typing import Any, Literal, get_origin, get_args
+import sys
+
+# Sllving import Self from python 3.10
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 from pydantic import (
     BaseModel,

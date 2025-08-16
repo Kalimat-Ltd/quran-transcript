@@ -1,5 +1,30 @@
 # Quran Transcript
 
+<div align="center">
+<strong>بفضل الله وحده عز وجل نقدم الرسم الصوتي للقرآن الكريم الملم بجل قواعد التجويد وصفات الحوف</strong>
+
+[![Tests][tests-badge]][tests-url]
+[![PyPI][pypi-badge]][pypi-url]
+[![Python Versions][python-badge]][python-url]
+[![Hugging Face][hf-badge]][hf-url]
+[![Google Colab][colab-badge]][colab-url]
+[![MIT License][mit-badge]][mit-url]
+
+</div>
+
+[tests-badge]: https://img.shields.io/github/actions/workflow/status/obadx/quran-transcript/tests.yml?branch=main&label=tests
+[tests-url]: https://github.com/obadx/quran-transcript/actions/workflows/tests.yml
+[pypi-badge]: https://img.shields.io/pypi/v/quran-transcript.svg
+[pypi-url]: https://pypi.org/project/quran-transcript/
+[mit-badge]: https://img.shields.io/github/license/obadx/quran-transcript.svg
+[mit-url]: https://github.com/obadx/quran-transcript/blob/main/LICENSE
+[python-badge]: https://img.shields.io/pypi/pyversions/quran-transcript.svg
+[python-url]: https://pypi.org/project/quran-transcript/
+[colab-badge]: https://img.shields.io/badge/Google%20Colab-Open%20in%20Colab-F9AB00?logo=google-colab&logoColor=white
+[colab-url]: https://colab.research.google.com/drive/1d9-mVu2eiPOPS9z5sS2V4TQ579xIUBi-?usp=sharing
+
+
+
 [![Open In Colab](https://img.shields.io/badge/Open%20in-Colab-orange?logo=google-colab&style=flat-square)](https://colab.research.google.com/drive/1d9-mVu2eiPOPS9z5sS2V4TQ579xIUBi-?usp=sharing)
 
 

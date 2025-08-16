@@ -27,7 +27,7 @@ TODO: docs
 Install the package directly from GitHub using pip:
 
 ```bash
-pip install git+https://github.com/obadx/quran-transcript.git
+pip install quran-transcript
 ```
 
 ## 🧠 Usage Examples

@@ -4,25 +4,28 @@
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
-include-package-data = true # to include data directories
 
 [project]
+license = "MIT"
 name = "quran_transcript"
 version = "0.0.1"
 authors = [
   { name="Abdullah Aml", email="abdullahamlyossef@gmail.com" },
 ]
-description = "Phonatic transcript of the Holy Quran with additional utils"
+description = "Quran Phonetic Script with addional quarnic utils"
 readme = "README.md"
 dependencies = [
     "levenshtein>=0.27.1",
     "pydantic>=2.10.0",
     "xmltodict",
+    'typing_extensions>=4.0.0; python_version < "3.11"',
 ]
 requires-python = ">=3.10"
 classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Operating System :: OS Independent",
 ]
 
@@ -35,8 +38,8 @@ test = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/Abdullahaml1/quran-transcript"
-Issues = "https://github.com/Abdullahaml1/quran-transcript/issues"
+Homepage = "https://github.com/obadx/quran-transcript"
+Issues = "https://github.com/obadx/quran-transcript/issues"
 
 # for addint data: https://setuptools.pypa.io/en/latest/userguide/datafiles.html#package-data
 [tool.setuptools.package-data]

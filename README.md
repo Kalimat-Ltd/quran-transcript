@@ -6,9 +6,7 @@
 [![Tests][tests-badge]][tests-url]
 [![PyPI][pypi-badge]][pypi-url]
 [![Python Versions][python-badge]][python-url]
-[![Hugging Face][hf-badge]][hf-url]
 [![Google Colab][colab-badge]][colab-url]
-[![MIT License][mit-badge]][mit-url]
 
 </div>
 
@@ -16,8 +14,6 @@
 [tests-url]: https://github.com/obadx/quran-transcript/actions/workflows/tests.yml
 [pypi-badge]: https://img.shields.io/pypi/v/quran-transcript.svg
 [pypi-url]: https://pypi.org/project/quran-transcript/
-[mit-badge]: https://img.shields.io/github/license/obadx/quran-transcript.svg
-[mit-url]: https://github.com/obadx/quran-transcript/blob/main/LICENSE
 [python-badge]: https://img.shields.io/pypi/pyversions/quran-transcript.svg
 [python-url]: https://pypi.org/project/quran-transcript/
 [colab-badge]: https://img.shields.io/badge/Google%20Colab-Open%20in%20Colab-F9AB00?logo=google-colab&logoColor=white

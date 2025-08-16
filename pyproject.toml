@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 license = "MIT"
-name = "quran_transcript"
+name = "quran-transcript"
 version = "0.0.1"
 authors = [
   { name="Abdullah Aml", email="abdullahamlyossef@gmail.com" },

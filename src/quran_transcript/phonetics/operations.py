@@ -678,7 +678,7 @@ class Madd(ConversionOperation):
         # المد العارض للسكون
         for k, madd_patt in self.madd_map.items():
             text = re.sub(
-                f"{madd_patt.pattern}(.{uth.ras_haaa}?(?:$|{ph.sakt}))",
+                f"{madd_patt.pattern}([^{uth.shadda}](?:{uth.ras_haaa}$|$|{ph.sakt}))",
                 r"\1" + moshaf.madd_aared_len * madd_patt.target + r"\2",
                 text,
             )

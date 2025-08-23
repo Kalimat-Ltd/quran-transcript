@@ -3364,6 +3364,50 @@ def test_get_thrird_letter_in_verb_haraka(
                 tasheel_or_madd="tasheel",
             ),
         ),
+        (
+            "هُوَ ٱلْحَىُّ",
+            "هُوَ لحَيي",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=2,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=2,
+            ),
+        ),
+        (
+            "كَذَٰلِكَ يُحْىِ",
+            "كَذَاالِكَ يُحيِۦۦ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=2,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=2,
+            ),
+        ),
+        (
+            "إِنَّ ٱللَّهَ لَا يَسْتَحْىِۦٓ",
+            "ءِننننَ للَااهَ لَاا يَستَحيِۦۦ",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=2,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=2,
+            ),
+        ),
+        (
+            "يَـٰٓأَيُّهَا ٱلنَّبِىُّ",
+            "يَااءَييُهَ ننننَبِيي",
+            MoshafAttributes(
+                rewaya="hafs",
+                madd_monfasel_len=2,
+                madd_mottasel_len=4,
+                madd_mottasel_waqf=4,
+                madd_aared_len=2,
+            ),
+        ),
     ],
 )
 def test_quran_phonetizer(in_text: str, target_text: str, moshaf: MoshafAttributes):

@@ -34,7 +34,7 @@ class SifaOutput(BaseModel):
     phonemes: str
     hams_or_jahr: Literal["hams", "jahr"]
     shidda_or_rakhawa: Literal["shadeed", "between", "rikhw"]
-    tafkheem_or_taqeeq: Literal["mofakham", "moraqaq"]
+    tafkheem_or_taqeeq: Literal["mofakham", "moraqaq", "low_mofakham"]
     itbaq: Literal["monfateh", "motbaq"]
     safeer: Literal["safeer", "no_safeer"]
     qalqla: Literal["moqalqal", "not_moqalqal"]
@@ -59,7 +59,7 @@ def chunck_phonemes(phonetic_script: str) -> list[str]:
 
 def parse_tafkheem_sifa(
     phonemes: list[str], idx: int
-) -> Literal["mofakham", "moraqaq"]:
+) -> Literal["mofakham", "moraqaq", "low_mofakham"]:
     p_group = phonemes[idx]
 
     # ghonna for noon
@@ -85,7 +85,11 @@ def parse_tafkheem_sifa(
             return "moraqaq"
 
     # اسم الله
-    # letter raa
+    if (
+        phonemes[idx][0] in (ph.ghyn + ph.khaa + ph.qaf)
+        and phonemes[idx][-1] == ph.kasra
+    ):
+        return "low_mofakham"
     return "mofakham" if phonemes[idx][0] in phg.tafkheem else "moraqaq"
 
 

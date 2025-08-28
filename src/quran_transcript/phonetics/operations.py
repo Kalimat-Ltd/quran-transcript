@@ -685,7 +685,7 @@ class Madd(ConversionOperation):
 
         # مد اللين
         text = re.sub(
-            f"({uth.fatha})([{uth.yaa}{uth.waw}]){uth.ras_haaa}?(.{uth.ras_haaa}?$)",
+            f"({uth.fatha})([{uth.yaa}{uth.waw}]){uth.ras_haaa}?([^{uth.shadda}]{uth.ras_haaa}?$)",
             r"\1" + (moshaf.madd_alleen_len - 1) * r"\2" + r"\3",
             text,
         )

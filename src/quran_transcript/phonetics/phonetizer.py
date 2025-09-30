@@ -32,7 +32,7 @@ def _align_mapping(
 ) -> list[int | None]:
     """Align mapping list after a text transformation using sequence matching."""
 
-    matcher = SequenceMatcher(a=before_text, b=after_text)
+    matcher = SequenceMatcher(a=before_text, b=after_text, autojunk=False)
     new_mapping: list[int | None] = []
 
     for tag, i1, i2, j1, j2 in matcher.get_opcodes():
@@ -60,6 +60,37 @@ def _substitute_with_mapping(
 
     new_mapping = _align_mapping(text, new_text, mapping)
     return new_text, new_mapping
+
+
+def _fill_missing_mapping(mapping: list[int | None]) -> list[int | None]:
+    """Propagate nearest known index for mapping entries that became None.
+
+    Many phonetic operations insert helper symbols that do not exist in the
+    original string. For downstream consumers it is more practical to map those
+    generated characters to the closest originating glyph instead of returning
+    `None`. We therefore forward-fill, then backward-fill, the most recent
+    non-None index.
+    """
+
+    if not mapping:
+        return mapping
+
+    last_seen: int | None = None
+    for i, idx in enumerate(mapping):
+        if idx is None:
+            mapping[i] = last_seen
+        else:
+            last_seen = idx
+
+    next_seen: int | None = None
+    for i in range(len(mapping) - 1, -1, -1):
+        idx = mapping[i]
+        if idx is None:
+            mapping[i] = next_seen
+        else:
+            next_seen = idx
+
+    return mapping
 
 
 @dataclass
@@ -106,5 +137,7 @@ def quran_phonetizer(
                 filtered_map.append(idx)
         text = "".join(filtered_chars)
         mapping = filtered_map
+
+    mapping = _fill_missing_mapping(mapping)
 
     return QuranPhoneticScriptOutput(phonemes=text, sifat=sifat, char_map=mapping)

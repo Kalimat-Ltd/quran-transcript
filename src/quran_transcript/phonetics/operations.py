@@ -7,6 +7,25 @@ from ..alphabet import uthmani as uth
 from ..alphabet import phonetics as ph
 
 
+HURUF_MUQATTAAT_PHONEMES: dict[str, str] = {
+    "الٓمٓ": "ءَلِفلَااااااممممِۦۦۦۦۦۦم",
+    "الٓر": "ءَلِفلَاااااامرَاا",
+    "المص": "ءَلِفلَااااااممممِۦۦۦۦۦۦمصَاااااادڇ",
+    "الر": "ءَلِفلَاااااامرَاا",
+    "المر": "ءَلِفلَااااااممممِۦۦۦۦۦۦمرَاا",
+    "كهيعص": "كَاااااافهَاايَااعَيييييںںںصَاااااادڇ",
+    "طه": "طَااهَاا",
+    "طسم": "طَااسِۦۦۦۦۦۦممممِۦۦۦۦۦۦم",
+    "طس": "طَااسِۦۦۦۦۦۦن",
+    "يس": "يَااسِۦۦۦۦۦۦن",
+    "ص": "صَاااااادڇ",
+    "حم": "حَاامِۦۦۦۦۦۦم",
+    "عسق": "عَيييييںںںسِۦۦۦۦۦۦںںںقَااااااف",
+    "ق": "قَااااااف",
+    "ن": "نُۥۥۥۥۥۥن",
+}
+
+
 @dataclass
 class DisassembleHrofMoqatta(ConversionOperation):
     arabic_name: str = "فك الحروف المقطعة"
@@ -446,8 +465,8 @@ class PrepareGhonnaIdghamIqlab(ConversionOperation):
             ),
             # حذف الحرف الأول من الحفران المدغمان
             (
-                f"([{uth.fatha}{uth.dama}]{uth.yaa}|[{uth.fatha}{uth.kasra}]{uth.waw}|[{uth.pure_letters_without_yaa_and_waw_group}]){uth.space}?([{uth.pure_letters_group}]{uth.shadda})",
-                r"\2",
+                f"([{uth.fatha}{uth.dama}]{uth.yaa}|[{uth.fatha}{uth.kasra}]{uth.waw}|[{uth.pure_letters_without_yaa_and_waw_group}])({uth.space})?([{uth.pure_letters_group}]{uth.shadda})",
+                r"\2\3",
             ),
         ]
     )
@@ -510,22 +529,22 @@ class Ghonna(ConversionOperation):
         else:
             raise ValueError()
         text = re.sub(
-            f"{uth.meem}{uth.space}?{uth.baa}",
-            f"{meem_mokhfah * self.ghonna_len}{uth.baa}",
+            f"{uth.meem}({uth.space})?{uth.baa}",
+            lambda match: f"{meem_mokhfah * self.ghonna_len}{match.group(1) or ''}{uth.baa}",
             text,
         )
 
         # إدغام النون في الياء و الواو
         text = re.sub(
-            f"{uth.noon}{uth.space}([{uth.yaa}{uth.waw}])",
-            r"\1" * (self.idgham_yaa_waw_len + 1),
+            f"{uth.noon}({uth.space})?([{uth.yaa}{uth.waw}])",
+            lambda match: f"{match.group(1) or ''}{match.group(2) * (self.idgham_yaa_waw_len + 1)}",
             text,
         )
 
         # إخفاء النون
         text = re.sub(
-            f"{uth.noon}{uth.space}?([{uth.noon_ikhfaa_group}])",
-            f"{ph.noon_mokhfah * self.ghonna_len}\\1",
+            f"{uth.noon}({uth.space})?([{uth.noon_ikhfaa_group}])",
+            lambda match: f"{ph.noon_mokhfah * self.ghonna_len}{match.group(1) or ''}{match.group(2)}",
             text,
         )
 
@@ -739,6 +758,80 @@ class RemoveRasHaaAndShadda(ConversionOperation):
     )
 
 
+@dataclass
+class RejoinHrofMoqatta(ConversionOperation):
+    arabic_name: str = "إعادة دمج الحروف المقطعة"
+    regs: tuple[str, str] = ("", "")
+
+    def forward(self, text, moshaf):
+        for original, disassembled in uth.hrof_moqtaa_disassemble.items():
+            tokens = [token for token in disassembled.split(uth.space) if token]
+            original_words = [word for word in original.split(uth.space) if word]
+
+            follower_count = max(len(original_words) - 1, 0)
+            if follower_count:
+                moqatta_tokens = tokens[:-follower_count]
+                follower_tokens = tokens[-follower_count:]
+            else:
+                moqatta_tokens = tokens
+                follower_tokens = []
+
+            if not moqatta_tokens:
+                continue
+
+            moqatta_count = len(moqatta_tokens)
+
+            escaped = re.escape(disassembled)
+            space_escaped = re.escape(uth.space)
+            pattern_core = escaped.replace(space_escaped, f"{space_escaped}+")
+            pattern = f"(^|{space_escaped})({pattern_core})({space_escaped}|$)"
+
+            def _replacer(match: re.Match) -> str:
+                segment = match.group(2)
+                segment_tokens = [token for token in segment.split(uth.space) if token]
+
+                if not segment_tokens:
+                    return match.group(0)
+
+                moqatta_part = "".join(segment_tokens[:moqatta_count])
+                follower_part = segment_tokens[moqatta_count:]
+
+                if follower_part:
+                    new_segment = moqatta_part + uth.space + uth.space.join(follower_part)
+                else:
+                    new_segment = moqatta_part
+
+                return f"{match.group(1)}{new_segment}{match.group(3)}"
+
+            text = re.sub(pattern, _replacer, text)
+
+        return text
+
+
+@dataclass
+class NormalizeHurufMoqattaSpaces(ConversionOperation):
+    arabic_name: str = "إزالة المسافات داخل الحروف المقطعة"
+    regs: tuple[str, str] = ("", "")
+
+    def forward(self, text, moshaf):
+        space_escaped = re.escape(uth.space)
+        for phoneme in HURUF_MUQATTAAT_PHONEMES.values():
+            if not phoneme:
+                continue
+
+            chars = list(phoneme)
+            if not chars:
+                continue
+
+            pattern = re.escape(chars[0])
+            for ch in chars[1:]:
+                pattern += f"{space_escaped}*{re.escape(ch)}"
+
+            text = re.sub(pattern, phoneme, text)
+
+        return text
+
+
 OPERATION_ORDER = [
     DisassembleHrofMoqatta(),
     SpecialCases(),
@@ -766,4 +859,6 @@ OPERATION_ORDER = [
     Madd(),
     Qalqla(),
     RemoveRasHaaAndShadda(),
+    RejoinHrofMoqatta(),
+    NormalizeHurufMoqattaSpaces(),
 ]
